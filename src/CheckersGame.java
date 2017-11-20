@@ -1,3 +1,5 @@
+import static java.lang.System.out;
+
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -23,9 +25,7 @@ public class CheckersGame extends Application {
 
     private Stage primaryStage;
     private boolean isRedsTurn;
-//    private Tile[][] board = new Tile[SCALE][SCALE];
     private Board board;
-//    private Group tiles = new Group();
     private Group redUnits = new Group();
     private Group whiteUnits = new Group();
     private ArrayList<Move> possibleMoves = new ArrayList<>();
@@ -41,9 +41,8 @@ public class CheckersGame extends Application {
         resetGame();
     }
 
-    public void resetGame() {
+    private void resetGame() {
         board = new Board();
-//        tiles = new Group();
         redUnits = new Group();
         whiteUnits = new Group();
 
@@ -64,15 +63,14 @@ public class CheckersGame extends Application {
 
     private boolean getUserInput() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("do you wish to go first?, y/n");
+        out.println("do you wish to go first?, y/n");
         return scanner.next() == "y";
     }
 
     private void startNewGame(boolean isFirstPlayer) {
-        System.out.println("");
-        System.out.println("A NEW GAME BEGINS --FIGHT!--");
+        out.println("");
+        out.println("A NEW GAME BEGINS --FIGHT!--");
 
-//        generateBoard();
         populateBoard();
 
         isRedsTurn = isFirstPlayer;
@@ -80,14 +78,14 @@ public class CheckersGame extends Application {
     }
 
     private void redsTurn() {
-        if (possibleMoves.size() == 0) {
+        if (possibleMoves.isEmpty()) {
             nextTurn();
         }
         nextTurn();
     }
 
     private void WhitesTurn() {
-        if (possibleMoves.size() == 0) {
+        if (possibleMoves.isEmpty()) {
             nextTurn();
         }
         nextTurn();
@@ -97,9 +95,6 @@ public class CheckersGame extends Application {
         refreshTeamsAvailableMoves();
         refreshBoardHighlighting();
         makeCurrentTeamAccessible();
-//        if (!isRedsTurn){
-//            getAIMove();
-//        }
     }
 
     private void refreshBoardHighlighting() {
@@ -109,44 +104,44 @@ public class CheckersGame extends Application {
     }
 
     public void playByPlay() {
-        System.out.println("");
+        out.println("");
         String player = isRedsTurn ? "red" : "white";
-        System.out.println("now " + player + "'s turn");
+        out.println("now " + player + "'s turn");
 
         for (Node node : redUnits.getChildren()) {
             Unit unit = (Unit) node;
             if (unit.isKing()) {
-                System.out.print(unit.getTeam() + " " + unit.getType() + " at ");
-                System.out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS A KING");
+                out.print(unit.getTeam() + " " + unit.getType() + " at ");
+                out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS A KING");
             }
         }
         for (Node node : whiteUnits.getChildren()) {
             Unit unit = (Unit) node;
             if (unit.isKing()) {
-                System.out.print(unit.getTeam() + " " + unit.getType() + " at ");
-                System.out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS A KING");
+                out.print(unit.getTeam() + " " + unit.getType() + " at ");
+                out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS A KING");
             }
         }
 
         for (Move move : possibleMoves) {
             if (move.getUnit().isKing()) {
-                System.out.print(move.getUnit().getTeam() + " " + move.getUnit().getType() + " " + "KING" + ": ");
+                out.print(move.getUnit().getTeam() + " " + move.getUnit().getType() + " " + "KING" + ": ");
             } else {
-                System.out.print(move.getUnit().getTeam() + " " + move.getUnit().getType() + ": ");
+                out.print(move.getUnit().getTeam() + " " + move.getUnit().getType() + ": ");
             }
-            System.out.print(move.getUnit().getCurrentX() + ", " + move.getUnit().getCurrentY() + " -> ");
-            System.out.print(move.getTarget().x + ", " + move.getTarget().y + ": ");
-            System.out.println(move.getResult().getType());
+            out.print(move.getUnit().getCurrentX() + ", " + move.getUnit().getCurrentY() + " -> ");
+            out.print(move.getTarget().x + ", " + move.getTarget().y + ": ");
+            out.println(move.getResult().getType());
         }
     }
 
     private boolean isGameOver() {
         if (redUnits.getChildren().size() == 0) {
-            System.out.println("!!!WHITE WINS!!!");
+            out.println("!!!WHITE WINS!!!");
             return true;
         }
         if (whiteUnits.getChildren().size() == 0) {
-            System.out.println("!!!RED WINS!!!");
+            out.println("!!!RED WINS!!!");
             return true;
         }
         return false;
@@ -162,17 +157,6 @@ public class CheckersGame extends Application {
             board.getTile(move.getUnit().getCurrentCoords()).highlightUnit();
         }
     }
-
-//    private void resetTileColors() {
-//        for (Node node : tiles.getChildren()) {
-//            Tile tile = (Tile) node;
-//            tile.resetTileColor();
-//        }
-//    }
-
-//    public Tile getTile(Coordinates position) {
-//        return board[position.x][position.y];
-//    }
 
     private void makeCurrentTeamAccessible() {
         redUnits.setMouseTransparent(!isRedsTurn);
@@ -196,23 +180,9 @@ public class CheckersGame extends Application {
 //        getAIMove();
 //    }
 
-//    private void generateBoard() {
-//        for (int y = 0; y < SCALE; y++) {
-//            for (int x = 0; x < SCALE; x++) {
-//                generateTile(y, x);
-//            }
-//        }
-//    }
-
     public Board getBoard() {
         return board;
     }
-
-//    private void generateTile(int y, int x) {
-//        Tile tile = new Tile((x + y) % 2 == 0, x, y);
-//        board[x][y] = tile;
-//        tiles.getChildren().add(tile);
-//    }
 
     private void populateBoard() {
         populateRed();
@@ -265,8 +235,7 @@ public class CheckersGame extends Application {
 
             Move actualMove = null;
             for (Move move : possibleMoves) {
-                if (coordsAreEqual(move.getUnit().getCurrentCoords(), origin) && coordsAreEqual(move
-                        .getTarget(), target)) {
+                if (coordsAreEqual(move.getUnit().getCurrentCoords(), origin) && coordsAreEqual(move.getTarget(), target)) {
                     actualMove = move;
                     break;
                 }
@@ -291,7 +260,7 @@ public class CheckersGame extends Application {
         Coordinates target = move.getTarget();
         Unit unit = move.getUnit();
         MoveResult result = move.getResult();
-        boolean kingCreated = false;
+        boolean kingCreated;
 
         boolean turnFinished = false;
         switch (result.getType()) {
@@ -299,7 +268,7 @@ public class CheckersGame extends Application {
                 unit.abortMove();
                 break;
             case NORMAL:
-                kingCreated = moveUnit(origin, target, unit);
+                moveUnit(origin, target, unit);
                 turnFinished = true;
                 break;
             case KILL:
@@ -310,8 +279,8 @@ public class CheckersGame extends Application {
                 if (attackedUnit.isKing() && !unit.isKing() && CROWN_STEALING_ALLOWED) {
                     unit.crownKing();
                     kingCreated = true;
-                    System.out.print(unit.getTeam() + " at ");
-                    System.out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING");
+                    out.print(unit.getTeam() + " at ");
+                    out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING");
                 }
 
                 killUnit(attackedUnit);
@@ -344,15 +313,12 @@ public class CheckersGame extends Application {
         unit.move(target);
         board.moveUnit(origin, target, unit);
 
-        if (target.isEnemyKingRow(unit.getTeam()) && !unit.isKing()){
+        if (target.isEnemyKingRow(unit.getTeam()) && !unit.isKing()) {
             unit.crownKing();
             return true;
-        }else {
+        } else {
             return false;
         }
-
-//        board[origin.x][origin.y].setUnit(null);
-//        board[target.x][target.y].setUnit(unit);
     }
 
     private void killUnit(Unit unit) {
@@ -364,10 +330,6 @@ public class CheckersGame extends Application {
         }
     }
 
-//    public boolean isPlaySquare(Coordinates c) {
-//        return (c.x + c.y) % 2 != CheckersGame.PLAY_SQUARE;
-//    }
-
     private void refreshTeamsAvailableMoves() {
         if (isRedsTurn) {
             possibleMoves = getTeamMoves(redUnits);
@@ -376,7 +338,7 @@ public class CheckersGame extends Application {
         }
     }
 
-    public ArrayList<Move> getTeamMoves(Group team) {
+    private ArrayList<Move> getTeamMoves(Group team) {
         ArrayList<Move> possibleTeamMoves = new ArrayList<>();
 
         for (Node node : team.getChildren()) {
@@ -387,7 +349,7 @@ public class CheckersGame extends Application {
         return prioritiseAttackMoves(possibleTeamMoves);
     }
 
-    public ArrayList<Move> getUnitMoves(Unit unit) {
+    private ArrayList<Move> getUnitMoves(Unit unit) {
         return prioritiseAttackMoves(unit.getPossibleMoves());
     }
 
