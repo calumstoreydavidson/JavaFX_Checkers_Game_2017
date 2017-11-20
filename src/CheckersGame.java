@@ -5,29 +5,35 @@ import java.util.Random;
 import java.util.Scanner;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class CheckersGame extends Application {
 
+    public static boolean CROWN_STEALING_ALLOWED = true;
     //toggle which colour squares the game is played on - 1 for white, 0 for black
     static final int PLAY_SQUARE = 1;
-    static final int SCALE = 6;
+    static final int SCALE = 8;
     static final int TILE_SIZE = 100;
-
     private static final int MAX_RED_POPULATION = Integer.MAX_VALUE;
     private static final int MAX_WHITE_POPULATION = Integer.MAX_VALUE;
-    private static final boolean CROWN_STEALING_ALLOWED = true;
+    public static boolean DEVELOPMENT_MODE_ENABLED = false;
 
     private Stage primaryStage;
     private boolean isRedsTurn;
     private Board board;
-    private Group redUnits = new Group();
-    private Group whiteUnits = new Group();
+    private Group redUnits;
+    private Group whiteUnits;
+
     private ArrayList<Move> possibleMoves = new ArrayList<>();
     private Random rand = new Random();
 
@@ -37,7 +43,14 @@ public class CheckersGame extends Application {
 
     @Override public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
+
+        //game window title
         this.primaryStage.setTitle("Checkers Game");
+
+        //prevent all window resizing
+        primaryStage.setResizable(false);
+        primaryStage.initStyle(StageStyle.UTILITY);
+
         resetGame();
     }
 
@@ -46,19 +59,46 @@ public class CheckersGame extends Application {
         redUnits = new Group();
         whiteUnits = new Group();
 
-        Scene scene = new Scene(createContent());
-        this.primaryStage.setScene(scene);
+        Scene gameBoard = new Scene(createGUI());
+        this.primaryStage.setScene(gameBoard);
         this.primaryStage.show();
         startNewGame(true); //startNewGame(getUserInput()); TODO because effort
     }
 
-    private Parent createContent() {
-        Pane root = new Pane();
-        int squareEdgeLength = SCALE * TILE_SIZE;
-        root.setMinSize(squareEdgeLength, squareEdgeLength);
-        root.getChildren().addAll(board.getComponents(), redUnits, whiteUnits);
+    private Parent createGUI() {
+        //game controls
+        VBox controls = buildControls();
 
-        return root;
+        //game board
+        Pane gameBoard = new Pane();
+        int squareEdgeLength = SCALE * TILE_SIZE;
+        gameBoard.setMinSize(squareEdgeLength, squareEdgeLength);
+        gameBoard.getChildren().addAll(board.getComponents(), redUnits, whiteUnits);
+
+        HBox layout = new HBox(10, controls, gameBoard);
+        layout.setPadding(new Insets(10));
+
+        return layout;
+    }
+
+    private VBox buildControls() {
+        Button newGameButton = new Button("Start New Game");
+        newGameButton.setOnAction(value -> {
+            resetGame();
+        });
+
+        //god mode toggle
+        Button developmentModeButton = new Button("Enable Development Mode ");
+        developmentModeButton.setOnAction(value -> {
+            toggleDevelopmentMode();
+            if (DEVELOPMENT_MODE_ENABLED){
+                developmentModeButton.setText("Disable Development Mode");
+            }else {
+                developmentModeButton.setText("Enable Development Mode ");
+            }
+        });
+
+        return new VBox(10, newGameButton, developmentModeButton);
     }
 
     private boolean getUserInput() {
@@ -74,24 +114,35 @@ public class CheckersGame extends Application {
         populateBoard();
 
         isRedsTurn = isFirstPlayer;
-        nextTurn();
+        refreshTurn();
+    }
+
+    private void toggleDevelopmentMode() {
+        if (DEVELOPMENT_MODE_ENABLED) {
+            refreshTurn();
+        } else {
+            board.resetTileColors();
+            redUnits.setMouseTransparent(false);
+            whiteUnits.setMouseTransparent(false);
+        }
+        DEVELOPMENT_MODE_ENABLED = !DEVELOPMENT_MODE_ENABLED;
     }
 
     private void redsTurn() {
         if (possibleMoves.isEmpty()) {
-            nextTurn();
+            refreshTurn();
         }
-        nextTurn();
+        refreshTurn();
     }
 
     private void WhitesTurn() {
         if (possibleMoves.isEmpty()) {
-            nextTurn();
+            refreshTurn();
         }
-        nextTurn();
+        refreshTurn();
     }
 
-    private void nextTurn() {
+    private void refreshTurn() {
         refreshTeamsAvailableMoves();
         refreshBoardHighlighting();
         makeCurrentTeamAccessible();
@@ -100,7 +151,7 @@ public class CheckersGame extends Application {
     private void refreshBoardHighlighting() {
         board.resetTileColors();
         highlightAvailableMoves();
-        playByPlay();
+//        playByPlay();
     }
 
     public void playByPlay() {
@@ -108,24 +159,9 @@ public class CheckersGame extends Application {
         String player = isRedsTurn ? "red" : "white";
         out.println("now " + player + "'s turn");
 
-        for (Node node : redUnits.getChildren()) {
-            Unit unit = (Unit) node;
-            if (unit.isKing()) {
-                out.print(unit.getTeam() + " " + unit.getType() + " at ");
-                out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS A KING");
-            }
-        }
-        for (Node node : whiteUnits.getChildren()) {
-            Unit unit = (Unit) node;
-            if (unit.isKing()) {
-                out.print(unit.getTeam() + " " + unit.getType() + " at ");
-                out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS A KING");
-            }
-        }
-
         for (Move move : possibleMoves) {
             if (move.getUnit().isKing()) {
-                out.print(move.getUnit().getTeam() + " " + move.getUnit().getType() + " " + "KING" + ": ");
+                out.print(move.getUnit().getTeam() + " " + move.getUnit().getType() + ": ");
             } else {
                 out.print(move.getUnit().getTeam() + " " + move.getUnit().getType() + ": ");
             }
@@ -163,7 +199,7 @@ public class CheckersGame extends Application {
         whiteUnits.setMouseTransparent(isRedsTurn);
     }
 
-//    public void getAIMove() {
+    //    public void getAIMove() {
 //        try {
 //            Thread.sleep(5000);
 //        } catch (InterruptedException e) {
@@ -175,7 +211,7 @@ public class CheckersGame extends Application {
 //        System.out.println("");
 //        System.out.println("AI moving: " + AIMove.getTarget().origin.x + ", " + AIMove
 //                .getTarget().origin.y + " -> " + AIMove.getTarget().x + ", " + AIMove.getTarget().y);
-//        doMove(AIMove);
+//        executeMove(AIMove);
 //        isRedsTurn = !isRedsTurn;
 //        getAIMove();
 //    }
@@ -233,19 +269,28 @@ public class CheckersGame extends Application {
             Coordinates origin = unit.getCurrentCoords();
             Coordinates target = new Coordinates(origin, targetX, targetY);
 
-            Move actualMove = null;
-            for (Move move : possibleMoves) {
-                if (coordsAreEqual(move.getUnit().getCurrentCoords(), origin) && coordsAreEqual(move.getTarget(), target)) {
-                    actualMove = move;
-                    break;
+            if (DEVELOPMENT_MODE_ENABLED) {
+                if (coordsAreEqual(origin,target)) {
+                    unit.toggleKing();
+                    moveUnit(origin, target, unit, false);
+                }else {
+                    moveUnit(origin, target, unit, false);
                 }
-            }
-            if (actualMove == null) {
-                MoveResult result = new MoveResult(MoveType.NONE);
-                actualMove = new Move(unit, target, result);
-            }
+            } else {
+                Move actualMove = null;
+                for (Move move : possibleMoves) {
+                    if (coordsAreEqual(move.getUnit().getCurrentCoords(), origin) && coordsAreEqual(move.getTarget(), target)) {
+                        actualMove = move;
+                        break;
+                    }
+                }
+                if (actualMove == null) {
+                    MoveResult result = new MoveResult(MoveType.NONE);
+                    actualMove = new Move(unit, target, result);
+                }
 
-            doMove(actualMove);
+                executeMove(actualMove);
+            }
         });
 
         return unit;
@@ -255,12 +300,12 @@ public class CheckersGame extends Application {
         return pos1.x == pos2.x && pos1.y == pos2.y;
     }
 
-    private void doMove(Move move) {
+    private void executeMove(Move move) {
         Coordinates origin = move.getTarget().origin;
         Coordinates target = move.getTarget();
         Unit unit = move.getUnit();
         MoveResult result = move.getResult();
-        boolean kingCreated;
+        boolean kingIsCreated = result.isKingCreated();
 
         boolean turnFinished = false;
         switch (result.getType()) {
@@ -268,24 +313,16 @@ public class CheckersGame extends Application {
                 unit.abortMove();
                 break;
             case NORMAL:
-                moveUnit(origin, target, unit);
+                moveUnit(origin, target, unit, kingIsCreated);
                 turnFinished = true;
                 break;
             case KILL:
                 Unit attackedUnit = result.getAttackedUnit();
 
-                kingCreated = moveUnit(origin, target, unit);
-
-                if (attackedUnit.isKing() && !unit.isKing() && CROWN_STEALING_ALLOWED) {
-                    unit.crownKing();
-                    kingCreated = true;
-                    out.print(unit.getTeam() + " at ");
-                    out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING");
-                }
-
+                moveUnit(origin, target, unit, kingIsCreated);
                 killUnit(attackedUnit);
 
-                if (unit.canMove() && canAttack(unit) && !kingCreated) {
+                if (unit.canMove() && canAttack(unit) && !result.isKingCreated()) {
                     possibleMoves = getUnitMoves(unit);
                     refreshBoardHighlighting();
                 } else {
@@ -300,7 +337,7 @@ public class CheckersGame extends Application {
                 resetGame();
             } else {
                 isRedsTurn = !isRedsTurn;
-                nextTurn();
+                refreshTurn();
             }
         }
     }
@@ -309,15 +346,14 @@ public class CheckersGame extends Application {
         return getUnitMoves(unit).get(0).getResult().getType() == MoveType.KILL;
     }
 
-    private boolean moveUnit(Coordinates origin, Coordinates target, Unit unit) {
+    private void moveUnit(Coordinates origin, Coordinates target, Unit unit, boolean kingIsCreated) {
         unit.move(target);
         board.moveUnit(origin, target, unit);
 
-        if (target.isEnemyKingRow(unit.getTeam()) && !unit.isKing()) {
-            unit.crownKing();
-            return true;
-        } else {
-            return false;
+        if (kingIsCreated) {
+            unit.toggleKing();
+            out.print(unit.getTeam() + " at ");
+            out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING");
         }
     }
 
