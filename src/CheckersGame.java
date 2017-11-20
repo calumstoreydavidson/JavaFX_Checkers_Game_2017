@@ -14,10 +14,13 @@ public class CheckersGame extends Application {
 
     //toggle which colour squares the game is played on - 1 for white, 0 for black
     static final int PLAY_SQUARE = 1;
-    static final int SCALE = 8;
+    static final int SCALE = 6;
     static final int TILE_SIZE = 100;
+
     private static final int MAX_RED_POPULATION = Integer.MAX_VALUE;
     private static final int MAX_WHITE_POPULATION = Integer.MAX_VALUE;
+    private static final boolean CROWN_STEALING_ALLOWED = true;
+
     private Stage primaryStage;
     private boolean isRedsTurn;
 //    private Tile[][] board = new Tile[SCALE][SCALE];
@@ -279,7 +282,7 @@ public class CheckersGame extends Application {
         return unit;
     }
 
-    public boolean coordsAreEqual(Coordinates pos1, Coordinates pos2) {
+    private boolean coordsAreEqual(Coordinates pos1, Coordinates pos2) {
         return pos1.x == pos2.x && pos1.y == pos2.y;
     }
 
@@ -288,6 +291,7 @@ public class CheckersGame extends Application {
         Coordinates target = move.getTarget();
         Unit unit = move.getUnit();
         MoveResult result = move.getResult();
+        boolean kingCreated = false;
 
         boolean turnFinished = false;
         switch (result.getType()) {
@@ -295,24 +299,24 @@ public class CheckersGame extends Application {
                 unit.abortMove();
                 break;
             case NORMAL:
-                moveUnit(origin, target, unit);
+                kingCreated = moveUnit(origin, target, unit);
                 turnFinished = true;
                 break;
             case KILL:
                 Unit attackedUnit = result.getAttackedUnit();
 
-                moveUnit(origin, target, unit);
+                kingCreated = moveUnit(origin, target, unit);
 
-                if (target.isEnemyKingRow(unit.getTeam()) || attackedUnit.isKing()) {
+                if (attackedUnit.isKing() && !unit.isKing() && CROWN_STEALING_ALLOWED) {
                     unit.crownKing();
-                    result.kingIsCreated();
+                    kingCreated = true;
                     System.out.print(unit.getTeam() + " at ");
                     System.out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING");
                 }
 
                 killUnit(attackedUnit);
 
-                if (unit.canMove() && canAttack(unit) && !result.isKingCreated()) {
+                if (unit.canMove() && canAttack(unit) && !kingCreated) {
                     possibleMoves = getUnitMoves(unit);
                     refreshBoardHighlighting();
                 } else {
@@ -336,9 +340,16 @@ public class CheckersGame extends Application {
         return getUnitMoves(unit).get(0).getResult().getType() == MoveType.KILL;
     }
 
-    private void moveUnit(Coordinates origin, Coordinates target, Unit unit) {
+    private boolean moveUnit(Coordinates origin, Coordinates target, Unit unit) {
         unit.move(target);
         board.moveUnit(origin, target, unit);
+
+        if (target.isEnemyKingRow(unit.getTeam()) && !unit.isKing()){
+            unit.crownKing();
+            return true;
+        }else {
+            return false;
+        }
 
 //        board[origin.x][origin.y].setUnit(null);
 //        board[target.x][target.y].setUnit(unit);

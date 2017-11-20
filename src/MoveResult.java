@@ -4,7 +4,6 @@ public class MoveResult {
 
     private MoveType type;
     private Unit attackedUnit;
-    private boolean kingCreated;
 
     public MoveResult(MoveType type) {
         this(type, null);
@@ -21,13 +20,5 @@ public class MoveResult {
 
     public Unit getAttackedUnit() {
         return attackedUnit;
-    }
-
-    public boolean isKingCreated(){
-        return kingCreated;
-    }
-
-    public void kingIsCreated(){
-        kingCreated = true;
     }
 }
