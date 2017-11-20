@@ -30,7 +30,7 @@ public class Coordinates {
         return location.x < 0 || location.y < 0 || location.x >= CheckersGame.SCALE || location.y >= CheckersGame.SCALE;
     }
 
-    public boolean isEnemySide(Team team) {
+    public boolean isEnemyKingRow(Team team) {
         if (team == Team.RED) {
             return y == CheckersGame.SCALE - 1;
         } else {

@@ -1,11 +1,8 @@
-
-
 import java.util.ArrayList;
 
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
-import javafx.scene.shape.Rectangle;
 
 public class Unit extends StackPane {
 
@@ -23,32 +20,7 @@ public class Unit extends StackPane {
 
         move(new Coordinates(x, y));
 
-        Ellipse bg = new Ellipse(CheckersGame.TILE_SIZE * 0.3125, CheckersGame.TILE_SIZE * 0.26);
-        bg.setFill(Color.BLACK);
-
-        bg.setStroke(Color.BLACK);
-        bg.setStrokeWidth(CheckersGame.TILE_SIZE * 0.03);
-
-        bg.setTranslateX((CheckersGame.TILE_SIZE - CheckersGame.TILE_SIZE * 0.3125 * 2) / 2);
-        bg.setTranslateY((CheckersGame.TILE_SIZE - CheckersGame.TILE_SIZE * 0.26 * 2) / 2 + CheckersGame.TILE_SIZE * 0.07);
-
-        Ellipse ellipse = new Ellipse(CheckersGame.TILE_SIZE * 0.3125, CheckersGame.TILE_SIZE * 0.26);
-        ellipse.setFill(team == Team.RED ? Color.valueOf("#c40003") : Color.valueOf("#fff9f4"));
-
-        ellipse.setStroke(Color.BLACK);
-        ellipse.setStrokeWidth(CheckersGame.TILE_SIZE * 0.03);
-
-        ellipse.setTranslateX((CheckersGame.TILE_SIZE - CheckersGame.TILE_SIZE * 0.3125 * 2) / 2);
-        ellipse.setTranslateY((CheckersGame.TILE_SIZE - CheckersGame.TILE_SIZE * 0.26 * 2) / 2);
-
-        if (isKing()) {
-            Rectangle crown = new Rectangle(ellipse.getRadiusX(), ellipse.getRadiusY());
-            ellipse.setFill(Color.valueOf("gold"));
-
-            getChildren().addAll(bg, ellipse, crown);
-        }else {
-            getChildren().addAll(bg, ellipse);
-        }
+        PaintUnitLayer(1);
 
         setOnMousePressed(e -> {
             mouseX = e.getSceneX();
@@ -104,14 +76,21 @@ public class Unit extends StackPane {
 
         for (Coordinates adjacentTile : getAdjacentTiles(this)) {
             if (!isOccupiedTile(adjacentTile)) {
-                MoveResult result = new MoveResult(MoveType.NORMAL, game.getBoard()[adjacentTile.x][adjacentTile.y].getUnit());
+                MoveResult result = new MoveResult(MoveType.NORMAL, game.getBoard()[adjacentTile.x][adjacentTile.y]
+                        .getUnit());
                 moves.add(new Move(this, adjacentTile, result));
-            } else if (isEnemyUnit(this, adjacentTile) && !isEnemyOnEdge(adjacentTile) && !isOccupiedTile(adjacentTile.getNextOnPath())) {
-                MoveResult result = new MoveResult(MoveType.KILL, game.getBoard()[adjacentTile.x][adjacentTile.y].getUnit());
+            } else if (isEnemyUnit(this, adjacentTile) && !isEnemyOnEdge(adjacentTile) && !isOccupiedTile(adjacentTile
+                    .getNextOnPath())) {
+                MoveResult result = new MoveResult(MoveType.KILL, game.getBoard()[adjacentTile.x][adjacentTile.y]
+                        .getUnit());
                 moves.add(new Move(this, adjacentTile.getNextOnPath(), result));
             }
         }
         return moves;
+    }
+
+    public boolean canMove(){
+        return !getPossibleMoves().isEmpty();
     }
 
     //returns positions adjacent to the unit, that exist on the board
@@ -130,8 +109,8 @@ public class Unit extends StackPane {
         }
 
         ArrayList<Coordinates> validAdjacentTiles = new ArrayList<>();
-        for (Coordinates position: adjacentTiles) {
-            if (!Coordinates.isOutsideBoard(position)){
+        for (Coordinates position : adjacentTiles) {
+            if (!Coordinates.isOutsideBoard(position)) {
                 validAdjacentTiles.add(position);
             }
         }
@@ -148,20 +127,54 @@ public class Unit extends StackPane {
         return enemyUnit.getTeam() != unit.getTeam();
     }
 
-    public boolean isEnemyOnEdge(Coordinates enemyPos){
+    public boolean isEnemyOnEdge(Coordinates enemyPos) {
         return CheckersGame.isBoardEdge(enemyPos);
     }
 
-    public boolean isKing(){
+    public boolean isKing() {
         return type == UnitType.KING;
     }
 
-    public void crownKing(){
-        if (team == Team.RED ){
-            type = UnitType.KING;
-        }
-        if (team == Team.WHITE){
-            type = UnitType.KING;
-        }
+    public void crownKing() {
+        type = UnitType.KING;
+
+        PaintUnitLayer(2);
+    }
+
+    private void PaintUnitLayer(int layer) {
+        int verticalOffset = -15 * (layer - 1);
+
+        double width = CheckersGame.TILE_SIZE * 0.3125;
+        double height = CheckersGame.TILE_SIZE * 0.26;
+
+        Ellipse bg = new Ellipse(width, height);
+        bg.setFill(Color.BLACK);
+
+        bg.setStroke(Color.BLACK);
+        bg.setStrokeWidth(CheckersGame.TILE_SIZE * 0.03);
+
+        bg.setTranslateX((CheckersGame.TILE_SIZE - width * 2) / 2);
+        bg.setTranslateY(((CheckersGame.TILE_SIZE - height * 2) / 2 + CheckersGame.TILE_SIZE * 0.07) + verticalOffset);
+
+
+        Ellipse ellipse = new Ellipse(width, height);
+        ellipse.setFill(team == Team.RED ? Color.valueOf("#c40003") : Color.valueOf("#fff9f4"));
+
+        ellipse.setStroke(Color.BLACK);
+        ellipse.setStrokeWidth(CheckersGame.TILE_SIZE * 0.03);
+
+        ellipse.setTranslateX((CheckersGame.TILE_SIZE - width * 2) / 2);
+        ellipse.setTranslateY(((CheckersGame.TILE_SIZE - height * 2) / 2) + verticalOffset);
+
+
+        getChildren().addAll(bg, ellipse);
+
+
+//        paint a little gold crown instead of another checker layer
+//        Rectangle crown = new Rectangle(CheckersGame.TILE_SIZE * 0.2, CheckersGame.TILE_SIZE * 0.2);
+//        crown.setFill(Color.valueOf("gold"));
+//        crown.setTranslateX((CheckersGame.TILE_SIZE - CheckersGame.TILE_SIZE * 0.3125 * 2) / 2);
+//        crown.setTranslateY((CheckersGame.TILE_SIZE - CheckersGame.TILE_SIZE * 0.26 * 2) / 2);
+//        getChildren().addAll(crown);
     }
 }
