@@ -13,12 +13,12 @@ public class Unit extends StackPane {
     private double mouseX, mouseY;
     private double currentX, currentY;
 
-    public Unit(UnitType type, Team team, int x, int y, CheckersGame game) {
+    public Unit(UnitType type, Team team, Coordinates c, CheckersGame game) {
         this.game = game;
         this.team = team;
         this.type = type;
 
-        move(new Coordinates(x, y));
+        move(c);
 
         PaintUnitLayer(1);
 
@@ -76,20 +76,17 @@ public class Unit extends StackPane {
 
         for (Coordinates adjacentTile : getAdjacentTiles(this)) {
             if (!isOccupiedTile(adjacentTile)) {
-                MoveResult result = new MoveResult(MoveType.NORMAL, game.getBoard()[adjacentTile.x][adjacentTile.y]
-                        .getUnit());
+                MoveResult result = new MoveResult(MoveType.NORMAL);
                 moves.add(new Move(this, adjacentTile, result));
-            } else if (isEnemyUnit(this, adjacentTile) && !isEnemyOnEdge(adjacentTile) && !isOccupiedTile(adjacentTile
-                    .getNextOnPath())) {
-                MoveResult result = new MoveResult(MoveType.KILL, game.getBoard()[adjacentTile.x][adjacentTile.y]
-                        .getUnit());
+            } else if (isEnemyUnit(this, adjacentTile) && !isEnemyOnEdge(adjacentTile) && !isOccupiedTile(adjacentTile.getNextOnPath())) {
+                MoveResult result = new MoveResult(MoveType.KILL, game.getBoard().getTile(adjacentTile).getUnit());
                 moves.add(new Move(this, adjacentTile.getNextOnPath(), result));
             }
         }
         return moves;
     }
 
-    public boolean canMove(){
+    public boolean canMove() {
         return !getPossibleMoves().isEmpty();
     }
 
@@ -119,16 +116,16 @@ public class Unit extends StackPane {
     }
 
     public boolean isOccupiedTile(Coordinates c) {
-        return game.getBoard()[c.x][c.y].hasUnit();
+        return game.getBoard().getTile(c).hasUnit();
     }
 
     public boolean isEnemyUnit(Unit unit, Coordinates c) {
-        Unit enemyUnit = game.getBoard()[c.x][c.y].getUnit();
+        Unit enemyUnit = game.getBoard().getTile(c).getUnit();
         return enemyUnit.getTeam() != unit.getTeam();
     }
 
     public boolean isEnemyOnEdge(Coordinates enemyPos) {
-        return CheckersGame.isBoardEdge(enemyPos);
+        return Board.isBoardEdge(enemyPos);
     }
 
     public boolean isKing() {

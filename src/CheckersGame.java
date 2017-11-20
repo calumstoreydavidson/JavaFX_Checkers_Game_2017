@@ -12,17 +12,17 @@ import javafx.stage.Stage;
 
 public class CheckersGame extends Application {
 
-    public static final int SCALE = 8;
     //toggle which colour squares the game is played on - 1 for white, 0 for black
-    public static final int PLAY_SQUARE = 1;
+    static final int PLAY_SQUARE = 1;
+    static final int SCALE = 8;
     static final int TILE_SIZE = 100;
     private static final int MAX_RED_POPULATION = Integer.MAX_VALUE;
     private static final int MAX_WHITE_POPULATION = Integer.MAX_VALUE;
-    Stage primaryStage;
+    private Stage primaryStage;
     private boolean isRedsTurn;
-    private Team CurrentTeam;
-    private Tile[][] board = new Tile[SCALE][SCALE];
-    private Group tiles = new Group();
+//    private Tile[][] board = new Tile[SCALE][SCALE];
+    private Board board;
+//    private Group tiles = new Group();
     private Group redUnits = new Group();
     private Group whiteUnits = new Group();
     private ArrayList<Move> possibleMoves = new ArrayList<>();
@@ -32,10 +32,6 @@ public class CheckersGame extends Application {
         launch(args);
     }
 
-    public static boolean isBoardEdge(Coordinates pos) {
-        return pos.x == 0 || pos.y == 0 || pos.x == SCALE - 1 || pos.y == SCALE - 1;
-    }
-
     @Override public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Checkers Game");
@@ -43,8 +39,8 @@ public class CheckersGame extends Application {
     }
 
     public void resetGame() {
-        board = new Tile[SCALE][SCALE];
-        tiles = new Group();
+        board = new Board();
+//        tiles = new Group();
         redUnits = new Group();
         whiteUnits = new Group();
 
@@ -58,7 +54,7 @@ public class CheckersGame extends Application {
         Pane root = new Pane();
         int squareEdgeLength = SCALE * TILE_SIZE;
         root.setMinSize(squareEdgeLength, squareEdgeLength);
-        root.getChildren().addAll(tiles, redUnits, whiteUnits);
+        root.getChildren().addAll(board.getComponents(), redUnits, whiteUnits);
 
         return root;
     }
@@ -73,7 +69,7 @@ public class CheckersGame extends Application {
         System.out.println("");
         System.out.println("A NEW GAME BEGINS --FIGHT!--");
 
-        generateBoard();
+//        generateBoard();
         populateBoard();
 
         isRedsTurn = isFirstPlayer;
@@ -104,7 +100,7 @@ public class CheckersGame extends Application {
     }
 
     private void refreshBoardHighlighting() {
-        resetTileColors();
+        board.resetTileColors();
         highlightAvailableMoves();
         playByPlay();
     }
@@ -156,64 +152,64 @@ public class CheckersGame extends Application {
     private void highlightAvailableMoves() {
         for (Move move : possibleMoves) {
             if (move.getResult().getType() == MoveType.KILL) {
-                getTile(move.getTarget()).highlightAttackDestination();
+                board.getTile(move.getTarget()).highlightAttackDestination();
             } else {
-                getTile(move.getTarget()).highlightMoveDestination();
+                board.getTile(move.getTarget()).highlightMoveDestination();
             }
-            getTile(move.getUnit().getCurrentCoords()).highlightUnit();
+            board.getTile(move.getUnit().getCurrentCoords()).highlightUnit();
         }
     }
 
-    private void resetTileColors() {
-        for (Node node : tiles.getChildren()) {
-            Tile tile = (Tile) node;
-            tile.resetTileColor();
-        }
-    }
+//    private void resetTileColors() {
+//        for (Node node : tiles.getChildren()) {
+//            Tile tile = (Tile) node;
+//            tile.resetTileColor();
+//        }
+//    }
 
-    public Tile getTile(Coordinates position) {
-        return board[position.x][position.y];
-    }
+//    public Tile getTile(Coordinates position) {
+//        return board[position.x][position.y];
+//    }
 
     private void makeCurrentTeamAccessible() {
         redUnits.setMouseTransparent(!isRedsTurn);
         whiteUnits.setMouseTransparent(isRedsTurn);
     }
 
-    public void getAIMove() {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//    public void getAIMove() {
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        int r = rand.nextInt(possibleMoves.size());
+//        Move AIMove = possibleMoves.get(r);
+//        System.out.println("");
+//        System.out.println("AI moving: " + AIMove.getTarget().origin.x + ", " + AIMove
+//                .getTarget().origin.y + " -> " + AIMove.getTarget().x + ", " + AIMove.getTarget().y);
+//        doMove(AIMove);
+//        isRedsTurn = !isRedsTurn;
+//        getAIMove();
+//    }
 
-        int r = rand.nextInt(possibleMoves.size());
-        Move AIMove = possibleMoves.get(r);
-        System.out.println("");
-        System.out.println("AI moving: " + AIMove.getTarget().origin.x + ", " + AIMove
-                .getTarget().origin.y + " -> " + AIMove.getTarget().x + ", " + AIMove.getTarget().y);
-        doMove(AIMove);
-        isRedsTurn = !isRedsTurn;
-        getAIMove();
-    }
+//    private void generateBoard() {
+//        for (int y = 0; y < SCALE; y++) {
+//            for (int x = 0; x < SCALE; x++) {
+//                generateTile(y, x);
+//            }
+//        }
+//    }
 
-    private void generateBoard() {
-        for (int y = 0; y < SCALE; y++) {
-            for (int x = 0; x < SCALE; x++) {
-                generateTile(y, x);
-            }
-        }
-    }
-
-    public Tile[][] getBoard() {
+    public Board getBoard() {
         return board;
     }
 
-    private void generateTile(int y, int x) {
-        Tile tile = new Tile((x + y) % 2 == 0, x, y);
-        board[x][y] = tile;
-        tiles.getChildren().add(tile);
-    }
+//    private void generateTile(int y, int x) {
+//        Tile tile = new Tile((x + y) % 2 == 0, x, y);
+//        board[x][y] = tile;
+//        tiles.getChildren().add(tile);
+//    }
 
     private void populateBoard() {
         populateRed();
@@ -226,9 +222,10 @@ public class CheckersGame extends Application {
         int placedUnits = 0;
         for (int y = 0; y < SCALE; y++) {
             for (int x = 0; x < SCALE; x++) {
-                if (y < factionBorder && isPlaySquare(new Coordinates(x, y)) && placedUnits <= MAX_RED_POPULATION) {
-                    Unit unit = generateUnit(UnitType.PAWN, Team.RED, x, y);
-                    board[x][y].setUnit(unit);
+                Coordinates c = new Coordinates(x, y);
+                if (y < factionBorder && board.isPlaySquare(c) && placedUnits <= MAX_RED_POPULATION) {
+                    Unit unit = generateUnit(UnitType.PAWN, Team.RED, c);
+                    board.getTile(c).setUnit(unit);
                     redUnits.getChildren().add(unit);
                     placedUnits++;
                 }
@@ -242,9 +239,10 @@ public class CheckersGame extends Application {
         int placedUnits = 0;
         for (int y = SCALE - 1; y >= 0; y--) {
             for (int x = SCALE - 1; x >= 0; x--) {
-                if (y >= factionBorder && isPlaySquare(new Coordinates(x, y)) && placedUnits <= MAX_WHITE_POPULATION) {
-                    Unit unit = generateUnit(UnitType.PAWN, Team.WHITE, x, y);
-                    board[x][y].setUnit(unit);
+                Coordinates c = new Coordinates(x, y);
+                if (y >= factionBorder && board.isPlaySquare(c) && placedUnits <= MAX_WHITE_POPULATION) {
+                    Unit unit = generateUnit(UnitType.PAWN, Team.WHITE, c);
+                    board.getTile(c).setUnit(unit);
                     whiteUnits.getChildren().add(unit);
                     placedUnits++;
                 }
@@ -252,8 +250,8 @@ public class CheckersGame extends Application {
         }
     }
 
-    private Unit generateUnit(UnitType type, Team team, int x, int y) {
-        Unit unit = new Unit(type, team, x, y, this);
+    private Unit generateUnit(UnitType type, Team team, Coordinates c) {
+        Unit unit = new Unit(type, team, c, this);
 
         unit.setOnMouseReleased(e -> {
             int targetX = Coordinates.toBoard(unit.getLayoutX());
@@ -315,7 +313,7 @@ public class CheckersGame extends Application {
                 killUnit(attackedUnit);
 
                 if (unit.canMove() && canAttack(unit) && !result.isKingCreated()) {
-                    possibleMoves = prioritiseAttackMoves(unit.getPossibleMoves());
+                    possibleMoves = getUnitMoves(unit);
                     refreshBoardHighlighting();
                 } else {
                     turnFinished = true;
@@ -335,17 +333,19 @@ public class CheckersGame extends Application {
     }
 
     private boolean canAttack(Unit unit) {
-        return prioritiseAttackMoves(unit.getPossibleMoves()).get(0).getResult().getType() == MoveType.KILL;
+        return getUnitMoves(unit).get(0).getResult().getType() == MoveType.KILL;
     }
 
     private void moveUnit(Coordinates origin, Coordinates target, Unit unit) {
         unit.move(target);
-        board[origin.x][origin.y].setUnit(null);
-        board[target.x][target.y].setUnit(unit);
+        board.moveUnit(origin, target, unit);
+
+//        board[origin.x][origin.y].setUnit(null);
+//        board[target.x][target.y].setUnit(unit);
     }
 
     private void killUnit(Unit unit) {
-        getTile(unit.getCurrentCoords()).setUnit(null);
+        board.getTile(unit.getCurrentCoords()).setUnit(null);
         if (unit.isRed()) {
             redUnits.getChildren().remove(unit);
         } else {
@@ -353,9 +353,9 @@ public class CheckersGame extends Application {
         }
     }
 
-    public boolean isPlaySquare(Coordinates c) {
-        return (c.x + c.y) % 2 != CheckersGame.PLAY_SQUARE;
-    }
+//    public boolean isPlaySquare(Coordinates c) {
+//        return (c.x + c.y) % 2 != CheckersGame.PLAY_SQUARE;
+//    }
 
     private void refreshTeamsAvailableMoves() {
         if (isRedsTurn) {
