@@ -37,6 +37,7 @@ public class CheckersGame extends Application {
 
     private Stage primaryStage;
     private TextArea output;
+    VBox controls = buildControls();
 
     private boolean isRedsTurn;
     private Board board;
@@ -68,15 +69,15 @@ public class CheckersGame extends Application {
         redUnits = new Group();
         whiteUnits = new Group();
 
-        Scene gameBoard = new Scene(createGUI());
-        this.primaryStage.setScene(gameBoard);
+        Scene GUI = new Scene(createGUI());
+        this.primaryStage.setScene(GUI);
         this.primaryStage.show();
         startNewGame(true); //startNewGame(getUserInput()); TODO because effort
     }
 
     private Parent createGUI() {
         //game controls
-        VBox controls = buildControls();
+//        VBox controls = buildControls();
 
         //game board
         Pane gameBoard = new Pane();
@@ -98,11 +99,11 @@ public class CheckersGame extends Application {
         });
 
         //crown stealing toggle
-        Button crownStealingToggleButton = new Button("Disable Crown Stealing");
+        Button crownStealingToggleButton = new Button("Disable King On King Kill");
         crownStealingToggleButton.setOnAction(value -> {
             CROWN_STEALING_ALLOWED = !CROWN_STEALING_ALLOWED;
-            crownStealingToggleButton.setText(CROWN_STEALING_ALLOWED ? "Disable Crown Stealing" : "Enable Crown Stealing");
-            output.setText(CROWN_STEALING_ALLOWED ? "Crown Stealing Enabled" : "Crown Stealing Disabled");
+            crownStealingToggleButton.setText(CROWN_STEALING_ALLOWED ? "Disable King On King Kill" : "Enable King On King Kill");
+            output.setText(CROWN_STEALING_ALLOWED ? "King On King Kill Enabled" : "King On King Kill Disabled");
         });
 
         //game Instructions
@@ -118,11 +119,11 @@ public class CheckersGame extends Application {
         });
 
         //play tile toggle
-        Button togglePlayTileButton = new Button("Toggle Play Square Color");
+        Button togglePlayTileButton = new Button("Play on Black");
         togglePlayTileButton.setOnAction(value -> {
             PLAY_SQUARE = PLAY_SQUARE == 0 ? 1 : 0;
-            togglePlayTileButton.setText(PLAY_SQUARE == 1 ? "Play on White" : "Play on Black"); //TODO what the fuck is up with this fucking button
-            output.setText(String.valueOf(PLAY_SQUARE));
+            togglePlayTileButton.setText(PLAY_SQUARE == 0 ? "Play on White" : "Play on Black"); //TODO what the fuck is up with this fucking button
+            output.setText(String.valueOf(PLAY_SQUARE == 0 ? "You are now playing on the black squares" : "You are now playing on the white squares"));
             //TODO rework this so that the UI is not being reset as well
             resetGame();
         });
@@ -136,8 +137,8 @@ public class CheckersGame extends Application {
         });
 
         //game output
-        output = new TextArea("Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning - checkers game coursework.\n\nInstructions:\n- " +
-                              "- Drag and Drop Units with your mouse to make your moves\n- Green squares are units that can move.\n- Blue squares are where they can go.\n- And red squares are mandatory attacks.");
+        output = new TextArea("Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning - checkers game coursework.\n\nInstructions:\n" +
+                              "- Drag and drop units with your mouse to make your moves\n- Green squares are units that can move.\n- Blue squares are where they can go.\n- And red squares are mandatory attacks.");
         output.setPrefWidth(300);
         output.setMaxWidth(TextArea.USE_PREF_SIZE);
         output.setMinWidth(TextArea.USE_PREF_SIZE);
@@ -247,7 +248,7 @@ public class CheckersGame extends Application {
         whiteUnits.setMouseTransparent(isRedsTurn);
     }
 
-    //    public void getAIMove() {
+//        public void getAIMove() {
 //        try {
 //            Thread.sleep(5000);
 //        } catch (InterruptedException e) {
@@ -257,8 +258,7 @@ public class CheckersGame extends Application {
 //        int r = rand.nextInt(possibleMoves.size());
 //        Move AIMove = possibleMoves.get(r);
 //        System.out.println("");
-//        System.out.println("AI moving: " + AIMove.getTarget().origin.x + ", " + AIMove
-//                .getTarget().origin.y + " -> " + AIMove.getTarget().x + ", " + AIMove.getTarget().y);
+//        System.out.println("AI moving: " + AIMove.getTarget().origin.x + ", " + AIMove.getTarget().origin.y + " -> " + AIMove.getTarget().x + ", " + AIMove.getTarget().y);
 //        executeMove(AIMove);
 //        isRedsTurn = !isRedsTurn;
 //        getAIMove();
