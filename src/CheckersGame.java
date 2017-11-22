@@ -24,7 +24,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class CheckersGame extends Application {
+public class CheckersGame { //extends Application {
 
     //toggle which colour squares the game is played on - 1 for white, 0 for black
     public static int PLAY_SQUARE = 1;
@@ -33,122 +33,130 @@ public class CheckersGame extends Application {
     private static final int MAX_RED_POPULATION = Integer.MAX_VALUE;
     private static final int MAX_WHITE_POPULATION = Integer.MAX_VALUE;
     public static boolean CROWN_STEALING_ALLOWED = true;
-    private boolean DEVELOPMENT_MODE_ENABLED = false;
+    public boolean DEVELOPMENT_MODE_ENABLED = false;
 
-    private Stage primaryStage;
-    private TextArea output;
-    VBox controls = buildControls();
+//    private Stage primaryStage;
+//    private TextArea output;
+//    VBox controls = buildControls();
 
+    private Group components = new Group();
     private boolean isRedsTurn;
-    private Board board;
-    private Group redUnits;
-    private Group whiteUnits;
+    private Board board = new Board();
+    private Group redUnits = new Group();
+    private Group whiteUnits = new Group();
 
     private ArrayList<Move> possibleMoves = new ArrayList<>();
     private Random rand = new Random();
 
-    public static void main(String[] args) {
-        launch(args);
+    public CheckersGame(){
+        startNewGame(true);
     }
 
-    @Override public void start(Stage primaryStage) throws Exception {
-        this.primaryStage = primaryStage;
-
-        //game window title
-        this.primaryStage.setTitle("Checkers Game");
-
-        //prevent all window resizing
-        primaryStage.setResizable(false);
-        primaryStage.initStyle(StageStyle.UNIFIED);
-
-        resetGame();
+    public Group getComponents() {
+        return components;
     }
+    //    public static void main(String[] args) {
+//        launch(args);
+//    }
+//
+//    @Override public void start(Stage primaryStage) throws Exception {
+//        this.primaryStage = primaryStage;
+//
+//        //game window title
+//        this.primaryStage.setTitle("Checkers Game");
+//
+//        //prevent all window resizing
+//        primaryStage.setResizable(false);
+//        primaryStage.initStyle(StageStyle.UNIFIED);
+//
+//        resetGame();
+//    }
 
     private void resetGame() {
         board = new Board();
         redUnits = new Group();
         whiteUnits = new Group();
-
-        Scene GUI = new Scene(createGUI());
-        this.primaryStage.setScene(GUI);
-        this.primaryStage.show();
-        startNewGame(true); //startNewGame(getUserInput()); TODO because effort
+        components.getChildren().setAll(board.getComponents(), redUnits, whiteUnits);
+//        Scene GUI = new Scene(createGUI());
+//        this.primaryStage.setScene(GUI);
+//        this.primaryStage.show();
+//        startNewGame(true); //startNewGame(getUserInput()); TODO because effort
     }
 
-    private Parent createGUI() {
-        //game controls
-//        VBox controls = buildControls();
-
-        //game board
-        Pane gameBoard = new Pane();
-        int squareEdgeLength = SCALE * TILE_SIZE;
-        gameBoard.setMinSize(squareEdgeLength, squareEdgeLength);
-        gameBoard.getChildren().addAll(board.getComponents(), redUnits, whiteUnits);
-
-        HBox layout = new HBox(10, controls, gameBoard);
-        layout.setPadding(new Insets(10));
-
-        return layout;
-    }
-
-    private VBox buildControls() {
-        //begin new game button
-        Button newGameButton = new Button("Start New Game");
-        newGameButton.setOnAction(value -> {
-            resetGame();
-        });
-
-        //crown stealing toggle
-        Button crownStealingToggleButton = new Button("Disable King On King Kill");
-        crownStealingToggleButton.setOnAction(value -> {
-            CROWN_STEALING_ALLOWED = !CROWN_STEALING_ALLOWED;
-            crownStealingToggleButton.setText(CROWN_STEALING_ALLOWED ? "Disable King On King Kill" : "Enable King On King Kill");
-            output.setText(CROWN_STEALING_ALLOWED ? "King On King Kill Enabled" : "King On King Kill Disabled");
-        });
-
-        //game Instructions
-        Button displayInstructionsButton = new Button("Open Game Rules In Browser");
-
-        displayInstructionsButton.setOnAction(e -> {
-            try {
-                Desktop.getDesktop().browse(new URI("http://www.indepthinfo.com/checkers/play.shtml"));
-                output.setText("Instructions Displayed - see browser");
-            } catch (Exception e1) {
-                output.setText("Apologies, your browser can't be accessed at this time");
-            }
-        });
-
-        //play tile toggle
-        Button togglePlayTileButton = new Button("Play on Black");
-        togglePlayTileButton.setOnAction(value -> {
-            PLAY_SQUARE = PLAY_SQUARE == 0 ? 1 : 0;
-            togglePlayTileButton.setText(PLAY_SQUARE == 0 ? "Play on White" : "Play on Black"); //TODO what the fuck is up with this fucking button
-            output.setText(String.valueOf(PLAY_SQUARE == 0 ? "You are now playing on the black squares" : "You are now playing on the white squares"));
-            //TODO rework this so that the UI is not being reset as well
-            resetGame();
-        });
-
-        //god mode toggle
-        Button developmentModeButton = new Button("Enable Development Mode");
-        developmentModeButton.setOnAction(value -> {
-            toggleDevelopmentMode();
-            developmentModeButton.setText(DEVELOPMENT_MODE_ENABLED ? "Disable Development Mode" : "Enable Development Mode");
-            output.setText(DEVELOPMENT_MODE_ENABLED ? "God Mode Enabled" : "God Mode Disabled");
-        });
-
-        //game output
-        output = new TextArea("Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning - checkers game coursework.\n\nInstructions:\n" +
-                              "- Drag and drop units with your mouse to make your moves\n- Green squares are units that can move.\n- Blue squares are where they can go.\n- And red squares are mandatory attacks.");
-        output.setPrefWidth(300);
-        output.setMaxWidth(TextArea.USE_PREF_SIZE);
-        output.setMinWidth(TextArea.USE_PREF_SIZE);
-        output.setEditable(false);
-        output.setPrefRowCount(10);
-        output.setPrefColumnCount(20);
-        output.setWrapText(true);
-
-        return new VBox(10, newGameButton, crownStealingToggleButton, developmentModeButton, displayInstructionsButton, togglePlayTileButton, output);
-    }
+//    private Parent createGUI() {
+//        //game controls
+////        VBox controls = buildControls();
+//
+//        //game board
+//        Pane gameBoard = new Pane();
+//        int squareEdgeLength = SCALE * TILE_SIZE;
+//        gameBoard.setMinSize(squareEdgeLength, squareEdgeLength);
+//        gameBoard.getChildren().addAll(board.getComponents(), redUnits, whiteUnits);
+//
+//        HBox layout = new HBox(10, controls, gameBoard);
+//        layout.setPadding(new Insets(10));
+//
+//        return layout;
+//    }
+//
+//    private VBox buildControls() {
+//        //begin new game button
+//        Button newGameButton = new Button("Start New Game");
+//        newGameButton.setOnAction(value -> {
+//            resetGame();
+//        });
+//
+//        //crown stealing toggle
+//        Button crownStealingToggleButton = new Button("Disable King On King Kill");
+//        crownStealingToggleButton.setOnAction(value -> {
+//            CROWN_STEALING_ALLOWED = !CROWN_STEALING_ALLOWED;
+//            crownStealingToggleButton.setText(CROWN_STEALING_ALLOWED ? "Disable King On King Kill" : "Enable King On King Kill");
+//            output.setText(CROWN_STEALING_ALLOWED ? "King On King Kill Enabled" : "King On King Kill Disabled");
+//        });
+//
+//        //game Instructions
+//        Button displayInstructionsButton = new Button("Open Game Rules In Browser");
+//
+//        displayInstructionsButton.setOnAction(e -> {
+//            try {
+//                Desktop.getDesktop().browse(new URI("http://www.indepthinfo.com/checkers/play.shtml"));
+//                output.setText("Instructions Displayed - see browser");
+//            } catch (Exception e1) {
+//                output.setText("Apologies, your browser can't be accessed at this time");
+//            }
+//        });
+//
+//        //play tile toggle
+//        Button togglePlayTileButton = new Button("Play on Black");
+//        togglePlayTileButton.setOnAction(value -> {
+//            PLAY_SQUARE = PLAY_SQUARE == 0 ? 1 : 0;
+//            togglePlayTileButton.setText(PLAY_SQUARE == 0 ? "Play on White" : "Play on Black"); //TODO what the fuck is up with this fucking button
+//            output.setText(String.valueOf(PLAY_SQUARE == 0 ? "You are now playing on the black squares" : "You are now playing on the white squares"));
+//            //TODO rework this so that the UI is not being reset as well
+//            resetGame();
+//        });
+//
+//        //god mode toggle
+//        Button developmentModeButton = new Button("Enable Development Mode");
+//        developmentModeButton.setOnAction(value -> {
+//            toggleDevelopmentMode();
+//            developmentModeButton.setText(DEVELOPMENT_MODE_ENABLED ? "Disable Development Mode" : "Enable Development Mode");
+//            output.setText(DEVELOPMENT_MODE_ENABLED ? "God Mode Enabled" : "God Mode Disabled");
+//        });
+//
+//        //game output
+//        output = new TextArea("Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning - checkers game coursework.\n\nInstructions:\n" +
+//                              "- Drag and drop units with your mouse to make your moves\n- Green squares are units that can move.\n- Blue squares are where they can go.\n- And red squares are mandatory attacks.");
+//        output.setPrefWidth(300);
+//        output.setMaxWidth(TextArea.USE_PREF_SIZE);
+//        output.setMinWidth(TextArea.USE_PREF_SIZE);
+//        output.setEditable(false);
+//        output.setPrefRowCount(10);
+//        output.setPrefColumnCount(20);
+//        output.setWrapText(true);
+//
+//        return new VBox(10, newGameButton, crownStealingToggleButton, developmentModeButton, displayInstructionsButton, togglePlayTileButton, output);
+//    }
 
     private boolean getUserInput() {
         Scanner scanner = new Scanner(System.in);
@@ -156,7 +164,8 @@ public class CheckersGame extends Application {
         return scanner.next() == "y";
     }
 
-    private void startNewGame(boolean isFirstPlayer) {
+    public void startNewGame(boolean isFirstPlayer) {
+        resetGame();
         out.println("");
         out.println("A NEW GAME BEGINS --FIGHT!--");
 
@@ -166,7 +175,7 @@ public class CheckersGame extends Application {
         refreshTurn();
     }
 
-    private void toggleDevelopmentMode() {
+    public void toggleDevelopmentMode() {
         if (DEVELOPMENT_MODE_ENABLED) {
             refreshTurn();
         } else {
@@ -248,21 +257,21 @@ public class CheckersGame extends Application {
         whiteUnits.setMouseTransparent(isRedsTurn);
     }
 
-//        public void getAIMove() {
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//
-//        int r = rand.nextInt(possibleMoves.size());
-//        Move AIMove = possibleMoves.get(r);
-//        System.out.println("");
-//        System.out.println("AI moving: " + AIMove.getTarget().origin.x + ", " + AIMove.getTarget().origin.y + " -> " + AIMove.getTarget().x + ", " + AIMove.getTarget().y);
-//        executeMove(AIMove);
-//        isRedsTurn = !isRedsTurn;
-//        getAIMove();
-//    }
+        public void getAIMove() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        int r = rand.nextInt(possibleMoves.size());
+        Move AIMove = possibleMoves.get(r);
+        System.out.println("");
+        System.out.println("AI moving: " + AIMove.getTarget().origin.x + ", " + AIMove.getTarget().origin.y + " -> " + AIMove.getTarget().x + ", " + AIMove.getTarget().y);
+        executeMove(AIMove);
+        isRedsTurn = !isRedsTurn;
+        getAIMove();
+    }
 
     public Board getBoard() {
         return board;
@@ -359,7 +368,7 @@ public class CheckersGame extends Application {
         switch (result.getType()) {
             case NONE:
                 unit.abortMove();
-                output.setText("That Is An Invalid Move");
+                Main.output.setText("That Is An Invalid Move");
                 break;
             case NORMAL:
                 moveUnit(origin, target, unit, kingIsCreated);

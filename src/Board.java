@@ -10,7 +10,7 @@ public class Board {
 
     public Board(){
         board = new Tile[CheckersGame.SCALE][CheckersGame.SCALE];
-        components.getChildren().addAll(tiles);
+        components.getChildren().setAll(tiles);
 
         generateBoard();
     }
