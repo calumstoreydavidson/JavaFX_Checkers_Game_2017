@@ -1,4 +1,4 @@
-
+import java.util.Objects;
 
 public class Coordinates {
 
@@ -17,7 +17,15 @@ public class Coordinates {
     }
 
     public static int toBoard(double pixel) {
-        return (int) (pixel + CheckersGame.TILE_SIZE / 2) / CheckersGame.TILE_SIZE;
+        return (int) (pixel + Game.TILE_SIZE / 2) / Game.TILE_SIZE;
+    }
+
+    public double getPixelX(){
+        return (double) (x * Game.TILE_SIZE) + (Game.TILE_SIZE / 2);
+    }
+
+    public double getPixelY(){
+        return (double) (y * Game.TILE_SIZE) + (Game.TILE_SIZE / 2);
     }
 
     public static Coordinates getKillCoords(Coordinates attackOrigin, int xMoveDistance, int yMoveDistance) {
@@ -27,12 +35,12 @@ public class Coordinates {
     }
 
     public static boolean isOutsideBoard(Coordinates location) {
-        return location.x < 0 || location.y < 0 || location.x >= CheckersGame.SCALE || location.y >= CheckersGame.SCALE;
+        return location.x < 0 || location.y < 0 || location.x >= Game.SCALE || location.y >= Game.SCALE;
     }
 
     public boolean isEnemyKingRow(Team team) {
         if (team == Team.RED) {
-            return y == CheckersGame.SCALE - 1;
+            return y == Game.SCALE - 1;
         } else {
             return y == 0;
         }
@@ -62,5 +70,20 @@ public class Coordinates {
         int yDest = y + yDiff;
 
         return new Coordinates(origin, xDest, yDest);
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Coordinates that = (Coordinates) o;
+        return x == that.x && y == that.y;
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(x, y);
     }
 }

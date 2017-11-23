@@ -10,10 +10,10 @@ public class Tile extends Rectangle {
 
     public Tile(boolean light, int x, int y) {
         this.light = light;
-        setWidth(CheckersGame.TILE_SIZE);
-        setHeight(CheckersGame.TILE_SIZE);
+        setWidth(Game.TILE_SIZE);
+        setHeight(Game.TILE_SIZE);
 
-        relocate(x * CheckersGame.TILE_SIZE, y * CheckersGame.TILE_SIZE);
+        relocate(x * Game.TILE_SIZE, y * Game.TILE_SIZE);
 
         resetTileColor();
     }
@@ -45,5 +45,9 @@ public class Tile extends Rectangle {
 
     public void highlightUnit(){
         setFill(Color.valueOf("green"));
+    }
+
+    public void highlightAIMove(){
+        setFill(Color.valueOf("orange"));
     }
 }

@@ -9,15 +9,15 @@ public class Board {
     private Tile[][] board;
 
     public Board(){
-        board = new Tile[CheckersGame.SCALE][CheckersGame.SCALE];
+        board = new Tile[Game.SCALE][Game.SCALE];
         components.getChildren().setAll(tiles);
 
         generateBoard();
     }
 
     private void generateBoard() {
-        for (int y = 0; y < CheckersGame.SCALE; y++) {
-            for (int x = 0; x < CheckersGame.SCALE; x++) {
+        for (int y = 0; y < Game.SCALE; y++) {
+            for (int x = 0; x < Game.SCALE; x++) {
                 generateTile(y, x);
             }
         }
@@ -30,7 +30,7 @@ public class Board {
     }
 
     public static boolean isBoardEdge(Coordinates pos) {
-        return pos.x == 0 || pos.y == 0 || pos.x == CheckersGame.SCALE - 1 || pos.y == CheckersGame.SCALE - 1;
+        return pos.x == 0 || pos.y == 0 || pos.x == Game.SCALE - 1 || pos.y == Game.SCALE - 1;
     }
 
     public Group getComponents() {
@@ -49,7 +49,7 @@ public class Board {
     }
 
     public boolean isPlaySquare(Coordinates c) {
-        return (c.x + c.y) % 2 != CheckersGame.PLAY_SQUARE;
+        return (c.x + c.y) % 2 != Game.PLAY_SQUARE;
     }
 
     public void moveUnit(Coordinates origin, Coordinates target, Unit unit){

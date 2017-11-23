@@ -8,12 +8,12 @@ public class Unit extends StackPane {
 
     private UnitType type;
     private Team team;
-    private CheckersGame game;
+    private Game game;
 
     private double mouseX, mouseY;
     private double currentX, currentY;
 
-    public Unit(UnitType type, Team team, Coordinates c, CheckersGame game) {
+    public Unit(UnitType type, Team team, Coordinates c, Game game) {
         this.game = game;
         this.team = team;
         this.type = type;
@@ -53,8 +53,8 @@ public class Unit extends StackPane {
     }
 
     public void move(Coordinates targetCoords) {
-        currentX = targetCoords.x * CheckersGame.TILE_SIZE;
-        currentY = targetCoords.y * CheckersGame.TILE_SIZE;
+        currentX = targetCoords.x * Game.TILE_SIZE;
+        currentY = targetCoords.y * Game.TILE_SIZE;
         relocate(currentX, currentY);
     }
 
@@ -84,7 +84,7 @@ public class Unit extends StackPane {
             } else if (isEnemyUnit(this, adjacentTile) && isAttackPossible(adjacentTile)) {
                 Unit attackedUnit = game.getBoard().getTile(adjacentTile).getUnit();
                 MoveResult result = new MoveResult(MoveType.KILL, attackedUnit);
-                if (adjacentTile.getNextOnPath().isEnemyKingRow(team) && !isKing() || attackedUnit.isKing() && !isKing() && CheckersGame.CROWN_STEALING_ALLOWED){
+                if (adjacentTile.getNextOnPath().isEnemyKingRow(team) && !isKing() || attackedUnit.isKing() && !isKing() && Game.CROWN_STEALING_ALLOWED){
                     result.createKing();
                 }
                 moves.add(new Move(this, adjacentTile.getNextOnPath(), result));
@@ -151,27 +151,27 @@ public class Unit extends StackPane {
     private void PaintUnit() {
         int verticalOffset = -15 * (type.layers - 1);
 
-        double width = CheckersGame.TILE_SIZE * 0.3125;
-        double height = CheckersGame.TILE_SIZE * 0.26;
+        double width = Game.TILE_SIZE * 0.3125;
+        double height = Game.TILE_SIZE * 0.26;
 
         Ellipse bg = new Ellipse(width, height);
         bg.setFill(Color.BLACK);
 
         bg.setStroke(Color.BLACK);
-        bg.setStrokeWidth(CheckersGame.TILE_SIZE * 0.03);
+        bg.setStrokeWidth(Game.TILE_SIZE * 0.03);
 
-        bg.setTranslateX((CheckersGame.TILE_SIZE - width * 2) / 2);
-        bg.setTranslateY(((CheckersGame.TILE_SIZE - height * 2) / 2 + CheckersGame.TILE_SIZE * 0.07) + verticalOffset);
+        bg.setTranslateX((Game.TILE_SIZE - width * 2) / 2);
+        bg.setTranslateY(((Game.TILE_SIZE - height * 2) / 2 + Game.TILE_SIZE * 0.07) + verticalOffset);
 
 
         Ellipse ellipse = new Ellipse(width, height);
         ellipse.setFill(team == Team.RED ? Color.valueOf("#c40003") : Color.valueOf("#fff9f4"));
 
         ellipse.setStroke(Color.BLACK);
-        ellipse.setStrokeWidth(CheckersGame.TILE_SIZE * 0.03);
+        ellipse.setStrokeWidth(Game.TILE_SIZE * 0.03);
 
-        ellipse.setTranslateX((CheckersGame.TILE_SIZE - width * 2) / 2);
-        ellipse.setTranslateY(((CheckersGame.TILE_SIZE - height * 2) / 2) + verticalOffset);
+        ellipse.setTranslateX((Game.TILE_SIZE - width * 2) / 2);
+        ellipse.setTranslateY(((Game.TILE_SIZE - height * 2) / 2) + verticalOffset);
         
         if (type == UnitType.PAWN) {
             getChildren().setAll(bg, ellipse);
