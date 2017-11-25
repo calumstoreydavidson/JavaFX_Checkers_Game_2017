@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Random;
 
+import javafx.scene.layout.GridPane;
+
 public class RandomAIPlayer implements Player{
 
     private Random rand = new Random();
@@ -16,7 +18,8 @@ public class RandomAIPlayer implements Player{
     }
 
     @Override
-    public Move getPlayerMove(ArrayList<Move> possibleMoves){
+    public Move getPlayerMove(Board board){
+        ArrayList<Move> possibleMoves = board.getPossibleMoves();
         int r = rand.nextInt(possibleMoves.size());
         Move AIMove = possibleMoves.get(r);
 //        Main.output.appendText("RandomAIPlayer moving: " + AIMove.getTarget().origin.x + ", " + AIMove.getTarget().origin.y + " -> " + AIMove.getTarget().x + ", " + AIMove.getTarget().y);

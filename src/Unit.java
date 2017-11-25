@@ -8,13 +8,11 @@ public class Unit extends StackPane {
 
     private UnitType type;
     private Team team;
-    private Game game;
 
     private double mouseX, mouseY;
     private double currentX, currentY;
 
     public Unit(UnitType type, Team team, Coordinates c, Game game) {
-        this.game = game;
         this.team = team;
         this.type = type;
 
@@ -38,7 +36,7 @@ public class Unit extends StackPane {
             Coordinates origin = getCurrentCoords();
             Coordinates target = new Coordinates(origin, targetX, targetY);
 
-            if (game.DEVELOPMENT_MODE_ENABLED) {
+            if (Game.DEVELOPMENT_MODE_ENABLED) {
                 if (origin.equals(target)) {
                     toggleKing();
                     game.moveUnit(origin, target, this, false);
@@ -97,48 +95,17 @@ public class Unit extends StackPane {
         return team == Team.WHITE;
     }
 
-    //returns moves to empty adjacent spaces and spaces beyond adjacent enemies
-    public ArrayList<Move> getPossibleMoves() {
-        ArrayList<Move> moves = new ArrayList<>();
-
-        for (Coordinates adjacentTile : getAdjacentTiles(this)) {
-            if (!isOccupiedTile(adjacentTile)) {
-                MoveResult result = new MoveResult(MoveType.NORMAL);
-                if (adjacentTile.isEnemyKingRow(team) && !isKing()){
-                    result.createKing();
-                }
-                moves.add(new Move(this, adjacentTile, result));
-            } else if (isEnemyUnit(this, adjacentTile) && isAttackPossible(adjacentTile)) {
-                Unit attackedUnit = game.getBoard().getTile(adjacentTile).getUnit();
-                MoveResult result = new MoveResult(MoveType.KILL, attackedUnit);
-                if (adjacentTile.getNextOnPath().isEnemyKingRow(team) && !isKing() || attackedUnit.isKing() && !isKing() && Game.CROWN_STEALING_ALLOWED){
-                    result.createKing();
-                }
-                moves.add(new Move(this, adjacentTile.getNextOnPath(), result));
-            }
-        }
-        return moves;
-    }
-
-    private boolean isAttackPossible(Coordinates adjacentTile) {
-        return !isEnemyOnEdge(adjacentTile) && !isOccupiedTile(adjacentTile.getNextOnPath());
-    }
-
-    public boolean canMove() {
-        return !getPossibleMoves().isEmpty();
-    }
-
     //returns positions adjacent to the unit, that exist on the board
-    private ArrayList<Coordinates> getAdjacentTiles(Unit unit) {
+    public ArrayList<Coordinates> getPossiblePositions() {
         ArrayList<Coordinates> potentiallyAdjacentTiles = new ArrayList<>();
 
-        Coordinates origin = unit.getCurrentCoords();
+        Coordinates origin = getCurrentCoords();
 
-        if (isKing() || unit.isRed()) {
+        if (isKing() || isRed()) {
             potentiallyAdjacentTiles.add(origin.SW());
             potentiallyAdjacentTiles.add(origin.SE());
         }
-        if (isKing() || unit.isWhite()) { // if unit is king or red
+        if (isKing() || isWhite()) {
             potentiallyAdjacentTiles.add(origin.NW());
             potentiallyAdjacentTiles.add(origin.NE());
         }
@@ -151,19 +118,6 @@ public class Unit extends StackPane {
         }
 
         return validAdjacentTiles;
-    }
-
-    public boolean isOccupiedTile(Coordinates c) {
-        return game.getBoard().getTile(c).hasUnit();
-    }
-
-    public boolean isEnemyUnit(Unit unit, Coordinates c) {
-        Unit enemyUnit = game.getBoard().getTile(c).getUnit();
-        return enemyUnit.getTeam() != unit.getTeam();
-    }
-
-    public boolean isEnemyOnEdge(Coordinates enemyPos) {
-        return Board.isBoardEdge(enemyPos);
     }
 
     public void toggleKing(){

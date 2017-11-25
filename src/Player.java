@@ -4,7 +4,7 @@ public interface Player {
 
     boolean isPlayerHuman();
 
-    Move getPlayerMove(ArrayList<Move> possibleMoves);
+    Move getPlayerMove(Board board);
 
     boolean isPlayersTurn();
 

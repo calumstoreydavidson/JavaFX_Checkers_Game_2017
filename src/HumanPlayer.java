@@ -13,7 +13,7 @@ public class HumanPlayer implements Player {
         this.isPlayerHuman = true;
     }
 
-    @Override public Move getPlayerMove(ArrayList<Move> possibleMoves) {
+    @Override public Move getPlayerMove(Board board) {
         return null;
     }
 

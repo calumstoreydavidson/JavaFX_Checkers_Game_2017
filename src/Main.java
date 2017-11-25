@@ -106,6 +106,7 @@ public class Main extends Application {
 
         //TODO toggle number of AI players
 
+        //TODO AI difficulty slider
 
         GridPane teamPlayerMenus = getTeamPlayerMenus();
 
