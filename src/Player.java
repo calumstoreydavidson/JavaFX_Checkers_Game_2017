@@ -1,28 +1,16 @@
 import java.util.ArrayList;
 
-public abstract class Player {
+public interface Player {
 
-   private boolean isPlayersTurn;
-   private Team playerTeam;
+    boolean isPlayerHuman();
 
-   public Player(Team playerTeam){
-       this.playerTeam = playerTeam;
-       //red always goes first
-       isPlayersTurn = playerTeam == Team.RED;
-   }
+    Move getPlayerMove(ArrayList<Move> possibleMoves);
 
-   public abstract Move getPlayerMove(ArrayList<Move> possibleMoves);
+    boolean isPlayersTurn();
 
-   public boolean IsPlayersTurn(){
-       return isPlayersTurn;
-   }
+    void switchTurn();
 
-   public void endTurn(){
-       isPlayersTurn = false;
-   }
+    Team getPlayerTeam();
 
-   public void startTurn(){
-       isPlayersTurn = true;
-   }
-
+    void setPlayerTeam(Team playerTeam);
 }

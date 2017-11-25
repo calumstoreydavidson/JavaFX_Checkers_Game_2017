@@ -1,7 +1,6 @@
 import static java.lang.System.out;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -10,42 +9,33 @@ import javafx.scene.Node;
 
 public class Game { //extends Application {
 
-    //toggle which colour squares the game is played on - 1 for white, 0 for black
-    public static int PLAY_SQUARE = 1;
     public static final int SCALE = 8;
     public static final int TILE_SIZE = 100;
     private static final int MAX_RED_POPULATION = Integer.MAX_VALUE;
     private static final int MAX_WHITE_POPULATION = Integer.MAX_VALUE;
+    //toggle which colour squares the game is played on - 1 for white, 0 for black
+    public static int PLAY_SQUARE = 1;
     public static boolean CROWN_STEALING_ALLOWED = true;
     public boolean DEVELOPMENT_MODE_ENABLED = false;
     public int AI_MOVE_LAG_TIME = 500; //milliseconds
 
-    private Player redPlayer = new RandomAIPlayer();
-    private Player whitePlayer = new RandomAIPlayer();
+    private Player redPlayer = new HumanPlayer(Team.RED);
+    private Player whitePlayer = new RandomAIPlayer(Team.WHITE);
     private Group components = new Group();
-    private boolean isRedsTurn;
     private Board board = new Board();
     private Group redUnits = new Group();
     private Group whiteUnits = new Group();
 
     private ArrayList<Move> possibleMoves = new ArrayList<>();
-    private Random rand = new Random();
-    private boolean nextTurnAllowed;
 
-    public Game(){
-//        startNewGame(true);
-    }
-
-    public void startNewGame(Player Player1, Player player2) {
+    public void startNewGame() {
         resetGame();
-        out.println("");
-        out.println("A NEW GAME BEGINS --FIGHT!--");
+        Main.output.appendText("\n---------------------------------------------------\n\n");
+        Main.output.appendText("A NEW GAME BEGINS --FIGHT!--\n");
+        printNewTurnDialogue();
 
         populateBoard();
 
-        isRedsTurn = isFirstPlayer;
-
-        nextTurnAllowed = true;
         nextPlayersTurn();
     }
 
@@ -54,6 +44,9 @@ public class Game { //extends Application {
         redUnits = new Group();
         whiteUnits = new Group();
         components.getChildren().setAll(board.getComponents(), redUnits, whiteUnits);
+        if (getCurrentPlayer() == whitePlayer){
+            switchPlayerTurn();
+        }
     }
 
     public void toggleDevelopmentMode() {
@@ -69,60 +62,43 @@ public class Game { //extends Application {
 
     private void refreshTurn() {
         refreshTeamsAvailableMoves();
+        if (isGameOver()) {
+            startNewGame();
+        }
         refreshBoardHighlighting();
         makeCurrentTeamAccessible();
     }
 
-    private void nextPlayersTurn(){
+    public void nextPlayersTurn() {
         refreshTurn();
-        if (isRedsTurn){
-            redsTurn();
+        runPlayerMove(getCurrentPlayer());
+    }
+
+    public Player getCurrentPlayer() {
+        if (redPlayer.isPlayersTurn()) {
+            return redPlayer;
         } else {
-            whitesTurn();
+            return whitePlayer;
         }
-    }
-
-    private void redsTurn(){
-        runAIMove();
-    }
-
-    private void whitesTurn(){
-        runAIMove();
     }
 
     private void refreshBoardHighlighting() {
         board.resetTileColors();
         highlightAvailableMoves();
-        playByPlay();
-    }
-
-    public void playByPlay() {
-        out.println("");
-        String player = isRedsTurn ? "red" : "white";
-        out.println(player + "'s turn");
-
-//        for (Move move : possibleMoves) {
-//            if (move.getUnit().isKing()) {
-//                out.print(move.getUnit().getTeam() + " " + move.getUnit().getType() + ": ");
-//            } else {
-//                out.print(move.getUnit().getTeam() + " " + move.getUnit().getType() + ": ");
-//            }
-//            out.print(move.getUnit().getCurrentX() + ", " + move.getUnit().getCurrentY() + " -> ");
-//            out.print(move.getTarget().x + ", " + move.getTarget().y + ": ");
-//            out.println(move.getResult().getType());
-//        }
     }
 
     private boolean isGameOver() {
-        if (redUnits.getChildren().size() == 0) {
-            Main.output.setText("!!!WHITE WINS!!!");
-            return true;
+        if (possibleMoves.isEmpty()) {
+            if (redPlayer.isPlayersTurn()) {
+                Main.output.appendText("!!!WHITE WINS!!!");
+                return true;
+            } else {
+                Main.output.appendText("!!!RED WINS!!!");
+                return true;
+            }
+        } else {
+            return false;
         }
-        if (whiteUnits.getChildren().size() == 0) {
-            Main.output.setText("!!!RED WINS!!!");
-            return true;
-        }
-        return false;
     }
 
     private void highlightAvailableMoves() {
@@ -138,28 +114,23 @@ public class Game { //extends Application {
     }
 
     private void makeCurrentTeamAccessible() {
-        redUnits.setMouseTransparent(!isRedsTurn);
-        whiteUnits.setMouseTransparent(isRedsTurn);
+        redUnits.setMouseTransparent(!redPlayer.isPlayersTurn());
+        whiteUnits.setMouseTransparent(redPlayer.isPlayersTurn());
     }
 
-    public void runAIMove() {
+    public void runPlayerMove(Player player) {
         Task<Void> task = new Task<Void>() {
             @Override public Void call() throws Exception {
-                try {
-                    Thread.sleep(AI_MOVE_LAG_TIME);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Move AIMove = redPlayer.getPlayerMove(possibleMoves);
+                Thread.sleep(AI_MOVE_LAG_TIME);
+
+                Move AIMove = player.getPlayerMove(possibleMoves);
                 board.getTile(AIMove.getTarget()).highlightAIMove();
                 board.getTile(AIMove.getUnit().getCurrentCoords()).highlightAIMove();
-                try {
-                    Thread.sleep(AI_MOVE_LAG_TIME);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-//                isRedsTurn = !isRedsTurn;
+
+                Thread.sleep(AI_MOVE_LAG_TIME);
+
                 Platform.runLater(() -> executeMove(AIMove));
+
                 //TODO recolour the unit that moves?
                 return null;
             }
@@ -184,7 +155,7 @@ public class Game { //extends Application {
             for (int x = 0; x < SCALE; x++) {
                 Coordinates c = new Coordinates(x, y);
                 if (y < factionBorder && board.isPlaySquare(c) && placedUnits <= MAX_RED_POPULATION) {
-                    Unit unit = generateUnit(UnitType.PAWN, Team.RED, c);
+                    Unit unit = new Unit(UnitType.PAWN, Team.RED, c, this);
                     board.getTile(c).setUnit(unit);
                     redUnits.getChildren().add(unit);
                     placedUnits++;
@@ -201,7 +172,7 @@ public class Game { //extends Application {
             for (int x = SCALE - 1; x >= 0; x--) {
                 Coordinates c = new Coordinates(x, y);
                 if (y >= factionBorder && board.isPlaySquare(c) && placedUnits <= MAX_WHITE_POPULATION) {
-                    Unit unit = generateUnit(UnitType.PAWN, Team.WHITE, c);
+                    Unit unit = new Unit(UnitType.PAWN, Team.WHITE, c, this);
                     board.getTile(c).setUnit(unit);
                     whiteUnits.getChildren().add(unit);
                     placedUnits++;
@@ -210,44 +181,7 @@ public class Game { //extends Application {
         }
     }
 
-    private Unit generateUnit(UnitType type, Team team, Coordinates c) {
-        Unit unit = new Unit(type, team, c, this);
-
-        unit.setOnMouseReleased(e -> {
-            int targetX = Coordinates.toBoard(unit.getLayoutX());
-            int targetY = Coordinates.toBoard(unit.getLayoutY());
-
-            Coordinates origin = unit.getCurrentCoords();
-            Coordinates target = new Coordinates(origin, targetX, targetY);
-
-            if (DEVELOPMENT_MODE_ENABLED) {
-                if (origin.equals(target)) {
-                    unit.toggleKing();
-                    moveUnit(origin, target, unit, false);
-                } else {
-                    moveUnit(origin, target, unit, false);
-                }
-            } else {
-                Move actualMove = null;
-                for (Move move : possibleMoves) {
-                    if (move.getUnit().getCurrentCoords().equals(origin) && move.getTarget().equals(target)) {
-                        actualMove = move;
-                        break;
-                    }
-                }
-                if (actualMove == null) {
-                    MoveResult result = new MoveResult(MoveType.NONE);
-                    actualMove = new Move(unit, target, result);
-                }
-
-                executeMove(actualMove);
-            }
-        });
-
-        return unit;
-    }
-
-    private void executeMove(Move move) {
+    public void executeMove(Move move) {
         Coordinates origin = move.getTarget().origin;
         Coordinates target = move.getTarget();
         Unit unit = move.getUnit();
@@ -258,12 +192,12 @@ public class Game { //extends Application {
         switch (result.getType()) {
             case NONE:
                 unit.abortMove();
-                Main.output.setText("That Is An Invalid Move");
+                Main.output.appendText("That Is An Invalid Move\n");
                 break;
             case NORMAL:
                 moveUnit(origin, target, unit, kingIsCreated);
                 turnFinished = true;
-//                Main.output.setText(unit.getTeam() + " to " + );
+                Main.output.appendText(unit.getTeam() + " Move Successful\n");
                 break;
             case KILL:
                 Unit attackedUnit = result.getAttackedUnit();
@@ -273,39 +207,46 @@ public class Game { //extends Application {
 
                 if (unit.canMove() && canAttack(unit) && !result.isKingCreated()) {
                     possibleMoves = getUnitMoves(unit);
-                    refreshBoardHighlighting();
                     nextPlayersTurn();
                 } else {
                     turnFinished = true;
                 }
-
-//                Main.output.setText(unit.getTeam() + " Attack Successful");
+                Main.output.appendText(unit.getTeam() + " Attack Successful\n");
                 break;
         }
 
         if (turnFinished) {
-            if (isGameOver()) {
-                startNewGame(true);
-            } else {
-                isRedsTurn = !isRedsTurn;
-//                refreshTurn();
-                nextPlayersTurn();
-            }
+            switchPlayerTurn();
+            printNewTurnDialogue();
+
+            nextPlayersTurn();
         }
+    }
+
+    private void switchPlayerTurn() {
+        redPlayer.switchTurn();
+        whitePlayer.switchTurn();
+    }
+
+    private void printNewTurnDialogue() {
+        Main.output.appendText("\n---------------------------------------------------\n\n");
+        String player = redPlayer.isPlayersTurn() ? "Red" : "White";
+        Main.output.appendText(player + "'s Turn\n");
     }
 
     private boolean canAttack(Unit unit) {
         return getUnitMoves(unit).get(0).getResult().getType() == MoveType.KILL;
     }
 
-    private void moveUnit(Coordinates origin, Coordinates target, Unit unit, boolean kingIsCreated) {
+    public void moveUnit(Coordinates origin, Coordinates target, Unit unit, boolean kingIsCreated) {
         unit.move(target);
         board.moveUnit(origin, target, unit);
+        Main.output.appendText(unit.getTeam() + " " + target.origin.x + ", " + target.origin.y + " -> " + target.x + ", " + target.y + "\n");
 
         if (kingIsCreated) {
             unit.toggleKing();
             out.print(unit.getTeam() + " at ");
-            out.println(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING");
+            Main.output.appendText(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING\n");
         }
     }
 
@@ -319,7 +260,7 @@ public class Game { //extends Application {
     }
 
     private void refreshTeamsAvailableMoves() {
-        if (isRedsTurn) {
+        if (redPlayer.isPlayersTurn()) {
             possibleMoves = getTeamMoves(redUnits);
         } else {
             possibleMoves = getTeamMoves(whiteUnits);
@@ -341,7 +282,7 @@ public class Game { //extends Application {
         return prioritiseAttackMoves(unit.getPossibleMoves());
     }
 
-    private ArrayList<Move> prioritiseAttackMoves(ArrayList<Move> possibleUnitMoves) {
+    public ArrayList<Move> prioritiseAttackMoves(ArrayList<Move> possibleUnitMoves) {
         ArrayList<Move> attackMoves = new ArrayList<>();
         for (Move move : possibleUnitMoves) {
             if (move.getResult().getType() == MoveType.KILL) {
@@ -360,4 +301,15 @@ public class Game { //extends Application {
         return components;
     }
 
+    public void setRedPlayer(Player redPlayer) {
+        this.redPlayer = redPlayer;
+    }
+
+    public void setWhitePlayer(Player whitePlayer) {
+        this.whitePlayer = whitePlayer;
+    }
+
+    public ArrayList<Move> getPossibleMoves() {
+        return possibleMoves;
+    }
 }

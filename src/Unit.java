@@ -30,10 +30,37 @@ public class Unit extends StackPane {
         setOnMouseDragged(e -> {
             relocate(e.getSceneX() - mouseX + currentX, e.getSceneY() - mouseY + currentY);
         });
-    }
 
-    public UnitType getType() {
-        return type;
+        setOnMouseReleased(e -> {
+            int targetX = Coordinates.toBoard(getLayoutX());
+            int targetY = Coordinates.toBoard(getLayoutY());
+
+            Coordinates origin = getCurrentCoords();
+            Coordinates target = new Coordinates(origin, targetX, targetY);
+
+            if (game.DEVELOPMENT_MODE_ENABLED) {
+                if (origin.equals(target)) {
+                    toggleKing();
+                    game.moveUnit(origin, target, this, false);
+                } else {
+                    game.moveUnit(origin, target, this, false);
+                }
+            } else {
+                Move actualMove = null;
+                for (Move move : game.getPossibleMoves()) {
+                    if (move.getUnit().getCurrentCoords().equals(origin) && move.getTarget().equals(target)) {
+                        actualMove = move;
+                        break;
+                    }
+                }
+                if (actualMove == null) {
+                    MoveResult result = new MoveResult(MoveType.NONE);
+                    actualMove = new Move(this, target, result);
+                }
+
+                game.executeMove(actualMove);
+            }
+        });
     }
 
     public Team getTeam() {

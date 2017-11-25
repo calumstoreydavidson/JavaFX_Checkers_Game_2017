@@ -2,15 +2,16 @@ import java.awt.*;
 import java.net.URI;
 
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -19,7 +20,6 @@ import javafx.stage.StageStyle;
 
 public class Main extends Application {
 
-    private Stage primaryStage;
     public static TextArea output;
     VBox controls = buildControls();
 
@@ -30,10 +30,8 @@ public class Main extends Application {
     }
 
     @Override public void start(Stage primaryStage) throws Exception {
-        this.primaryStage = primaryStage;
-
         //game window title
-        this.primaryStage.setTitle("Checkers Game");
+        primaryStage.setTitle("GUIExample Game");
 
         //prevent all window resizing
         primaryStage.setResizable(false);
@@ -42,10 +40,10 @@ public class Main extends Application {
         game = new Game();
 
         Scene GUI = new Scene(createGUI());
-        this.primaryStage.setScene(GUI);
-        this.primaryStage.show();
+        primaryStage.setScene(GUI);
+        primaryStage.show();
 
-        game.startNewGame(true); //startNewGame(getUserInput()); TODO because effort
+        game.startNewGame(); //startNewGame(getUserInput()); TODO because effort
     }
 
     private Parent createGUI() {
@@ -101,12 +99,15 @@ public class Main extends Application {
 
         //TODO toggle algorithm type
 
-        //TODO toggle number of RandomAIPlayer players
-
         //TODO swap teams sides of the board
 
         //TODO show board axis
             //TODO make 0,0 in bottom left rather thant top left
+
+        //TODO toggle number of AI players
+
+
+        GridPane teamPlayerMenus = getTeamPlayerMenus();
 
         VBox controls = new VBox(10,
                 newGameButton,
@@ -115,12 +116,55 @@ public class Main extends Application {
                 developmentModeButton,
                 displayInstructionsButton,
                 AITurnLengthLabel,
-                AITurnLengthSlider
+                AITurnLengthSlider,
+                teamPlayerMenus
         );
 
         controls.setPrefWidth(300);
 
         return controls;
+    }
+
+    private GridPane getTeamPlayerMenus() {
+        MenuItem redTeamPlayerMenuItem1 = new MenuItem("Human");
+        redTeamPlayerMenuItem1.setOnAction(event -> {
+            game.setRedPlayer(new HumanPlayer(Team.RED));
+            game.startNewGame(); // TODO fix changing mid game?
+        });
+
+        MenuItem redTeamPlayerMenuItem2 = new MenuItem("Random");
+        redTeamPlayerMenuItem2.setOnAction(event -> {
+            game.setRedPlayer(new RandomAIPlayer(Team.RED));
+            game.startNewGame();//TODO it is bad that it can immediatly start,  perhaps a submit button - or merge with start new game button
+        });
+
+//        MenuItem redTeamPlayerMenuItem3 = new MenuItem("Minimax");//TODO add minimax
+//        redTeamPlayerMenuItem3.setOnAction(event -> game.setRedPlayer(new HumanPlayer(Team.RED)));
+
+        MenuButton redTeamPlayerMenuButton = new MenuButton("Red Player", null, redTeamPlayerMenuItem1, redTeamPlayerMenuItem2);
+
+
+        MenuItem whiteTeamPlayerMenuItem1 = new MenuItem("Human");
+        whiteTeamPlayerMenuItem1.setOnAction(event -> {
+            game.setWhitePlayer(new HumanPlayer(Team.WHITE));
+            game.startNewGame();
+        });
+
+        MenuItem whiteTeamPlayerMenuItem2 = new MenuItem("Random");
+        whiteTeamPlayerMenuItem2.setOnAction(event -> {
+            game.setWhitePlayer(new RandomAIPlayer(Team.WHITE));
+            game.startNewGame();
+        });
+
+//        MenuItem whiteTeamPlayerMenuItem3 = new MenuItem("Minimax");//TODO add minimax
+//        whiteTeamPlayerMenuItem3.setOnAction(event -> game.setWhitePlayer(new HumanPlayer(Team.RED)));
+
+        MenuButton whiteTeamPlayerMenuButton = new MenuButton("White Player", null, whiteTeamPlayerMenuItem1, whiteTeamPlayerMenuItem2);
+
+        GridPane gridPane = new GridPane();
+        gridPane.add(redTeamPlayerMenuButton,0,0);
+        gridPane.add(whiteTeamPlayerMenuButton,1,0);
+        return gridPane;
     }
 
     private Slider getMoveSpeedSlider() {
@@ -147,7 +191,7 @@ public class Main extends Application {
 
     private Button getRunAIMoveButton() {
         Button runAIMoveButton = new Button("Run RandomAIPlayer Move");
-        runAIMoveButton.setOnAction(value -> game.runAIMove());
+        runAIMoveButton.setOnAction(value -> game.nextPlayersTurn());
         return runAIMoveButton;
     }
 
@@ -158,7 +202,7 @@ public class Main extends Application {
                               "- Green squares are units that can move.\n" +
                               "- Blue squares are where they can go.\n" +
                               "- And red squares are mandatory attacks.");
-        output.setPrefWidth(300);
+        output.setPrefWidth(350);
         output.setMaxWidth(TextArea.USE_PREF_SIZE);
         output.setMinWidth(TextArea.USE_PREF_SIZE);
         output.setEditable(false);
@@ -172,7 +216,7 @@ public class Main extends Application {
         developmentModeButton.setOnAction(value -> {
             game.toggleDevelopmentMode();
             developmentModeButton.setText(game.DEVELOPMENT_MODE_ENABLED ? "Disable Development Mode" : "Enable Development Mode");
-            output.setText(game.DEVELOPMENT_MODE_ENABLED ? "God Mode Enabled" : "God Mode Disabled");
+            output.appendText(game.DEVELOPMENT_MODE_ENABLED ? "God Mode Enabled" : "God Mode Disabled");
         });
         return developmentModeButton;
     }
@@ -180,11 +224,11 @@ public class Main extends Application {
     private Button getTogglePlayTileButton() {
         Button togglePlayTileButton = new Button("Play on Black");
         togglePlayTileButton.setOnAction(value -> {
-            game.PLAY_SQUARE = game.PLAY_SQUARE == 0 ? 1 : 0;
-            togglePlayTileButton.setText(game.PLAY_SQUARE == 0 ? "Play on White" : "Play on Black"); //TODO what the fuck is up with this fucking button
-            output.setText(String.valueOf(game.PLAY_SQUARE == 0 ? "You are now playing on the black squares" : "You are now playing on the white squares"));
+            Game.PLAY_SQUARE = Game.PLAY_SQUARE == 0 ? 1 : 0;
+            togglePlayTileButton.setText(Game.PLAY_SQUARE == 0 ? "Play on White" : "Play on Black"); //TODO what the fuck is up with this fucking button
+            output.appendText(String.valueOf(Game.PLAY_SQUARE == 0 ? "You are now playing on the black squares" : "You are now playing on the white squares"));
             //TODO rework this so that the UI is not being reset as well
-            game.startNewGame(true);
+            game.startNewGame();
         });
         return togglePlayTileButton;
     }
@@ -194,9 +238,9 @@ public class Main extends Application {
         displayInstructionsButton.setOnAction(e -> {
             try {
                 Desktop.getDesktop().browse(new URI("http://www.indepthinfo.com/checkers/play.shtml"));
-                output.setText("Instructions Displayed - see browser");
+                output.appendText("Instructions Displayed - see browser");
             } catch (Exception e1) {
-                output.setText("Apologies, your browser can't be accessed at this time");
+                output.appendText("Apologies, your browser can't be accessed at this time");
             }
         });
         return displayInstructionsButton;
@@ -205,16 +249,16 @@ public class Main extends Application {
     private Button getCrownStealingToggleButton() {
         Button crownStealingToggleButton = new Button("Disable King On King Kill");
         crownStealingToggleButton.setOnAction(value -> {
-            game.CROWN_STEALING_ALLOWED = !game.CROWN_STEALING_ALLOWED;
-            crownStealingToggleButton.setText(game.CROWN_STEALING_ALLOWED ? "Disable King On King Kill" : "Enable King On King Kill");
-            output.setText(game.CROWN_STEALING_ALLOWED ? "King On King Kill Enabled" : "King On King Kill Disabled");
+            Game.CROWN_STEALING_ALLOWED = !Game.CROWN_STEALING_ALLOWED;
+            crownStealingToggleButton.setText(Game.CROWN_STEALING_ALLOWED ? "Disable King On King Kill" : "Enable King On King Kill");
+            output.appendText(Game.CROWN_STEALING_ALLOWED ? "King On King Kill Enabled" : "King On King Kill Disabled");
         });
         return crownStealingToggleButton;
     }
 
     private Button getNewGameButton() {
         Button newGameButton = new Button("Start New Game");
-        newGameButton.setOnAction(value -> game.startNewGame(true));
+        newGameButton.setOnAction(value -> game.startNewGame());
         return newGameButton;
     }
 

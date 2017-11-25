@@ -23,7 +23,7 @@ import javafx.stage.Stage;
  *
  * @author Paige
  */
-public class Checkers extends Application {
+public class GUIExample extends Application {
 
     @Override
     public void start(Stage primaryStage) {
@@ -41,7 +41,7 @@ public class Checkers extends Application {
         //StackPane root = new StackPane();
         //root.getChildren().add(btn);
 
-        primaryStage.setTitle("Simple Checkers");
+        primaryStage.setTitle("Simple GUIExample");
 
         //Gridpane creation
         GridPane grid = new GridPane();
@@ -51,7 +51,7 @@ public class Checkers extends Application {
         grid.setPadding(new Insets(25, 25, 25, 25));
 
         //initial window set up
-        Text introText = new Text("Welcome to Simple Checkers!");
+        Text introText = new Text("Welcome to Simple GUIExample!");
         introText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 28));
         grid.add(introText, 0, 0, 1, 1);
         grid.setHalignment(introText, HPos.CENTER);
