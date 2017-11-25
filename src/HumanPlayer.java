@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class HumanPlayer implements Player {
 
     private boolean isPlayerHuman;
@@ -13,7 +11,7 @@ public class HumanPlayer implements Player {
         this.isPlayerHuman = true;
     }
 
-    @Override public Move getPlayerMove(ArrayList<Move> possibleMoves) {
+    @Override public Move getPlayerMove(Game game) {
         return null;
     }
 

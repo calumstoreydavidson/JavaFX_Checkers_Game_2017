@@ -16,11 +16,10 @@ public class RandomAIPlayer implements Player{
     }
 
     @Override
-    public Move getPlayerMove(ArrayList<Move> possibleMoves){
+    public Move getPlayerMove(Game game){
+        ArrayList<Move> possibleMoves = game.getPossibleMoves();
         int r = rand.nextInt(possibleMoves.size());
         Move AIMove = possibleMoves.get(r);
-//        Main.output.appendText("RandomAIPlayer moving: " + AIMove.getTarget().origin.x + ", " + AIMove.getTarget().origin.y + " -> " + AIMove.getTarget().x + ", " + AIMove.getTarget().y);
-
         return AIMove;
     }
 

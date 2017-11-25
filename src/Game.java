@@ -87,7 +87,7 @@ public class Game { //extends Application {
         highlightAvailableMoves();
     }
 
-    private boolean isGameOver() {
+    public boolean isGameOver() {
         if (possibleMoves.isEmpty()) {
             if (redPlayer.isPlayersTurn()) {
                 Main.output.appendText("!!!WHITE WINS!!!");
@@ -245,7 +245,6 @@ public class Game { //extends Application {
 
         if (kingIsCreated) {
             unit.toggleKing();
-            out.print(unit.getTeam() + " at ");
             Main.output.appendText(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING\n");
         }
     }
@@ -260,17 +259,14 @@ public class Game { //extends Application {
     }
 
     private void refreshTeamsAvailableMoves() {
-        if (redPlayer.isPlayersTurn()) {
-            possibleMoves = getTeamMoves(redUnits);
-        } else {
-            possibleMoves = getTeamMoves(whiteUnits);
-        }
+        possibleMoves = redPlayer.isPlayersTurn() ? getTeamMoves(Team.RED) : getTeamMoves(Team.WHITE);
     }
 
-    private ArrayList<Move> getTeamMoves(Group team) {
+    public ArrayList<Move> getTeamMoves(Team team) {
         ArrayList<Move> possibleTeamMoves = new ArrayList<>();
+        Group teamUnits = team == Team.RED ? redUnits: whiteUnits;
 
-        for (Node node : team.getChildren()) {
+        for (Node node : teamUnits.getChildren()) {
             Unit unit = (Unit) node;
             possibleTeamMoves.addAll(unit.getPossibleMoves());
         }
