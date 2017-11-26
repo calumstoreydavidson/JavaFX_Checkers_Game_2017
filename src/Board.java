@@ -13,12 +13,15 @@ public class Board {
     private Group redUnits = new Group();
     private Group whiteUnits = new Group();
 
+    private ArrayList<Move> possibleMoves = new ArrayList<>();
+
     public Board() {
         board = new Tile[Game.SCALE][Game.SCALE];
-        components.getChildren().setAll(tiles);
 
         generateBoard();
         populateBoard();
+
+        components.getChildren().setAll(tiles, redUnits, whiteUnits);
     }
 
     public static boolean isBoardEdge(Coordinates pos) {
@@ -89,6 +92,18 @@ public class Board {
         }
     }
 
+    public void highlightAvailableMoves() {
+        for (Move move : possibleMoves) {
+            if (move.getResult().getType() == MoveType.KILL) {
+                //TODO make these optional
+//                board.getTile(move.getTarget()).highlightAttackDestination();
+            } else {
+//                board.getTile(move.getTarget()).highlightMoveDestination();
+            }
+            getTile(move.getUnit().getCurrentCoords()).highlightUnit();
+        }
+    }
+
     public Tile getTile(Coordinates position) {
         return board[position.x][position.y];
     }
@@ -97,25 +112,20 @@ public class Board {
         return (c.x + c.y) % 2 != Game.PLAY_SQUARE;
     }
 
-    public void moveUnit(Coordinates origin, Coordinates target, Unit unit) {
-        getTile(origin).setUnit(null);
-        getTile(target).setUnit(unit);
-    }
-
-    public ArrayList<Move> getTeamMoves(Team team) {
+    public void getTeamMoves(Team team) {
         ArrayList<Move> possibleTeamMoves = new ArrayList<>();
         Group teamUnits = team == Team.RED ? redUnits : whiteUnits;
 
         for (Node node : teamUnits.getChildren()) {
             Unit unit = (Unit) node;
-            possibleTeamMoves.addAll(getPossibleMoves(unit));
+            possibleTeamMoves.addAll(getPotentialUnitMoves(unit));
         }
 
-        return prioritiseAttackMoves(possibleTeamMoves);
+        possibleMoves = prioritiseAttackMoves(possibleTeamMoves);
     }
 
     public ArrayList<Move> getUnitMoves(Unit unit) {
-        return prioritiseAttackMoves(getPossibleMoves(unit));
+        return prioritiseAttackMoves(getPotentialUnitMoves(unit));
     }
 
     public ArrayList<Move> prioritiseAttackMoves(ArrayList<Move> possibleUnitMoves) {
@@ -134,7 +144,7 @@ public class Board {
     }
 
     //returns moves to empty adjacent spaces and spaces beyond adjacent enemies
-    public ArrayList<Move> getPossibleMoves(Unit unit) {
+    public ArrayList<Move> getPotentialUnitMoves(Unit unit) {
         ArrayList<Move> moves = new ArrayList<>();
 
         for (Coordinates possiblePosition : unit.getPossiblePositions()) {
@@ -187,4 +197,75 @@ public class Board {
         return playerUnits.getChildren().stream().map(node -> (Unit) node).collect(Collectors.toCollection(ArrayList::new));
     }
 
+    public boolean executeMove(Move move) {
+        Coordinates origin = move.getTarget().origin;
+        Coordinates target = move.getTarget();
+        Unit unit = move.getUnit();
+        MoveResult result = move.getResult();
+        boolean kingIsCreated = result.isKingCreated();
+
+        boolean turnFinished = false;
+        switch (result.getType()) {
+            case NONE:
+                unit.abortMove();
+                Main.output.appendText("That Is An Invalid Move\n");
+                break;
+            case NORMAL:
+                moveUnit(origin, target, unit, kingIsCreated);
+                turnFinished = true;
+                Main.output.appendText(unit.getTeam() + " Move Successful\n");
+                break;
+            case KILL:
+                Unit attackedUnit = result.getAttackedUnit();
+
+                moveUnit(origin, target, unit, kingIsCreated);
+                killUnit(attackedUnit);
+
+                if (canMove(unit) && canAttack(unit) && !result.isKingCreated()) {
+                    possibleMoves = getUnitMoves(unit);
+                } else {
+                    turnFinished = true;
+                }
+                Main.output.appendText(unit.getTeam() + " Attack Successful\n");
+                break;
+        }
+        return turnFinished;
+    }
+
+    private boolean canAttack(Unit unit) {
+        return getUnitMoves(unit).get(0).getResult().getType() == MoveType.KILL;
+    }
+
+    public boolean canMove(Unit unit) {
+        return !getUnitMoves(unit).isEmpty();
+    }
+
+    public void moveUnit(Coordinates origin, Coordinates target, Unit unit, boolean kingIsCreated) {
+        unit.move(target);
+        getTile(origin).setUnit(null);
+        getTile(target).setUnit(unit);
+        Main.output.appendText(unit.getTeam() + " " + target.origin.x + ", " + target.origin.y + " -> " + target.x + ", " + target.y + "\n");
+
+        if (kingIsCreated) {
+            unit.toggleKing();
+            Main.output.appendText(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING\n");
+        }
+    }
+
+    public void makeCurrentTeamAccessible(Player player) {
+        redUnits.setMouseTransparent(!player.isPlayersTurn());
+        whiteUnits.setMouseTransparent(player.isPlayersTurn());
+    }
+
+    public Group getRedUnits() {
+        return redUnits;
+    }
+
+    public Group getWhiteUnits() {
+        return whiteUnits;
+    }
+
+    public ArrayList<Move> getPossibleMoves() {
+        return possibleMoves;
+    }
 }

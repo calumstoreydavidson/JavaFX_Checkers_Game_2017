@@ -1,9 +1,3 @@
-import static java.lang.System.err;
-import static java.lang.System.out;
-
-import java.util.ArrayList;
-import java.util.stream.Collectors;
-
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.Group;
@@ -23,11 +17,12 @@ public class Game { //extends Application {
 
     private Player redPlayer = new HumanPlayer(Team.RED);
     private Player whitePlayer = new RandomAIPlayer(Team.WHITE);
-    private Group components = new Group();
-    private Board board = new Board();
+    private Group components;
+    private Board board;
 
-
-    private ArrayList<Move> possibleMoves = new ArrayList<>();
+    public Game(){
+        resetGame();
+    }
 
     public void startNewGame() {
         resetGame();
@@ -35,19 +30,62 @@ public class Game { //extends Application {
         Main.output.appendText("A NEW GAME BEGINS --FIGHT!--\n");
         printNewTurnDialogue();
 
-        populateBoard();
-
         nextPlayersTurn();
     }
 
     private void resetGame() {
+        components = new Group();
         board = new Board();
-        redUnits = new Group();
-        whiteUnits = new Group();
-        components.getChildren().setAll(board.getComponents(), redUnits, whiteUnits);
+        addMouseControlToAllUnits();
+
+        components.getChildren().setAll(board.getComponents());
         if (getCurrentPlayer() == whitePlayer) {
             switchPlayerTurn();
         }
+    }
+
+    private void addMouseControlToAllUnits() {
+        for (Node node : board.getRedUnits().getChildren()) {
+            Unit unit = (Unit) node;
+            addMouseControlToUnit(unit);
+        }
+        for (Node node : board.getWhiteUnits().getChildren()) {
+            Unit unit = (Unit) node;
+            addMouseControlToUnit(unit);
+        }
+    }
+
+    private void addMouseControlToUnit(Unit unit) {
+        unit.setOnMouseReleased(e -> {
+            int targetX = Coordinates.toBoard(unit.getLayoutX());
+            int targetY = Coordinates.toBoard(unit.getLayoutY());
+
+            Coordinates origin = unit.getCurrentCoords();
+            Coordinates target = new Coordinates(origin, targetX, targetY);
+
+            if (Game.DEVELOPMENT_MODE_ENABLED) {
+                if (origin.equals(target)) {
+                    unit.toggleKing();
+                    board.moveUnit(origin, target, unit, false);
+                } else {
+                    board.moveUnit(origin, target, unit, false);
+                }
+            } else {
+                Move actualMove = null;
+                for (Move move : board.getPossibleMoves()) {
+                    if (move.getUnit().getCurrentCoords().equals(origin) && move.getTarget().equals(target)) {
+                        actualMove = move;
+                        break;
+                    }
+                }
+                if (actualMove == null) {
+                    MoveResult result = new MoveResult(MoveType.NONE);
+                    actualMove = new Move(unit, target, result);
+                }
+
+                executePlayerMove(actualMove);
+            }
+        });
     }
 
     public void toggleDevelopmentMode() {
@@ -55,8 +93,8 @@ public class Game { //extends Application {
             refreshTurn();
         } else {
             board.resetTileColors();
-            redUnits.setMouseTransparent(false);
-            whiteUnits.setMouseTransparent(false);
+            board.getRedUnits().setMouseTransparent(false);
+            board.getWhiteUnits().setMouseTransparent(false);
         }
         DEVELOPMENT_MODE_ENABLED = !DEVELOPMENT_MODE_ENABLED;
     }
@@ -67,7 +105,7 @@ public class Game { //extends Application {
             startNewGame();
         }
         refreshBoardHighlighting();
-        makeCurrentTeamAccessible();
+        board.makeCurrentTeamAccessible(redPlayer);
     }
 
     public void nextPlayersTurn() {
@@ -85,11 +123,11 @@ public class Game { //extends Application {
 
     private void refreshBoardHighlighting() {
         board.resetTileColors();
-        highlightAvailableMoves();
+        board.highlightAvailableMoves();
     }
 
     private boolean isGameOver() {
-        if (possibleMoves.isEmpty()) {
+        if (board.getPossibleMoves().isEmpty()) {
             if (redPlayer.isPlayersTurn()) {
                 Main.output.appendText("!!!WHITE WINS!!!");
                 return true;
@@ -102,23 +140,6 @@ public class Game { //extends Application {
         }
     }
 
-    private void highlightAvailableMoves() {
-        for (Move move : possibleMoves) {
-            if (move.getResult().getType() == MoveType.KILL) {
-                //TODO make these optional
-//                board.getTile(move.getTarget()).highlightAttackDestination();
-            } else {
-//                board.getTile(move.getTarget()).highlightMoveDestination();
-            }
-            board.getTile(move.getUnit().getCurrentCoords()).highlightUnit();
-        }
-    }
-
-    private void makeCurrentTeamAccessible() {
-        redUnits.setMouseTransparent(!redPlayer.isPlayersTurn());
-        whiteUnits.setMouseTransparent(redPlayer.isPlayersTurn());
-    }
-
     public void runPlayerMove(Player player) {
         Task<Void> task = new Task<Void>() {
             @Override public Void call() throws Exception {
@@ -129,8 +150,7 @@ public class Game { //extends Application {
                 board.getTile(AIMove.getUnit().getCurrentCoords()).highlightAIMove();
 
                 Thread.sleep(AI_MOVE_LAG_TIME);
-
-                Platform.runLater(() -> executeMove(AIMove));
+                Platform.runLater(() -> executePlayerMove(AIMove));
 
                 //TODO recolour the unit that moves?
                 return null;
@@ -139,48 +159,12 @@ public class Game { //extends Application {
         new Thread(task).start();
     }
 
-    public Board getBoard() {
-        return board;
-    }
-
-    public void executeMove(Move move) {
-        Coordinates origin = move.getTarget().origin;
-        Coordinates target = move.getTarget();
-        Unit unit = move.getUnit();
-        MoveResult result = move.getResult();
-        boolean kingIsCreated = result.isKingCreated();
-
-        boolean turnFinished = false;
-        switch (result.getType()) {
-            case NONE:
-                unit.abortMove();
-                Main.output.appendText("That Is An Invalid Move\n");
-                break;
-            case NORMAL:
-                moveUnit(origin, target, unit, kingIsCreated);
-                turnFinished = true;
-                Main.output.appendText(unit.getTeam() + " Move Successful\n");
-                break;
-            case KILL:
-                Unit attackedUnit = result.getAttackedUnit();
-
-                moveUnit(origin, target, unit, kingIsCreated);
-                board.killUnit(attackedUnit);
-
-                if (canMove(unit) && canAttack(unit) && !result.isKingCreated()) {
-                    possibleMoves = board.getUnitMoves(unit);
-                    nextPlayersTurn();
-                } else {
-                    turnFinished = true;
-                }
-                Main.output.appendText(unit.getTeam() + " Attack Successful\n");
-                break;
-        }
-
-        if (turnFinished) {
+    private void executePlayerMove(Move move) {
+        if (board.executeMove(move)) {
             switchPlayerTurn();
             printNewTurnDialogue();
-
+            nextPlayersTurn();
+        } else {
             nextPlayersTurn();
         }
     }
@@ -196,28 +180,8 @@ public class Game { //extends Application {
         Main.output.appendText(player + "'s Turn\n");
     }
 
-    private boolean canAttack(Unit unit) {
-        return board.getUnitMoves(unit).get(0).getResult().getType() == MoveType.KILL;
-    }
-
-    public boolean canMove(Unit unit) {
-        return !board.getUnitMoves(unit).isEmpty();
-    }
-
-    public void moveUnit(Coordinates origin, Coordinates target, Unit unit, boolean kingIsCreated) {
-        unit.move(target);
-        board.moveUnit(origin, target, unit);
-        Main.output.appendText(unit.getTeam() + " " + target.origin.x + ", " + target.origin.y + " -> " + target.x + ", " + target.y + "\n");
-
-        if (kingIsCreated) {
-            unit.toggleKing();
-            Main.output.appendText(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING\n");
-        }
-    }
-
     private void refreshTeamsAvailableMoves() {
-        Team team = redPlayer.isPlayersTurn() ? Team.RED : Team.WHITE;
-        possibleMoves = board.getTeamMoves(team);
+        board.getTeamMoves(getCurrentPlayer().getPlayerTeam());
     }
 
     public Group getComponents() {
@@ -230,10 +194,6 @@ public class Game { //extends Application {
 
     public void setWhitePlayer(Player whitePlayer) {
         this.whitePlayer = whitePlayer;
-    }
-
-    public ArrayList<Move> getPossibleMoves() {
-        return possibleMoves;
     }
 
 }

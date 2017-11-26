@@ -12,7 +12,7 @@ public class Unit extends StackPane {
     private double mouseX, mouseY;
     private double currentX, currentY;
 
-    public Unit(UnitType type, Team team, Coordinates c, Game game) {
+    public Unit(UnitType type, Team team, Coordinates c) {
         this.team = team;
         this.type = type;
 
@@ -29,36 +29,6 @@ public class Unit extends StackPane {
             relocate(e.getSceneX() - mouseX + currentX, e.getSceneY() - mouseY + currentY);
         });
 
-        setOnMouseReleased(e -> {
-            int targetX = Coordinates.toBoard(getLayoutX());
-            int targetY = Coordinates.toBoard(getLayoutY());
-
-            Coordinates origin = getCurrentCoords();
-            Coordinates target = new Coordinates(origin, targetX, targetY);
-
-            if (Game.DEVELOPMENT_MODE_ENABLED) {
-                if (origin.equals(target)) {
-                    toggleKing();
-                    game.moveUnit(origin, target, this, false);
-                } else {
-                    game.moveUnit(origin, target, this, false);
-                }
-            } else {
-                Move actualMove = null;
-                for (Move move : game.getPossibleMoves()) {
-                    if (move.getUnit().getCurrentCoords().equals(origin) && move.getTarget().equals(target)) {
-                        actualMove = move;
-                        break;
-                    }
-                }
-                if (actualMove == null) {
-                    MoveResult result = new MoveResult(MoveType.NONE);
-                    actualMove = new Move(this, target, result);
-                }
-
-                game.executeMove(actualMove);
-            }
-        });
     }
 
     public Team getTeam() {

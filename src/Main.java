@@ -186,7 +186,9 @@ public class Main extends Application {
         AIMoveSpeedSlider.setShowTickMarks(true);
         AIMoveSpeedSlider.setSnapToTicks(true);
 
-        AIMoveSpeedSlider.valueProperty().addListener((ov, old_val, new_val) -> game.AI_MOVE_LAG_TIME = (int) AIMoveSpeedSlider.getValue());
+        AIMoveSpeedSlider.valueProperty().addListener((ov, old_val, new_val) -> {
+            game.AI_MOVE_LAG_TIME = (int) AIMoveSpeedSlider.getValue();
+        });
         return AIMoveSpeedSlider;
     }
 

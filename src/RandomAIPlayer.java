@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-import javafx.scene.layout.GridPane;
-
 public class RandomAIPlayer implements Player{
 
     private Random rand = new Random();
