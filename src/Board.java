@@ -1,12 +1,16 @@
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.rmi.CORBA.Tie;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
+import org.omg.CORBA.OBJ_ADAPTER;
 
 public class Board {
 
-    private Group components = new Group();
+    private Group GUIComponents = new Group();
     private Group tiles = new Group();
 
     private Tile[][] board;
@@ -21,7 +25,7 @@ public class Board {
         generateBoard();
         populateBoard();
 
-        components.getChildren().setAll(tiles, redUnits, whiteUnits);
+        GUIComponents.getChildren().setAll(tiles, redUnits, whiteUnits);
     }
 
     public static boolean isBoardEdge(Coordinates pos) {
@@ -81,8 +85,8 @@ public class Board {
         }
     }
 
-    public Group getComponents() {
-        return components;
+    public Group getGUIComponents() {
+        return GUIComponents;
     }
 
     public void resetTileColors() {
@@ -100,7 +104,7 @@ public class Board {
             } else {
 //                board.getTile(move.getTarget()).highlightMoveDestination();
             }
-            getTile(move.getUnit().getCurrentCoords()).highlightUnit();
+            getTile(move.getOrigin()).highlightUnit();
         }
     }
 
@@ -153,14 +157,14 @@ public class Board {
                 if (possiblePosition.isEnemyKingRow(unit.getTeam()) && !unit.isKing()) {
                     result.createKing();
                 }
-                moves.add(new Move(unit, possiblePosition, result));
+                moves.add(new Move(unit.getPos(), possiblePosition, result));
             } else if (isEnemyUnit(unit, possiblePosition) && isAttackPossible(possiblePosition)) {
                 Unit attackedUnit = getTile(possiblePosition).getUnit();
-                MoveResult result = new MoveResult(MoveType.KILL, attackedUnit);
+                MoveResult result = new MoveResult(MoveType.KILL);
                 if (possiblePosition.getNextOnPath().isEnemyKingRow(unit.getTeam()) && !unit.isKing() || attackedUnit.isKing() && !unit.isKing() && Game.CROWN_STEALING_ALLOWED) {
                     result.createKing();
                 }
-                moves.add(new Move(unit, possiblePosition.getNextOnPath(), result));
+                moves.add(new Move(unit.getPos(), possiblePosition.getNextOnPath(), result));
             }
         }
         return moves;
@@ -184,7 +188,7 @@ public class Board {
     }
 
     public void killUnit(Unit unit) {
-        getTile(unit.getCurrentCoords()).setUnit(null);
+        getTile(unit.getPos()).setUnit(null);
         if (unit.isRed()) {
             redUnits.getChildren().remove(unit);
         } else {
@@ -200,7 +204,7 @@ public class Board {
     public boolean executeMove(Move move) {
         Coordinates origin = move.getTarget().origin;
         Coordinates target = move.getTarget();
-        Unit unit = move.getUnit();
+        Unit unit = getUnitAtPos(move.getOrigin());
         MoveResult result = move.getResult();
         boolean kingIsCreated = result.isKingCreated();
 
@@ -216,7 +220,7 @@ public class Board {
                 Main.output.appendText(unit.getTeam() + " Move Successful\n");
                 break;
             case KILL:
-                Unit attackedUnit = result.getAttackedUnit();
+                Unit attackedUnit = getUnitAtPos(Coordinates.getKillCoords(move));
 
                 moveUnit(origin, target, unit, kingIsCreated);
                 killUnit(attackedUnit);
@@ -268,4 +272,17 @@ public class Board {
     public ArrayList<Move> getPossibleMoves() {
         return possibleMoves;
     }
+
+    public int evaluateState(Team team) {
+        //simple heuristic
+        if (team == Team.WHITE) {
+            return whiteUnits.getChildren().size() - redUnits.getChildren().size();
+        }
+        return redUnits.getChildren().size() - whiteUnits.getChildren().size();
+    }
+
+    public Unit getUnitAtPos(Coordinates position){
+        return getTile(position).getUnit();
+    }
+
 }

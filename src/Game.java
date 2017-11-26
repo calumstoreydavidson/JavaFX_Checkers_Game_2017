@@ -25,6 +25,7 @@ public class Game { //extends Application {
         components = new Group();
         this.redPlayer = redPlayer;
         this.whitePlayer = whitePlayer;
+        resetGame();
         scheduleNewGame();
     }
 
@@ -46,7 +47,7 @@ public class Game { //extends Application {
         board = new Board();
         addMouseControlToAllUnits();
 
-        components.getChildren().setAll(board.getComponents().getChildren());
+        components.getChildren().setAll(board.getGUIComponents().getChildren());
 
         redPlayer.resetPlayer();
         whitePlayer.resetPlayer();
@@ -114,7 +115,7 @@ public class Game { //extends Application {
 
                 player.getPlayerMove(board).ifPresent(move -> {
                     board.getTile(move.getTarget()).highlightAIMove();
-                    board.getTile(move.getUnit().getCurrentCoords()).highlightAIMove();
+                    board.getTile(move.getOrigin()).highlightAIMove();
 
                     try {
                         Thread.sleep(AI_MOVE_LAG_TIME);
@@ -194,7 +195,7 @@ public class Game { //extends Application {
             int targetX = Coordinates.toBoard(unit.getLayoutX());
             int targetY = Coordinates.toBoard(unit.getLayoutY());
 
-            Coordinates origin = unit.getCurrentCoords();
+            Coordinates origin = unit.getPos();
             Coordinates target = new Coordinates(origin, targetX, targetY);
 
             if (Game.DEVELOPMENT_MODE_ENABLED) {
@@ -207,14 +208,14 @@ public class Game { //extends Application {
             } else {
                 Move actualMove = null;
                 for (Move move : board.getPossibleMoves()) {
-                    if (move.getUnit().getCurrentCoords().equals(origin) && move.getTarget().equals(target)) {
+                    if (move.getOrigin().equals(origin) && move.getTarget().equals(target)) {
                         actualMove = move;
                         break;
                     }
                 }
                 if (actualMove == null) {
                     MoveResult result = new MoveResult(MoveType.NONE);
-                    actualMove = new Move(unit, target, result);
+                    actualMove = new Move(unit.getPos(), target, result);
                 }
 
                 executePlayerMove(actualMove);

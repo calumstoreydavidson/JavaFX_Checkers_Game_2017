@@ -1,17 +1,17 @@
 public class Move {
 
-    private final Unit unit;
+    private final Coordinates origin;
     private final Coordinates target;
     private final MoveResult result;
 
-    public Move(Unit unit, Coordinates target, MoveResult result) {
-        this.unit = unit;
+    public Move(Coordinates origin, Coordinates target, MoveResult result) {
+        this.origin = origin;
         this.target = target;
         this.result = result;
     }
 
-    public Unit getUnit() {
-        return unit;
+    public Coordinates getOrigin() {
+        return origin;
     }
 
     public Coordinates getTarget() {
@@ -21,5 +21,4 @@ public class Move {
     public MoveResult getResult() {
         return result;
     }
-
 }

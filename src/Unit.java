@@ -43,7 +43,7 @@ public class Unit extends StackPane {
         return Coordinates.toBoard(currentY);
     }
 
-    public Coordinates getCurrentCoords() {
+    public Coordinates getPos() {
         return new Coordinates(getCurrentX(), getCurrentY());
     }
 
@@ -69,7 +69,7 @@ public class Unit extends StackPane {
     public ArrayList<Coordinates> getPossiblePositions() {
         ArrayList<Coordinates> potentiallyAdjacentTiles = new ArrayList<>();
 
-        Coordinates origin = getCurrentCoords();
+        Coordinates origin = getPos();
 
         if (isKing() || isRed()) {
             potentiallyAdjacentTiles.add(origin.SW());

@@ -28,9 +28,12 @@ public class Coordinates {
         return (double) (y * Game.TILE_SIZE) + (Game.TILE_SIZE / 2);
     }
 
-    public static Coordinates getKillCoords(Coordinates attackOrigin, int xMoveDistance, int yMoveDistance) {
-        int enemyX = attackOrigin.x + (xMoveDistance) / 2;
-        int enemyY = attackOrigin.y + (yMoveDistance) / 2;
+    public static Coordinates getKillCoords(Move move) {
+        Coordinates attackOrigin = move.getOrigin();
+        Coordinates attackTarget = move.getTarget();
+
+        int enemyX = (attackOrigin.x + attackTarget.x) / 2;
+        int enemyY = (attackOrigin.y + attackTarget.y) / 2;
         return new Coordinates(enemyX, enemyY);
     }
 
