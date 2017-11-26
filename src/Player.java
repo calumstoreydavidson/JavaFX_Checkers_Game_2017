@@ -1,10 +1,11 @@
 import java.util.ArrayList;
+import java.util.Optional;
 
 public interface Player {
 
     boolean isPlayerHuman();
 
-    Move getPlayerMove(Board board);
+    Optional<Move> getPlayerMove(Board board);
 
     boolean isPlayersTurn();
 
@@ -12,5 +13,5 @@ public interface Player {
 
     Team getPlayerTeam();
 
-    void setPlayerTeam(Team playerTeam);
+    void resetPlayer();
 }

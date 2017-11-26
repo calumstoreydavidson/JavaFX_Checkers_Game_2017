@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Random;
 
 public class RandomAIPlayer implements Player{
@@ -11,16 +12,15 @@ public class RandomAIPlayer implements Player{
     public RandomAIPlayer(Team playerTeam) {
         this.playerTeam = playerTeam;
         //red always goes first
-        isPlayersTurn = playerTeam == Team.RED;
+        resetPlayer();
         this.isPlayerHuman = false;
     }
 
     @Override
-    public Move getPlayerMove(Board board){
+    public Optional<Move> getPlayerMove(Board board){
         ArrayList<Move> possibleMoves = board.getPossibleMoves();
         int r = rand.nextInt(possibleMoves.size());
-        Move AIMove = possibleMoves.get(r);
-//        Main.output.appendText("RandomAIPlayer moving: " + AIMove.getTarget().origin.x + ", " + AIMove.getTarget().origin.y + " -> " + AIMove.getTarget().x + ", " + AIMove.getTarget().y);
+        Optional<Move> AIMove = Optional.of(possibleMoves.get(r));
 
         return AIMove;
     }
@@ -41,7 +41,7 @@ public class RandomAIPlayer implements Player{
         return playerTeam;
     }
 
-    public void setPlayerTeam(Team playerTeam) {
-        this.playerTeam = playerTeam;
+    public void resetPlayer(){
+        isPlayersTurn = playerTeam == Team.RED;
     }
 }

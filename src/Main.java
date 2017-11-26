@@ -2,6 +2,7 @@ import java.awt.*;
 import java.net.URI;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -24,32 +25,35 @@ public class Main extends Application {
     VBox controls = buildControls();
 
     private Game game;
+    private Stage primaryStage;
 
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override public void start(Stage primaryStage) throws Exception {
+        this.primaryStage = primaryStage;
+
         //game window title
-        primaryStage.setTitle("GUIExample Game");
+        this.primaryStage.setTitle("GUIExample Game");
 
         //prevent all window resizing
-        primaryStage.setResizable(false);
-        primaryStage.initStyle(StageStyle.UNIFIED);
+        this.primaryStage.setResizable(false);
+        this.primaryStage.initStyle(StageStyle.UNIFIED);
 
-        game = new Game();
+        refreshGUI(new RandomAIPlayer(Team.RED), new RandomAIPlayer(Team.WHITE));
 
+//        game.startNewGame(); //startNewGame(getUserInput()); TODO because effort
+    }
+
+    private void refreshGUI(Player redPlayer, Player whitePlayer) {
+        game = new Game(redPlayer, whitePlayer);
         Scene GUI = new Scene(createGUI());
         primaryStage.setScene(GUI);
         primaryStage.show();
-
-        game.startNewGame(); //startNewGame(getUserInput()); TODO because effort
     }
 
     private Parent createGUI() {
-        //game controls
-//        VBox controls = buildControls();
-
         //game board
         Pane gameBoard = new Pane();
         int squareEdgeLength = Game.SCALE * Game.TILE_SIZE;
@@ -130,13 +134,23 @@ public class Main extends Application {
         MenuItem redTeamPlayerMenuItem1 = new MenuItem("Human");
         redTeamPlayerMenuItem1.setOnAction(event -> {
             game.setRedPlayer(new HumanPlayer(Team.RED));
-            game.startNewGame(); // TODO fix changing mid game?
+ // TODO fix changing mid game?
+            game.triggerReset();
+//            game.scheduleNewGame();
+//            refreshGUI(new HumanPlayer(Team.RED), game.getWhitePlayer());
         });
 
         MenuItem redTeamPlayerMenuItem2 = new MenuItem("Random");
         redTeamPlayerMenuItem2.setOnAction(event -> {
             game.setRedPlayer(new RandomAIPlayer(Team.RED));
-            game.startNewGame();//TODO it is bad that it can immediatly start,  perhaps a submit button - or merge with start new game button
+            if (game.getRedPlayer().isPlayerHuman()){
+//                game.scheduleNewGame();
+                game.startNewGame();
+            }else {
+                game.triggerReset();
+            }
+//TODO it is bad that it can immediatly start,  perhaps a submit button - or merge with start new game button
+//            refreshGUI(new RandomAIPlayer(Team.RED), game.getWhitePlayer());
         });
 
 //        MenuItem redTeamPlayerMenuItem3 = new MenuItem("Minimax");//TODO add minimax
@@ -148,13 +162,19 @@ public class Main extends Application {
         MenuItem whiteTeamPlayerMenuItem1 = new MenuItem("Human");
         whiteTeamPlayerMenuItem1.setOnAction(event -> {
             game.setWhitePlayer(new HumanPlayer(Team.WHITE));
-            game.startNewGame();
+            game.triggerReset();
+//            refreshGUI(game.getRedPlayer(), new HumanPlayer(Team.WHITE));
         });
 
         MenuItem whiteTeamPlayerMenuItem2 = new MenuItem("Random");
         whiteTeamPlayerMenuItem2.setOnAction(event -> {
             game.setWhitePlayer(new RandomAIPlayer(Team.WHITE));
-            game.startNewGame();
+            if (game.getWhitePlayer().isPlayerHuman()){
+                game.scheduleNewGame();
+            }else {
+                game.triggerReset();
+            }
+//            refreshGUI(game.getRedPlayer(), new RandomAIPlayer(Team.WHITE));
         });
 
 //        MenuItem whiteTeamPlayerMenuItem3 = new MenuItem("Minimax");//TODO add minimax
@@ -172,9 +192,9 @@ public class Main extends Application {
         Slider AIMoveSpeedSlider = new Slider(0, 1, 1);
 
         //slider value range and default
-        AIMoveSpeedSlider.setMin(50);
+        AIMoveSpeedSlider.setMin(100);
         AIMoveSpeedSlider.setMax(1000);
-        AIMoveSpeedSlider.setValue(100);
+        AIMoveSpeedSlider.setValue(Game.AI_MOVE_LAG_TIME);
 
         //major numbered slider intervals
         AIMoveSpeedSlider.setMajorTickUnit(100);
@@ -187,7 +207,7 @@ public class Main extends Application {
         AIMoveSpeedSlider.setSnapToTicks(true);
 
         AIMoveSpeedSlider.valueProperty().addListener((ov, old_val, new_val) -> {
-            game.AI_MOVE_LAG_TIME = (int) AIMoveSpeedSlider.getValue();
+            Game.AI_MOVE_LAG_TIME = (int) AIMoveSpeedSlider.getValue();
         });
         return AIMoveSpeedSlider;
     }
@@ -231,7 +251,7 @@ public class Main extends Application {
             togglePlayTileButton.setText(Game.PLAY_SQUARE == 0 ? "Play on White" : "Play on Black"); //TODO what the fuck is up with this fucking button
             output.appendText(String.valueOf(Game.PLAY_SQUARE == 0 ? "You are now playing on the black squares" : "You are now playing on the white squares"));
             //TODO rework this so that the UI is not being reset as well
-            game.startNewGame();
+            game.triggerReset();
         });
         return togglePlayTileButton;
     }
@@ -261,7 +281,10 @@ public class Main extends Application {
 
     private Button getNewGameButton() {
         Button newGameButton = new Button("Start New Game");
-        newGameButton.setOnAction(value -> game.startNewGame());
+        newGameButton.setOnAction(value -> {
+//            refreshGUI(game.getRedPlayer(), game.getWhitePlayer());
+            game.triggerReset();
+        });
         return newGameButton;
     }
 

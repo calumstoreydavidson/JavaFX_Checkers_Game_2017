@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class HumanPlayer implements Player {
 
@@ -9,12 +10,12 @@ public class HumanPlayer implements Player {
     public HumanPlayer(Team playerTeam) {
         this.playerTeam = playerTeam;
         //red always goes first
-        isPlayersTurn = playerTeam == Team.RED;
+        resetPlayer();
         this.isPlayerHuman = true;
     }
 
-    @Override public Move getPlayerMove(Board board) {
-        return null;
+    @Override public Optional<Move> getPlayerMove(Board board) {
+        return Optional.empty();
     }
 
     public boolean isPlayerHuman() {
@@ -33,7 +34,7 @@ public class HumanPlayer implements Player {
         return playerTeam;
     }
 
-    public void setPlayerTeam(Team playerTeam) {
-        this.playerTeam = playerTeam;
+    public void resetPlayer(){
+        isPlayersTurn = playerTeam == Team.RED;
     }
 }
