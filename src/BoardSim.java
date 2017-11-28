@@ -247,11 +247,41 @@ public class BoardSim {
     }
 
     public int evaluateState(Team team) {
-        //simple heuristic
-        if (team == Team.WHITE) {
+        //heuristic - absolute piece count
+/*        if (team == Team.WHITE) {
             return whiteUnits.size() - redUnits.size();
         }
-        return redUnits.size() - whiteUnits.size();
+        return redUnits.size() - whiteUnits.size();*/
+
+        //heuristic - absolute piece count - kings worth double
+        int reds = 0;
+        int whites = 0;
+
+        for (Coordinates pos : redUnits) {
+            Type type = getTile(pos);
+            if (type == Type.RED) {
+                reds++;
+            } else if (type == Type.RED_KING) {
+                reds++;
+                reds++;
+            }
+        }
+
+        for (Coordinates pos : whiteUnits) {
+            Type type = getTile(pos);
+            if (type == Type.WHITE) {
+                whites++;
+            } else if (type == Type.WHITE_KING) {
+                whites++;
+                whites++;
+            }
+        }
+
+        if (team == Team.WHITE) {
+            return (whites) - (reds);
+        } else {
+            return (reds) - (whites);
+        }
     }
 
     public BoardSim getChild(Move move){

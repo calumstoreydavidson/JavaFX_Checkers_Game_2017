@@ -41,7 +41,7 @@ public class Main extends Application {
         this.primaryStage.setResizable(false);
         this.primaryStage.initStyle(StageStyle.UNIFIED);
 
-        refreshGUI(new HumanPlayer(Team.RED), new ABMinimaxAI(Team.WHITE));
+        refreshGUI(new HumanPlayer(Team.RED), new MinimaxAI(Team.WHITE));
 
 //        game.startNewGame(); //startNewGame(getUserInput()); TODO because effort
     }

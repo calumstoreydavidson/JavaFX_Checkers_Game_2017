@@ -168,7 +168,7 @@ public class ABMinimaxAI implements Player {
         MoveAndScore best;
         if (node.getTeamsPossibleMoves().isEmpty() || depth == maxDepth) {
             best = new MoveAndScore(null, node.evaluateState(playerTeam));
-            debugBaseCase(node, depth, best);
+            debugBaseCase(depth, best);
         } else if (maximisingPlayer) {
             best = alpha;
 
@@ -209,7 +209,7 @@ public class ABMinimaxAI implements Player {
         return best;
     }
 
-    private void debugBaseCase(BoardSim node, int depth, MoveAndScore bestValue) {
+    private void debugBaseCase(int depth, MoveAndScore bestValue) {
         debugDepth(depth);
         System.out.println("base case: " + bestValue.score);
 //        System.out.println("Reds: " + node.getRedUnits().size() + " -Whites: " + node.getWhiteUnits().size());
