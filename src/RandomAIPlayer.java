@@ -20,9 +20,7 @@ public class RandomAIPlayer implements Player{
     public Optional<Move> getPlayerMove(Board board){
         ArrayList<Move> possibleMoves = board.getPossibleMoves();
         int r = rand.nextInt(possibleMoves.size());
-        Optional<Move> AIMove = Optional.of(possibleMoves.get(r));
-
-        return AIMove;
+        return Optional.of(possibleMoves.get(r));
     }
 
     public boolean isPlayerHuman() {

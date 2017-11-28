@@ -20,6 +20,10 @@ public class Coordinates {
         return (int) (pixel + Game.TILE_SIZE / 2) / Game.TILE_SIZE;
     }
 
+    public static boolean isBoardEdge(Coordinates pos) {
+        return pos.x == 0 || pos.y == 0 || pos.x == Game.SCALE - 1 || pos.y == Game.SCALE - 1;
+    }
+
     public double getPixelX(){
         return (double) (x * Game.TILE_SIZE) + (Game.TILE_SIZE / 2);
     }

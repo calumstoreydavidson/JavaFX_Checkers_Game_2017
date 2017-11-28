@@ -6,6 +6,7 @@ import javax.rmi.CORBA.Tie;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import org.omg.CORBA.OBJ_ADAPTER;
 
 public class Board {
@@ -26,10 +27,6 @@ public class Board {
         populateBoard();
 
         GUIComponents.getChildren().setAll(tiles, redUnits, whiteUnits);
-    }
-
-    public static boolean isBoardEdge(Coordinates pos) {
-        return pos.x == 0 || pos.y == 0 || pos.x == Game.SCALE - 1 || pos.y == Game.SCALE - 1;
     }
 
     private void generateBoard() {
@@ -184,7 +181,7 @@ public class Board {
     }
 
     public boolean isEnemyOnEdge(Coordinates enemyPos) {
-        return Board.isBoardEdge(enemyPos);
+        return Coordinates.isBoardEdge(enemyPos);
     }
 
     public void killUnit(Unit unit) {

@@ -41,7 +41,7 @@ public class Main extends Application {
         this.primaryStage.setResizable(false);
         this.primaryStage.initStyle(StageStyle.UNIFIED);
 
-        refreshGUI(new RandomAIPlayer(Team.RED), new RandomAIPlayer(Team.WHITE));
+        refreshGUI(new HumanPlayer(Team.RED), new ABMinimaxAI(Team.WHITE));
 
 //        game.startNewGame(); //startNewGame(getUserInput()); TODO because effort
     }
@@ -153,10 +153,17 @@ public class Main extends Application {
 //            refreshGUI(new RandomAIPlayer(Team.RED), game.getWhitePlayer());
         });
 
-//        MenuItem redTeamPlayerMenuItem3 = new MenuItem("Minimax");//TODO add minimax
-//        redTeamPlayerMenuItem3.setOnAction(event -> game.setRedPlayer(new HumanPlayer(Team.RED)));
+        MenuItem redTeamPlayerMenuItem3 = new MenuItem("Minimax");
+        redTeamPlayerMenuItem3.setOnAction(event -> {
+            game.setRedPlayer(new MinimaxAI(Team.RED));
+            if (game.getRedPlayer().isPlayerHuman()){
+                game.startNewGame();
+            }else {
+                game.triggerReset();
+            }
+        });
 
-        MenuButton redTeamPlayerMenuButton = new MenuButton("Red Player", null, redTeamPlayerMenuItem1, redTeamPlayerMenuItem2);
+        MenuButton redTeamPlayerMenuButton = new MenuButton("Red Player", null, redTeamPlayerMenuItem1, redTeamPlayerMenuItem2, redTeamPlayerMenuItem3);
 
 
         MenuItem whiteTeamPlayerMenuItem1 = new MenuItem("Human");
@@ -177,10 +184,17 @@ public class Main extends Application {
 //            refreshGUI(game.getRedPlayer(), new RandomAIPlayer(Team.WHITE));
         });
 
-//        MenuItem whiteTeamPlayerMenuItem3 = new MenuItem("Minimax");//TODO add minimax
-//        whiteTeamPlayerMenuItem3.setOnAction(event -> game.setWhitePlayer(new HumanPlayer(Team.RED)));
+        MenuItem whiteTeamPlayerMenuItem3 = new MenuItem("Minimax");
+        whiteTeamPlayerMenuItem3.setOnAction(event -> {
+            game.setWhitePlayer(new MinimaxAI(Team.WHITE));
+            if (game.getWhitePlayer().isPlayerHuman()){
+                game.scheduleNewGame();
+            }else {
+                game.triggerReset();
+            }
+        });
 
-        MenuButton whiteTeamPlayerMenuButton = new MenuButton("White Player", null, whiteTeamPlayerMenuItem1, whiteTeamPlayerMenuItem2);
+        MenuButton whiteTeamPlayerMenuButton = new MenuButton("White Player", null, whiteTeamPlayerMenuItem1, whiteTeamPlayerMenuItem2, whiteTeamPlayerMenuItem3);
 
         GridPane gridPane = new GridPane();
         gridPane.add(redTeamPlayerMenuButton,0,0);
