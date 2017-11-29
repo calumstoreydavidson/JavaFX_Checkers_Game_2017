@@ -214,7 +214,9 @@ public class Board {
             case NORMAL:
                 moveUnit(origin, target, unit, kingIsCreated);
                 turnFinished = true;
-                Main.output.appendText(unit.getTeam() + " Move Successful\n");
+                if (Game.VERBOSE_OUTPUT) {
+                    Main.output.appendText(unit.getTeam() + " Move Successful\n");
+                }
                 break;
             case KILL:
                 Unit attackedUnit = getUnitAtPos(Coordinates.getKillCoords(move));
@@ -227,7 +229,9 @@ public class Board {
                 } else {
                     turnFinished = true;
                 }
-                Main.output.appendText(unit.getTeam() + " Attack Successful\n");
+                if (Game.VERBOSE_OUTPUT) {
+                    Main.output.appendText(unit.getTeam() + " Attack Successful\n");
+                }
                 break;
         }
         return turnFinished;
@@ -245,11 +249,14 @@ public class Board {
         unit.move(target);
         getTile(origin).setUnit(null);
         getTile(target).setUnit(unit);
-        Main.output.appendText(unit.getTeam() + " " + target.origin.x + ", " + target.origin.y + " -> " + target.x + ", " + target.y + "\n");
-
+        if (Game.VERBOSE_OUTPUT) {
+            Main.output.appendText(unit.getTeam() + " " + target.origin.x + ", " + target.origin.y + " -> " + target.x + ", " + target.y + "\n");
+        }
         if (kingIsCreated) {
             unit.toggleKing();
-            Main.output.appendText(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING\n");
+            if (Game.VERBOSE_OUTPUT) {
+                Main.output.appendText(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING\n");
+            }
         }
     }
 

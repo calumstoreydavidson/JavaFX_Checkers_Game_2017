@@ -2,7 +2,6 @@ import java.awt.*;
 import java.net.URI;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -41,7 +40,7 @@ public class Main extends Application {
         this.primaryStage.setResizable(false);
         this.primaryStage.initStyle(StageStyle.UNIFIED);
 
-        refreshGUI(new HumanPlayer(Team.RED), new MinimaxAI(Team.WHITE));
+        refreshGUI(new HumanPlayer(Team.RED), new ABNegamaxAI(Team.WHITE));
 
 //        game.startNewGame(); //startNewGame(getUserInput()); TODO because effort
     }
@@ -82,6 +81,8 @@ public class Main extends Application {
         //god mode toggle
         Button developmentModeButton = getDevelopmentModeButton();
 
+        Button verbosOutputButton = getVerbosOutputButton();
+
         //game Instructions
         Button displayInstructionsButton = getDisplayInstructionsButton();
 
@@ -92,8 +93,11 @@ public class Main extends Application {
         Button runAIMoveButton = getRunAIMoveButton();
 
         //RandomAIPlayer move speed
-        Label AITurnLengthLabel = new Label("RandomAIPlayer turn length control");
+        Label AITurnLengthLabel = new Label("AI Player turn length control");
         Slider AITurnLengthSlider = getMoveSpeedSlider();
+
+        Label AIDifficultyLabel = new Label("AI Player difficulty control");
+        Slider AIDifficultySlider = getAIDifficultySlider();
 
         //TODO toggle moveable piece highlighting
 
@@ -119,15 +123,27 @@ public class Main extends Application {
                 crownStealingToggleButton,
                 togglePlayTileButton,
                 developmentModeButton,
+                verbosOutputButton,
                 displayInstructionsButton,
                 AITurnLengthLabel,
                 AITurnLengthSlider,
-                teamPlayerMenus
+                teamPlayerMenus,
+                AIDifficultySlider
         );
 
         controls.setPrefWidth(300);
 
         return controls;
+    }
+
+    private Button getVerbosOutputButton() {
+        Button verbosOutputButton = new Button("Disable Verbose Output\n");
+        verbosOutputButton.setOnAction(value -> {
+            Game.VERBOSE_OUTPUT = !Game.VERBOSE_OUTPUT;
+            verbosOutputButton.setText(Game.VERBOSE_OUTPUT ? "Disable Verbose Output\n" : "Enable Verbose Output\n");
+            output.appendText(Game.VERBOSE_OUTPUT ? "Verbose Output Enabled\n" : "Verbose Output Disabled\n");
+        });
+        return verbosOutputButton;
     }
 
     private GridPane getTeamPlayerMenus() {
@@ -224,6 +240,30 @@ public class Main extends Application {
             Game.AI_MOVE_LAG_TIME = (int) AIMoveSpeedSlider.getValue();
         });
         return AIMoveSpeedSlider;
+    }
+
+    private Slider getAIDifficultySlider() {
+        Slider AIDifficultySlider = new Slider(0, 1, 1);
+
+        //slider value range and default
+        AIDifficultySlider.setMin(1);
+        AIDifficultySlider.setMax(8);
+        AIDifficultySlider.setValue(Game.AI_MAX_SEARCH_DEPTH);
+
+        //major numbered slider intervals
+        AIDifficultySlider.setMajorTickUnit(1);
+        //minor intervals between major intervals
+//        AIDifficultySlider.setMinorTickCount(0);
+
+        //slider config
+        AIDifficultySlider.setShowTickLabels(true);
+        AIDifficultySlider.setShowTickMarks(true);
+        AIDifficultySlider.setSnapToTicks(true);
+
+        AIDifficultySlider.valueProperty().addListener((ov, old_val, new_val) -> {
+            Game.AI_MAX_SEARCH_DEPTH = (int) AIDifficultySlider.getValue();
+        });
+        return AIDifficultySlider;
     }
 
     private Button getRunAIMoveButton() {

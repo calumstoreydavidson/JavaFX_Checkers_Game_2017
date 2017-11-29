@@ -5,7 +5,7 @@ public class MinimaxAI implements Player {
     boolean isPlayerHuman;
     private boolean isPlayersTurn;
     private Team playerTeam;
-    private int maxDepth = 3;
+    private int maxDepth = Game.AI_MAX_SEARCH_DEPTH;
 
     public MinimaxAI(Team playerTeam) {
         this.playerTeam = playerTeam;
@@ -15,7 +15,12 @@ public class MinimaxAI implements Player {
     }
 
     @Override public Optional<Move> getPlayerMove(Board board) {
+        if (Game.VERBOSE_OUTPUT) {
+            Main.output.appendText("AI is thinking \n");
+        }
+
         BoardSim sim = new BoardSim(board, playerTeam);
+        System.out.println("");
         return Optional.of(minimax(sim, 0, true).move);
     }
 
@@ -58,9 +63,11 @@ public class MinimaxAI implements Player {
         String player = maximisingPlayer ? " -Max " : " -Min ";
         Team team = getMaximisingPlayerTeam(maximisingPlayer);
         MoveType moveType = move.getResult().getType();
+        String moveOrigin = (move.getOrigin().x + 1) + ", " + (move.getOrigin().y + 1) + " -> ";
+        String moveTarget = (move.getTarget().x + 1) + ", " + (move.getTarget().y + 1);
 
         debugDepth(depth);
-        System.out.print("init" + player + team + (" Best: " + best.score) + " " + moveType + " " + "\n");
+        System.out.print("init" + player + team + (" Best: " + best.score) + " " + moveType + " " + moveOrigin + moveTarget + "\n");
     }
 
     private void debugFinalState(int depth, MoveAndScore best, boolean maximisingPlayer) {

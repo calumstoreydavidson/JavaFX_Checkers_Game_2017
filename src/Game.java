@@ -15,6 +15,8 @@ public class Game { //extends Application {
     public static boolean DEVELOPMENT_MODE_ENABLED = false;
     public static int AI_MOVE_LAG_TIME = 500; //milliseconds
     public static boolean RESET_GAME;
+    public static int AI_MAX_SEARCH_DEPTH = 100; //Minimax AI Difficulty
+    public static boolean VERBOSE_OUTPUT = false;
 
     private Player redPlayer;
     private Player whitePlayer;
@@ -95,10 +97,14 @@ public class Game { //extends Application {
     private boolean isGameOver() {
         if (board.getPossibleMoves().isEmpty()) {
             if (redPlayer.isPlayersTurn()) {
-                Main.output.appendText("!!!WHITE WINS!!!");
+                Main.output.appendText("---------------------------------------------------\n");
+                Main.output.appendText("!!!!!!!!!!!!!!!!!!!  WHITE WINS  !!!!!!!!!!!!!!!!!!\n");
+                Main.output.appendText("---------------------------------------------------\n");
                 return true;
             } else {
-                Main.output.appendText("!!!RED WINS!!!");
+                Main.output.appendText("---------------------------------------------------\n");
+                Main.output.appendText("!!!!!!!!!!!!!!!!!!!   RED WINS   !!!!!!!!!!!!!!!!!!\n");
+                Main.output.appendText("---------------------------------------------------\n");
                 return true;
             }
         } else if (RESET_GAME) {
@@ -150,9 +156,11 @@ public class Game { //extends Application {
     }
 
     private void printNewTurnDialogue() {
-        Main.output.appendText("\n---------------------------------------------------\n\n");
-        String player = redPlayer.isPlayersTurn() ? "Red" : "White";
-        Main.output.appendText(player + "'s Turn\n");
+        if(VERBOSE_OUTPUT) {
+            Main.output.appendText("\n---------------------------------------------------\n\n");
+            String player = redPlayer.isPlayersTurn() ? "Red" : "White";
+            Main.output.appendText(player + "'s Turn\n");
+        }
     }
 
     private void refreshTeamsAvailableMoves() {

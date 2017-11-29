@@ -5,7 +5,7 @@ public class ABMinimaxAI implements Player {
     boolean isPlayerHuman;
     private boolean isPlayersTurn;
     private Team playerTeam;
-    private int maxDepth = 3;
+    private int maxDepth = Game.AI_MAX_SEARCH_DEPTH;
 
     public ABMinimaxAI(Team playerTeam) {
         this.playerTeam = playerTeam;
@@ -15,10 +15,15 @@ public class ABMinimaxAI implements Player {
     }
 
     @Override public Optional<Move> getPlayerMove(Board board){
+        if (Game.VERBOSE_OUTPUT) {
+            Main.output.appendText("AI is thinking \n");
+        }
+
         MoveAndScore alpha = new MoveAndScore(null,Integer.MIN_VALUE);
         MoveAndScore beta = new MoveAndScore(null,Integer.MAX_VALUE);
         BoardSim sim = new BoardSim(board, playerTeam);
 
+        System.out.println("");
         return Optional.of(minimax(sim, 0, alpha, beta, true).move);
     }
 //

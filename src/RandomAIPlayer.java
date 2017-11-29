@@ -2,12 +2,12 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 
-public class RandomAIPlayer implements Player{
+public class RandomAIPlayer implements Player {
 
+    boolean isPlayerHuman;
     private Random rand = new Random();
     private boolean isPlayersTurn;
     private Team playerTeam;
-    boolean isPlayerHuman;
 
     public RandomAIPlayer(Team playerTeam) {
         this.playerTeam = playerTeam;
@@ -16,8 +16,11 @@ public class RandomAIPlayer implements Player{
         this.isPlayerHuman = false;
     }
 
-    @Override
-    public Optional<Move> getPlayerMove(Board board){
+    @Override public Optional<Move> getPlayerMove(Board board) {
+        if (Game.VERBOSE_OUTPUT) {
+            Main.output.appendText("AI is thinking \n");
+        }
+
         ArrayList<Move> possibleMoves = board.getPossibleMoves();
         int r = rand.nextInt(possibleMoves.size());
         return Optional.of(possibleMoves.get(r));
@@ -31,7 +34,7 @@ public class RandomAIPlayer implements Player{
         return isPlayersTurn;
     }
 
-    public void switchTurn(){
+    public void switchTurn() {
         isPlayersTurn = !isPlayersTurn;
     }
 
@@ -39,7 +42,7 @@ public class RandomAIPlayer implements Player{
         return playerTeam;
     }
 
-    public void resetPlayer(){
+    public void resetPlayer() {
         isPlayersTurn = playerTeam == Team.RED;
     }
 }

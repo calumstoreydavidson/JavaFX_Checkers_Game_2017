@@ -1,13 +1,13 @@
 import java.util.Optional;
 
-public class NegamaxAI implements Player {
+public class ABNegamaxAI implements Player {
 
     boolean isPlayerHuman;
     private boolean isPlayersTurn;
     private Team playerTeam;
     private int maxDepth = Game.AI_MAX_SEARCH_DEPTH;
 
-    public NegamaxAI(Team playerTeam) {
+    public ABNegamaxAI(Team playerTeam) {
         this.playerTeam = playerTeam;
         //red always goes first
         isPlayersTurn = playerTeam == Team.RED;
@@ -19,13 +19,15 @@ public class NegamaxAI implements Player {
             Main.output.appendText("AI is thinking \n");
         }
 
+        MoveAndScore alpha = new MoveAndScore(null,Integer.MIN_VALUE);
+        MoveAndScore beta = new MoveAndScore(null,Integer.MAX_VALUE);
         BoardSim sim = new BoardSim(board, playerTeam);
 
         System.out.println("");
-        return Optional.of(negamax(sim, 0).move);
+        return Optional.of(negamax(sim, 0, alpha, beta).move);
     }
 
-    private MoveAndScore negamax(BoardSim node, int depth) {
+    private MoveAndScore negamax(BoardSim node, int depth, MoveAndScore alpha, MoveAndScore beta) {
         if (node.getTeamsPossibleMoves().isEmpty() || depth == maxDepth) {
             return new MoveAndScore(null, node.evaluateState(playerTeam));
         }
@@ -33,12 +35,15 @@ public class NegamaxAI implements Player {
 
         //for all moves
         for (Move move : node.getTeamsPossibleMoves()) {
-            MoveAndScore score = negamax(node.getChild(move), depth + 1);
-            score.move = move;
-            max = Math.max(max.score, score.score) == max.score ? max : score;
+            MoveAndScore child = negate(negamax(node.getChild(move), depth + 1, negate(beta), negate(alpha)));
+            child.move = move;
+            max = child.score > max.score ? child : max;
+            alpha = child.score > alpha.score ? child : alpha;
+            if (alpha.score >= beta.score) {
+                return alpha;
+            }
         }
 
-        max.negateScore();
         return max;
     }
 
@@ -58,6 +63,11 @@ public class NegamaxAI implements Player {
         return playerTeam;
     }
 
+    public MoveAndScore negate(MoveAndScore value) {
+        value.negateScore();
+        return value;
+    }
+
     @Override public void resetPlayer() {
         isPlayersTurn = playerTeam == Team.RED;
     }
@@ -71,7 +81,7 @@ public class NegamaxAI implements Player {
             this.score = score;
         }
 
-        public void negateScore(){
+        public void negateScore() {
             score = -score;
         }
     }
