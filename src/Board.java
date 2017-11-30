@@ -97,9 +97,9 @@ public class Board {
         for (Move move : possibleMoves) {
             if (move.getResult().getType() == MoveType.KILL) {
                 //TODO make these optional
-//                board.getTile(move.getTarget()).highlightAttackDestination();
+                getTile(move.getTarget()).highlightAttackDestination();
             } else {
-//                board.getTile(move.getTarget()).highlightMoveDestination();
+                getTile(move.getTarget()).highlightMoveDestination();
             }
             getTile(move.getOrigin()).highlightUnit();
         }
@@ -250,7 +250,7 @@ public class Board {
         getTile(origin).setUnit(null);
         getTile(target).setUnit(unit);
         if (Game.VERBOSE_OUTPUT) {
-            Main.output.appendText(unit.getTeam() + " " + target.origin.x + ", " + target.origin.y + " -> " + target.x + ", " + target.y + "\n");
+            Main.output.appendText(unit.getTeam() + " " + (target.origin.x + 1) + ", " + (target.origin.y + 1) + " -> " + (target.x + 1) + ", " + (target.y + 1) + "\n");
         }
         if (kingIsCreated) {
             unit.toggleKing();

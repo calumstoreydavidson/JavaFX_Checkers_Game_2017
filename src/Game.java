@@ -15,8 +15,8 @@ public class Game { //extends Application {
     public static boolean DEVELOPMENT_MODE_ENABLED = false;
     public static int AI_MOVE_LAG_TIME = 500; //milliseconds
     public static boolean RESET_GAME;
-    public static int AI_MAX_SEARCH_DEPTH = 100; //Minimax AI Difficulty
-    public static boolean VERBOSE_OUTPUT = false;
+    public static int AI_MAX_SEARCH_DEPTH = 12; //Minimax AI Difficulty
+    public static boolean VERBOSE_OUTPUT = true;//TODO add a button for this
 
     private Player redPlayer;
     private Player whitePlayer;
@@ -37,9 +37,11 @@ public class Game { //extends Application {
 
     public void startNewGame() {
         resetGame();
-        Main.output.appendText("\n---------------------------------------------------\n\n");
-        Main.output.appendText("A NEW GAME BEGINS --FIGHT!--\n");
-        printNewTurnDialogue();
+        if (VERBOSE_OUTPUT) {
+            Main.output.appendText("\n---------------------------------------------------\n\n");
+            Main.output.appendText("A NEW GAME BEGINS --FIGHT!--\n");
+            printNewTurnDialogue();
+        }
 
         RESET_GAME = false;
         nextPlayersTurn();
@@ -77,8 +79,11 @@ public class Game { //extends Application {
 
     private void refreshTurn() {
         refreshTeamsAvailableMoves();
-        refreshBoardHighlighting();
-        board.makeCurrentTeamAccessible(redPlayer);
+        board.resetTileColors();
+        if (getCurrentPlayer().isPlayerHuman()) {
+            refreshUserSupportHighlighting();
+            board.makeCurrentTeamAccessible(redPlayer);
+        }
     }
 
     public Player getCurrentPlayer() {
@@ -89,8 +94,7 @@ public class Game { //extends Application {
         }
     }
 
-    private void refreshBoardHighlighting() {
-        board.resetTileColors();
+    private void refreshUserSupportHighlighting() {
         board.highlightAvailableMoves();
     }
 
@@ -114,7 +118,10 @@ public class Game { //extends Application {
         }
     }
 
+    //this does work and does not gate the GUI - because on each turn, a the current thread creates a successor thread
+    // with the next turn, the new thread is started and the current thread is disposed of
     public void runPlayerMove(Player player) {
+        //create the task to run the next turn
         Task<Void> task = new Task<Void>() {
             @Override public Void call() throws Exception {
                 Thread.sleep(AI_MOVE_LAG_TIME);
@@ -135,7 +142,9 @@ public class Game { //extends Application {
                 return null;
             }
         };
+        // create and trigger the new thread to run the new turn
         new Thread(task).start();
+        //current thread finishes, climbs the call stack, and is disposed off
     }
 
     private void executePlayerMove(Move move) {
@@ -156,7 +165,7 @@ public class Game { //extends Application {
     }
 
     private void printNewTurnDialogue() {
-        if(VERBOSE_OUTPUT) {
+        if (VERBOSE_OUTPUT) {
             Main.output.appendText("\n---------------------------------------------------\n\n");
             String player = redPlayer.isPlayersTurn() ? "Red" : "White";
             Main.output.appendText(player + "'s Turn\n");

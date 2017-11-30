@@ -2,7 +2,7 @@ public class Move {
 
     private final Coordinates origin;
     private final Coordinates target;
-    private final MoveResult result;
+    private final MoveResult result;//TODO this could hold another move if it were a kill move, and so on until no more kill moves available
 
     public Move(Coordinates origin, Coordinates target, MoveResult result) {
         this.origin = origin;

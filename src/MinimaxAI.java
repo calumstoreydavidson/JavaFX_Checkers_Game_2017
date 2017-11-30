@@ -27,7 +27,7 @@ public class MinimaxAI implements Player {
     private MoveAndScore minimax(BoardSim node, int depth, boolean maximisingPlayer) {
         MoveAndScore best;
         if (node.getTeamsPossibleMoves().isEmpty() || depth == maxDepth) {
-            best = new MoveAndScore(null, node.evaluateState(playerTeam));
+            best = new MoveAndScore(null, node.evaluateState());
             debugBaseCase(depth, best);
 
         } else if (maximisingPlayer) {
@@ -122,9 +122,9 @@ public class MinimaxAI implements Player {
 
     private class MoveAndScore {
         Move move;
-        int score;
+        double score;
 
-        MoveAndScore(Move move, int score) {
+        MoveAndScore(Move move, double score) {
             this.move = move;
             this.score = score;
         }

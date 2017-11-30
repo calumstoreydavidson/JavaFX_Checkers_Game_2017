@@ -28,7 +28,7 @@ public class BoardSim {
         }
         redUnits = new ArrayList<>(oldBoard.getRedUnits());
         whiteUnits = new ArrayList<>(oldBoard.getWhiteUnits());
-        currentTeam = oldBoard.getNextPlayer();
+        currentTeam = oldBoard.getCurrentTeam();
     }
 
     public void generateSimTiles(Board oldBoard) {
@@ -69,7 +69,7 @@ public class BoardSim {
         ArrayList<Coordinates> teamUnits = currentTeam == Team.RED ? redUnits : whiteUnits;
 
         for (Coordinates position: teamUnits) {
-            possibleTeamMoves.addAll(getUnitsPossibleMoves(position, isKing(getTile(position))));
+            possibleTeamMoves.addAll(getUnitsPossibleMoves(position));
         }
 
         return prioritiseAttackMoves(possibleTeamMoves);
@@ -90,36 +90,35 @@ public class BoardSim {
         }
     }
 
-    public ArrayList<Move> getUnitsPossibleMoves(Coordinates origin, boolean isKing) {
+    public ArrayList<Move> getUnitsPossibleMoves(Coordinates origin) {
         ArrayList<Move> moves = new ArrayList<>();
 
-        for (Coordinates possiblePosition : getUnitsPossiblePositions(origin, isKing, currentTeam)) {
+        for (Coordinates possiblePosition : getUnitsPossiblePositions(origin)) {
             if (!isOccupiedTile(possiblePosition)) {
                 MoveResult result = new MoveResult(MoveType.NORMAL);
-                if (possiblePosition.isEnemyKingRow(currentTeam) && !isKing) {
+                if (possiblePosition.isEnemyKingRow(currentTeam) && !isKing(origin)) {
                     result.createKing();
                 }
                 moves.add(new Move(origin, possiblePosition, result));
-            } else if (isEnemyUnit(currentTeam, possiblePosition) && isAttackPossible(possiblePosition)) {
-                Type attackedUnit = getTile(possiblePosition);
+            } else if (isEnemyUnit(possiblePosition) && isAttackPossible(possiblePosition)) {
                 MoveResult result = new MoveResult(MoveType.KILL);
-                if (possiblePosition.getNextOnPath().isEnemyKingRow(currentTeam) && !isKing || isKing(attackedUnit) && !isKing && Game.CROWN_STEALING_ALLOWED) {
+                if (possiblePosition.getNextOnPath().isEnemyKingRow(currentTeam) && !isKing(origin) || isKing(possiblePosition) && !isKing(origin) && Game.CROWN_STEALING_ALLOWED) {
                     result.createKing();
                 }
                 moves.add(new Move(origin, possiblePosition.getNextOnPath(), result));
             }
         }
-        return moves;
+        return prioritiseAttackMoves(moves);
     }
 
-    public ArrayList<Coordinates> getUnitsPossiblePositions(Coordinates origin, boolean isKing, Team team){
+    public ArrayList<Coordinates> getUnitsPossiblePositions(Coordinates origin){
         ArrayList<Coordinates> potentiallyAdjacentTiles = new ArrayList<>();
 
-        if (isKing || team == Team.RED) {
+        if (isKing(origin) || currentTeam == Team.RED) {
             potentiallyAdjacentTiles.add(origin.SW());
             potentiallyAdjacentTiles.add(origin.SE());
         }
-        if (isKing || team == Team.WHITE) {
+        if (isKing(origin) || currentTeam == Team.WHITE) {
             potentiallyAdjacentTiles.add(origin.NW());
             potentiallyAdjacentTiles.add(origin.NE());
         }
@@ -142,8 +141,8 @@ public class BoardSim {
         simBoard[position.x][position.y] = type;
     }
 
-    private boolean isEnemyUnit(Team team, Coordinates position){
-        if (team == Team.RED){
+    private boolean isEnemyUnit(Coordinates position){
+        if (currentTeam == Team.RED){
             return getTile(position) == Type.WHITE || getTile(position) == Type.WHITE_KING;
         }else {
             return getTile(position) == Type.RED || getTile(position) == Type.RED_KING;
@@ -162,12 +161,13 @@ public class BoardSim {
         return Coordinates.isBoardEdge(enemyPos);
     }
 
-    private boolean isKing(Type type){
+    private boolean isKing(Coordinates position){
+        Type type = getTile(position);
         return type == Type.WHITE_KING || type == Type.RED_KING;
     }
 
     private boolean canAttack(Move move) {
-        ArrayList<Move> possibleMoves = getUnitsPossibleMoves(move.getTarget(), move.getResult().isKingCreated());
+        ArrayList<Move> possibleMoves = getUnitsPossibleMoves(move.getTarget());
         if (!possibleMoves.isEmpty()) {
             return possibleMoves.get(0).getResult().getType() == MoveType.KILL;
         } else {
@@ -182,7 +182,7 @@ public class BoardSim {
             killUnit(Coordinates.getKillCoords(move));
 
             if (canAttack(move) && !move.getResult().isKingCreated()) {
-                doMove(getRandomMove(getUnitsPossibleMoves(move.getTarget(), move.getResult().isKingCreated())));
+                doMove(getRandomMove(getUnitsPossibleMoves(move.getTarget())));
             }
         }
     }
@@ -238,15 +238,15 @@ public class BoardSim {
         return whiteUnits;
     }
 
-    public Team getNextPlayer() {
+    public void setNextPlayer() {
         if (currentTeam == Team.RED) {
-            return Team.WHITE;
+            currentTeam = Team.WHITE;
         } else {
-            return Team.RED;
+            currentTeam = Team.RED;
         }
     }
 
-    public int evaluateState(Team team) {
+    public double evaluateState() {
         //heuristic - absolute piece count
 /*        if (team == Team.WHITE) {
             return whiteUnits.size() - redUnits.size();
@@ -254,14 +254,17 @@ public class BoardSim {
         return redUnits.size() - whiteUnits.size();*/
 
         //heuristic - absolute piece count - kings worth double
-        int reds = 0;
-        int whites = 0;
+        double reds = 0;
+        double whites = 0;
 
         for (Coordinates pos : redUnits) {
             Type type = getTile(pos);
+            if (Coordinates.isBoardEdge(pos)) {//edges are safe, so encourage their use
+//                reds += 0.1;
+            }
             if (type == Type.RED) {
                 reds++;
-            } else if (type == Type.RED_KING) {
+            } else if (type == Type.RED_KING) {//kings are better than pawns, get and protect them
                 reds++;
                 reds++;
             }
@@ -269,6 +272,9 @@ public class BoardSim {
 
         for (Coordinates pos : whiteUnits) {
             Type type = getTile(pos);
+            if (Coordinates.isBoardEdge(pos)) {//edges are safe, so encourage their use
+//                whites += 0.1;
+            }
             if (type == Type.WHITE) {
                 whites++;
             } else if (type == Type.WHITE_KING) {
@@ -277,16 +283,17 @@ public class BoardSim {
             }
         }
 
-        if (team == Team.WHITE) {
-            return (whites) - (reds);
+        if (currentTeam == Team.WHITE) {
+            return whites - reds;
         } else {
-            return (reds) - (whites);
+            return reds - whites;
         }
     }
 
     public BoardSim getChild(Move move){
         BoardSim child = new BoardSim(this);
         child.doMove(move);
+        child.setNextPlayer();
         return child;
     }
 
@@ -315,5 +322,9 @@ public class BoardSim {
             System.out.println("");
         }
         System.out.println("");
+    }
+
+    public Team getCurrentTeam(){
+        return currentTeam;
     }
 }

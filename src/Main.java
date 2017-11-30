@@ -21,10 +21,10 @@ import javafx.stage.StageStyle;
 public class Main extends Application {
 
     public static TextArea output;
-    VBox controls = buildControls();
-
     private Game game;
+    VBox controls = buildControls();
     private Stage primaryStage;
+    private int maxAIDifficulty = 14;//allow altering difficulty slider based on AI - pruning can be harder while not slowing the game down
 
     public static void main(String[] args) {
         launch(args);
@@ -40,7 +40,7 @@ public class Main extends Application {
         this.primaryStage.setResizable(false);
         this.primaryStage.initStyle(StageStyle.UNIFIED);
 
-        refreshGUI(new HumanPlayer(Team.RED), new ABNegamaxAI(Team.WHITE));
+        refreshGUI(new ABNegamaxAI(Team.RED), new ABNegamaxAI(Team.WHITE));
 
 //        game.startNewGame(); //startNewGame(getUserInput()); TODO because effort
     }
@@ -110,7 +110,7 @@ public class Main extends Application {
         //TODO swap teams sides of the board
 
         //TODO show board axis
-            //TODO make 0,0 in bottom left rather thant top left
+        //TODO make 0,0 in bottom left rather thant top left
 
         //TODO toggle number of AI players
 
@@ -118,18 +118,7 @@ public class Main extends Application {
 
         GridPane teamPlayerMenus = getTeamPlayerMenus();
 
-        VBox controls = new VBox(10,
-                newGameButton,
-                crownStealingToggleButton,
-                togglePlayTileButton,
-                developmentModeButton,
-                verbosOutputButton,
-                displayInstructionsButton,
-                AITurnLengthLabel,
-                AITurnLengthSlider,
-                teamPlayerMenus,
-                AIDifficultySlider
-        );
+        VBox controls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileButton, developmentModeButton, verbosOutputButton, displayInstructionsButton, AITurnLengthLabel, AITurnLengthSlider, teamPlayerMenus, AIDifficultyLabel, AIDifficultySlider);
 
         controls.setPrefWidth(300);
 
@@ -150,7 +139,7 @@ public class Main extends Application {
         MenuItem redTeamPlayerMenuItem1 = new MenuItem("Human");
         redTeamPlayerMenuItem1.setOnAction(event -> {
             game.setRedPlayer(new HumanPlayer(Team.RED));
- // TODO fix changing mid game?
+            // TODO fix changing mid game?
             game.triggerReset();
 //            game.scheduleNewGame();
 //            refreshGUI(new HumanPlayer(Team.RED), game.getWhitePlayer());
@@ -159,10 +148,10 @@ public class Main extends Application {
         MenuItem redTeamPlayerMenuItem2 = new MenuItem("Random");
         redTeamPlayerMenuItem2.setOnAction(event -> {
             game.setRedPlayer(new RandomAIPlayer(Team.RED));
-            if (game.getRedPlayer().isPlayerHuman()){
+            if (game.getRedPlayer().isPlayerHuman()) {
 //                game.scheduleNewGame();
                 game.startNewGame();
-            }else {
+            } else {
                 game.triggerReset();
             }
 //TODO it is bad that it can immediatly start,  perhaps a submit button - or merge with start new game button
@@ -172,14 +161,36 @@ public class Main extends Application {
         MenuItem redTeamPlayerMenuItem3 = new MenuItem("Minimax");
         redTeamPlayerMenuItem3.setOnAction(event -> {
             game.setRedPlayer(new MinimaxAI(Team.RED));
-            if (game.getRedPlayer().isPlayerHuman()){
+            if (game.getRedPlayer().isPlayerHuman()) {
                 game.startNewGame();
-            }else {
+            } else {
                 game.triggerReset();
             }
         });
 
-        MenuButton redTeamPlayerMenuButton = new MenuButton("Red Player", null, redTeamPlayerMenuItem1, redTeamPlayerMenuItem2, redTeamPlayerMenuItem3);
+        MenuItem redTeamPlayerMenuItem4 = new MenuItem("Negamax");
+        redTeamPlayerMenuItem4.setOnAction(event -> {
+            maxAIDifficulty = 10;
+            game.setWhitePlayer(new NegamaxAI(Team.RED));
+            if (game.getRedPlayer().isPlayerHuman()) {
+                game.scheduleNewGame();
+            } else {
+                game.triggerReset();
+            }
+        });
+
+        MenuItem redTeamPlayerMenuItem5 = new MenuItem("ABNegamax");
+        redTeamPlayerMenuItem5.setOnAction(event -> {
+            maxAIDifficulty = 14;
+            game.setWhitePlayer(new ABNegamaxAI(Team.RED));
+            if (game.getRedPlayer().isPlayerHuman()) {
+                game.scheduleNewGame();
+            } else {
+                game.triggerReset();
+            }
+        });
+
+        MenuButton redTeamPlayerMenuButton = new MenuButton("Red Player", null, redTeamPlayerMenuItem1, redTeamPlayerMenuItem2, redTeamPlayerMenuItem3, redTeamPlayerMenuItem4, redTeamPlayerMenuItem5);
 
 
         MenuItem whiteTeamPlayerMenuItem1 = new MenuItem("Human");
@@ -192,9 +203,9 @@ public class Main extends Application {
         MenuItem whiteTeamPlayerMenuItem2 = new MenuItem("Random");
         whiteTeamPlayerMenuItem2.setOnAction(event -> {
             game.setWhitePlayer(new RandomAIPlayer(Team.WHITE));
-            if (game.getWhitePlayer().isPlayerHuman()){
+            if (game.getWhitePlayer().isPlayerHuman()) {
                 game.scheduleNewGame();
-            }else {
+            } else {
                 game.triggerReset();
             }
 //            refreshGUI(game.getRedPlayer(), new RandomAIPlayer(Team.WHITE));
@@ -203,18 +214,40 @@ public class Main extends Application {
         MenuItem whiteTeamPlayerMenuItem3 = new MenuItem("Minimax");
         whiteTeamPlayerMenuItem3.setOnAction(event -> {
             game.setWhitePlayer(new MinimaxAI(Team.WHITE));
-            if (game.getWhitePlayer().isPlayerHuman()){
+            if (game.getWhitePlayer().isPlayerHuman()) {
                 game.scheduleNewGame();
-            }else {
+            } else {
                 game.triggerReset();
             }
         });
 
-        MenuButton whiteTeamPlayerMenuButton = new MenuButton("White Player", null, whiteTeamPlayerMenuItem1, whiteTeamPlayerMenuItem2, whiteTeamPlayerMenuItem3);
+        MenuItem whiteTeamPlayerMenuItem4 = new MenuItem("Negamax");
+        whiteTeamPlayerMenuItem4.setOnAction(event -> {
+            game.setWhitePlayer(new NegamaxAI(Team.WHITE));
+            maxAIDifficulty = 10;
+            if (game.getWhitePlayer().isPlayerHuman()) {
+                game.scheduleNewGame();
+            } else {
+                game.triggerReset();
+            }
+        });
+
+        MenuItem whiteTeamPlayerMenuItem5 = new MenuItem("ABNegamax");
+        whiteTeamPlayerMenuItem5.setOnAction(event -> {
+            game.setWhitePlayer(new ABNegamaxAI(Team.WHITE));
+            maxAIDifficulty = 14;
+            if (game.getWhitePlayer().isPlayerHuman()) {
+                game.scheduleNewGame();
+            } else {
+                game.triggerReset();
+            }
+        });
+
+        MenuButton whiteTeamPlayerMenuButton = new MenuButton("White Player", null, whiteTeamPlayerMenuItem1, whiteTeamPlayerMenuItem2, whiteTeamPlayerMenuItem3, whiteTeamPlayerMenuItem4, whiteTeamPlayerMenuItem5);
 
         GridPane gridPane = new GridPane();
-        gridPane.add(redTeamPlayerMenuButton,0,0);
-        gridPane.add(whiteTeamPlayerMenuButton,1,0);
+        gridPane.add(redTeamPlayerMenuButton, 0, 0);
+        gridPane.add(whiteTeamPlayerMenuButton, 1, 0);
         return gridPane;
     }
 
@@ -247,13 +280,13 @@ public class Main extends Application {
 
         //slider value range and default
         AIDifficultySlider.setMin(1);
-        AIDifficultySlider.setMax(8);
+        AIDifficultySlider.setMax(maxAIDifficulty);
         AIDifficultySlider.setValue(Game.AI_MAX_SEARCH_DEPTH);
 
         //major numbered slider intervals
         AIDifficultySlider.setMajorTickUnit(1);
         //minor intervals between major intervals
-//        AIDifficultySlider.setMinorTickCount(0);
+        AIDifficultySlider.setMinorTickCount(0);
 
         //slider config
         AIDifficultySlider.setShowTickLabels(true);
@@ -273,12 +306,7 @@ public class Main extends Application {
     }
 
     private void setUpGameOutput() {
-        output = new TextArea("Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning " +
-                              "- checkers game coursework.\n\nInstructions:\n" +
-                              "- Drag and drop units with your mouse to make your moves\n" +
-                              "- Green squares are units that can move.\n" +
-                              "- Blue squares are where they can go.\n" +
-                              "- And red squares are mandatory attacks.");
+        output = new TextArea("Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning " + "- checkers game coursework.\n\nInstructions:\n" + "- Drag and drop units with your mouse to make your moves\n" + "- Green squares are units that can move.\n" + "- Blue squares are where they can go.\n" + "- And red squares are mandatory attacks.");
         output.setPrefWidth(350);
         output.setMaxWidth(TextArea.USE_PREF_SIZE);
         output.setMinWidth(TextArea.USE_PREF_SIZE);
@@ -293,7 +321,7 @@ public class Main extends Application {
         developmentModeButton.setOnAction(value -> {
             game.toggleDevelopmentMode();
             developmentModeButton.setText(game.DEVELOPMENT_MODE_ENABLED ? "Disable Development Mode" : "Enable Development Mode");
-            output.appendText(game.DEVELOPMENT_MODE_ENABLED ? "God Mode Enabled" : "God Mode Disabled");
+            output.appendText(game.DEVELOPMENT_MODE_ENABLED ? "God Mode Enabled\n" : "God Mode Disabled\n");
         });
         return developmentModeButton;
     }
