@@ -193,11 +193,6 @@ public class Board {
         }
     }
 
-    public ArrayList<Unit> getPlayerUnits(Team team) {
-        Group playerUnits = team == Team.RED ? redUnits : whiteUnits;
-        return playerUnits.getChildren().stream().map(node -> (Unit) node).collect(Collectors.toCollection(ArrayList::new));
-    }
-
     public boolean executeMove(Move move) {
         Coordinates origin = move.getTarget().origin;
         Coordinates target = move.getTarget();
@@ -275,14 +270,6 @@ public class Board {
 
     public ArrayList<Move> getPossibleMoves() {
         return possibleMoves;
-    }
-
-    public int evaluateState(Team team) {
-        //simple heuristic
-        if (team == Team.WHITE) {
-            return whiteUnits.getChildren().size() - redUnits.getChildren().size();
-        }
-        return redUnits.getChildren().size() - whiteUnits.getChildren().size();
     }
 
     public Unit getUnitAtPos(Coordinates position){

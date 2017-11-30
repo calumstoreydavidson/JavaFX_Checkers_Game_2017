@@ -6,9 +6,8 @@ import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
@@ -24,7 +23,7 @@ public class Main extends Application {
     private Game game;
     VBox controls = buildControls();
     private Stage primaryStage;
-    private int maxAIDifficulty = 14;//allow altering difficulty slider based on AI - pruning can be harder while not slowing the game down
+    private int maxAIDifficulty;//allow altering difficulty slider based on AI - pruning can be harder while not slowing the game down
 
     public static void main(String[] args) {
         launch(args);
@@ -40,6 +39,7 @@ public class Main extends Application {
         this.primaryStage.setResizable(false);
         this.primaryStage.initStyle(StageStyle.UNIFIED);
 
+        maxAIDifficulty = 14;
         refreshGUI(new ABNegamaxAI(Team.RED), new ABNegamaxAI(Team.WHITE));
 
 //        game.startNewGame(); //startNewGame(getUserInput()); TODO because effort
@@ -125,6 +125,126 @@ public class Main extends Application {
         return controls;
     }
 
+    private GridPane getTeamPlayerMenus() {
+        ComboBox redPlayer = new ComboBox();
+        redPlayer.getItems().addAll("Human", "AI", "Minimax", "ABMinimax", "Negamax", "ABNegamax");
+        redPlayer.getSelectionModel().select("ABNegamax");
+        redPlayer.setOnAction((event -> {
+            switch (redPlayer.getSelectionModel().getSelectedIndex()){
+                case 0:
+                    game.setRedPlayer(new HumanPlayer(Team.RED));
+                    game.triggerReset();
+                    break;
+                case 1:
+                    game.setRedPlayer(new RandomAIPlayer(Team.RED));
+                    if (game.isHumanPlaying()) {
+                        game.startNewGame();
+                    } else {
+                        game.triggerReset();
+                    }
+                    break;
+                case 2:
+                    game.setRedPlayer(new MinimaxAI(Team.RED));
+                    if (game.isHumanPlaying()) {
+                        game.startNewGame();
+                    } else {
+                        game.triggerReset();
+                    }
+                    break;
+                case 3:
+                    game.setRedPlayer(new MinimaxAI(Team.RED));
+                    if (game.isHumanPlaying()) {
+                        game.startNewGame();
+                    } else {
+                        game.triggerReset();
+                    }
+                    break;
+                case 4:
+                    maxAIDifficulty = 10;
+                    game.setRedPlayer(new NegamaxAI(Team.RED));
+                    if (game.isHumanPlaying()) {
+                        game.scheduleNewGame();
+                    } else {
+                        game.triggerReset();
+                    }
+                    break;
+                case 5:
+                    maxAIDifficulty = 14;
+                    game.setRedPlayer(new ABNegamaxAI(Team.RED));
+                    if (game.isHumanPlaying()) {
+                        game.scheduleNewGame();
+                    } else {
+                        game.triggerReset();
+                    }
+                    break;
+            }
+        }));
+
+        ComboBox whitePlayer = new ComboBox();
+        whitePlayer.getItems().addAll("Human", "AI", "Minimax", "ABMinimax", "Negamax", "ABNegamax");
+        whitePlayer.getSelectionModel().select("ABNegamax");
+        whitePlayer.setOnAction((event -> {
+            switch (whitePlayer.getSelectionModel().getSelectedIndex()){
+                case 0:
+                    game.setWhitePlayer(new HumanPlayer(Team.RED));
+                    game.triggerReset();
+                    break;
+                case 1:
+                    game.setWhitePlayer(new RandomAIPlayer(Team.RED));
+                    if (game.isHumanPlaying()) {
+                        game.startNewGame();
+                    } else {
+                        game.triggerReset();
+                    }
+                    break;
+                case 2:
+                    game.setWhitePlayer(new MinimaxAI(Team.RED));
+                    if (game.isHumanPlaying()) {
+                        game.startNewGame();
+                    } else {
+                        game.triggerReset();
+                    }
+                    break;
+                case 3:
+                    game.setWhitePlayer(new MinimaxAI(Team.RED));
+                    if (game.isHumanPlaying()) {
+                        game.startNewGame();
+                    } else {
+                        game.triggerReset();
+                    }
+                    break;
+                case 4:
+                    maxAIDifficulty = 10;
+                    game.setWhitePlayer(new NegamaxAI(Team.RED));
+                    if (game.isHumanPlaying()) {
+                        game.scheduleNewGame();
+                    } else {
+                        game.triggerReset();
+                    }
+                    break;
+                case 5:
+                    maxAIDifficulty = 14;
+                    game.setWhitePlayer(new ABNegamaxAI(Team.RED));
+                    if (game.isHumanPlaying()) {
+                        game.scheduleNewGame();
+                    } else {
+                        game.triggerReset();
+                    }
+                    break;
+            }
+        }));
+
+        GridPane playerMenus = new GridPane();
+        playerMenus.add(new Label("Red Player:"), 0, 0);
+        playerMenus.add(redPlayer, 1, 0);
+
+        playerMenus.add(new Label("White Player:"), 0, 1);
+        playerMenus.add(whitePlayer, 1, 1);
+
+        playerMenus.setHgap(10);
+        return playerMenus;
+    }
+
     private Button getVerbosOutputButton() {
         Button verbosOutputButton = new Button("Disable Verbose Output\n");
         verbosOutputButton.setOnAction(value -> {
@@ -135,121 +255,117 @@ public class Main extends Application {
         return verbosOutputButton;
     }
 
-    private GridPane getTeamPlayerMenus() {
-        MenuItem redTeamPlayerMenuItem1 = new MenuItem("Human");
-        redTeamPlayerMenuItem1.setOnAction(event -> {
-            game.setRedPlayer(new HumanPlayer(Team.RED));
-            // TODO fix changing mid game?
-            game.triggerReset();
-//            game.scheduleNewGame();
-//            refreshGUI(new HumanPlayer(Team.RED), game.getWhitePlayer());
-        });
-
-        MenuItem redTeamPlayerMenuItem2 = new MenuItem("Random");
-        redTeamPlayerMenuItem2.setOnAction(event -> {
-            game.setRedPlayer(new RandomAIPlayer(Team.RED));
-            if (game.getRedPlayer().isPlayerHuman()) {
+//    private GridPane getTeamPlayerMenus() {
+//        MenuItem redTeamHumanPlayer = new MenuItem("Human");
+//        redTeamHumanPlayer.setOnAction(event -> {
+//            game.setRedPlayer(new HumanPlayer(Team.RED));
+//            game.triggerReset();
+//        });
+//
+//        MenuItem redTeamRandomPlayer = new MenuItem("Random");
+//        redTeamRandomPlayer.setOnAction(event -> {
+//            game.setRedPlayer(new RandomAIPlayer(Team.RED));
+//            if (game.isHumanPlaying().isPlayerHuman()) {
+//                game.startNewGame();
+//            } else {
+//                game.triggerReset();
+//            }
+////TODO it is bad that it can immediatly start,  perhaps a submit button - or merge with start new game button
+////            refreshGUI(new RandomAIPlayer(Team.RED), game.getWhitePlayer());
+//        });
+//
+//        MenuItem redTeamMinimaxPlayer = new MenuItem("Minimax");
+//        redTeamMinimaxPlayer.setOnAction(event -> {
+//            game.setRedPlayer(new MinimaxAI(Team.RED));
+//            if (game.isHumanPlaying().isPlayerHuman()) {
+//                game.startNewGame();
+//            } else {
+//                game.triggerReset();
+//            }
+//        });
+//
+//        MenuItem redTeamNegamaxPlayer = new MenuItem("Negamax");
+//        redTeamNegamaxPlayer.setOnAction(event -> {
+//            maxAIDifficulty = 10;
+//            game.setWhitePlayer(new NegamaxAI(Team.RED));
+//            if (game.isHumanPlaying().isPlayerHuman()) {
 //                game.scheduleNewGame();
-                game.startNewGame();
-            } else {
-                game.triggerReset();
-            }
-//TODO it is bad that it can immediatly start,  perhaps a submit button - or merge with start new game button
-//            refreshGUI(new RandomAIPlayer(Team.RED), game.getWhitePlayer());
-        });
-
-        MenuItem redTeamPlayerMenuItem3 = new MenuItem("Minimax");
-        redTeamPlayerMenuItem3.setOnAction(event -> {
-            game.setRedPlayer(new MinimaxAI(Team.RED));
-            if (game.getRedPlayer().isPlayerHuman()) {
-                game.startNewGame();
-            } else {
-                game.triggerReset();
-            }
-        });
-
-        MenuItem redTeamPlayerMenuItem4 = new MenuItem("Negamax");
-        redTeamPlayerMenuItem4.setOnAction(event -> {
-            maxAIDifficulty = 10;
-            game.setWhitePlayer(new NegamaxAI(Team.RED));
-            if (game.getRedPlayer().isPlayerHuman()) {
-                game.scheduleNewGame();
-            } else {
-                game.triggerReset();
-            }
-        });
-
-        MenuItem redTeamPlayerMenuItem5 = new MenuItem("ABNegamax");
-        redTeamPlayerMenuItem5.setOnAction(event -> {
-            maxAIDifficulty = 14;
-            game.setWhitePlayer(new ABNegamaxAI(Team.RED));
-            if (game.getRedPlayer().isPlayerHuman()) {
-                game.scheduleNewGame();
-            } else {
-                game.triggerReset();
-            }
-        });
-
-        MenuButton redTeamPlayerMenuButton = new MenuButton("Red Player", null, redTeamPlayerMenuItem1, redTeamPlayerMenuItem2, redTeamPlayerMenuItem3, redTeamPlayerMenuItem4, redTeamPlayerMenuItem5);
-
-
-        MenuItem whiteTeamPlayerMenuItem1 = new MenuItem("Human");
-        whiteTeamPlayerMenuItem1.setOnAction(event -> {
-            game.setWhitePlayer(new HumanPlayer(Team.WHITE));
-            game.triggerReset();
-//            refreshGUI(game.getRedPlayer(), new HumanPlayer(Team.WHITE));
-        });
-
-        MenuItem whiteTeamPlayerMenuItem2 = new MenuItem("Random");
-        whiteTeamPlayerMenuItem2.setOnAction(event -> {
-            game.setWhitePlayer(new RandomAIPlayer(Team.WHITE));
-            if (game.getWhitePlayer().isPlayerHuman()) {
-                game.scheduleNewGame();
-            } else {
-                game.triggerReset();
-            }
-//            refreshGUI(game.getRedPlayer(), new RandomAIPlayer(Team.WHITE));
-        });
-
-        MenuItem whiteTeamPlayerMenuItem3 = new MenuItem("Minimax");
-        whiteTeamPlayerMenuItem3.setOnAction(event -> {
-            game.setWhitePlayer(new MinimaxAI(Team.WHITE));
-            if (game.getWhitePlayer().isPlayerHuman()) {
-                game.scheduleNewGame();
-            } else {
-                game.triggerReset();
-            }
-        });
-
-        MenuItem whiteTeamPlayerMenuItem4 = new MenuItem("Negamax");
-        whiteTeamPlayerMenuItem4.setOnAction(event -> {
-            game.setWhitePlayer(new NegamaxAI(Team.WHITE));
-            maxAIDifficulty = 10;
-            if (game.getWhitePlayer().isPlayerHuman()) {
-                game.scheduleNewGame();
-            } else {
-                game.triggerReset();
-            }
-        });
-
-        MenuItem whiteTeamPlayerMenuItem5 = new MenuItem("ABNegamax");
-        whiteTeamPlayerMenuItem5.setOnAction(event -> {
-            game.setWhitePlayer(new ABNegamaxAI(Team.WHITE));
-            maxAIDifficulty = 14;
-            if (game.getWhitePlayer().isPlayerHuman()) {
-                game.scheduleNewGame();
-            } else {
-                game.triggerReset();
-            }
-        });
-
-        MenuButton whiteTeamPlayerMenuButton = new MenuButton("White Player", null, whiteTeamPlayerMenuItem1, whiteTeamPlayerMenuItem2, whiteTeamPlayerMenuItem3, whiteTeamPlayerMenuItem4, whiteTeamPlayerMenuItem5);
-
-        GridPane gridPane = new GridPane();
-        gridPane.add(redTeamPlayerMenuButton, 0, 0);
-        gridPane.add(whiteTeamPlayerMenuButton, 1, 0);
-        return gridPane;
-    }
+//            } else {
+//                game.triggerReset();
+//            }
+//        });
+//
+//        MenuItem redTeamABNegamaxPlayer = new MenuItem("ABNegamax");
+//        redTeamABNegamaxPlayer.setOnAction(event -> {
+//            maxAIDifficulty = 14;
+//            game.setWhitePlayer(new ABNegamaxAI(Team.RED));
+//            if (game.isHumanPlaying().isPlayerHuman()) {
+//                game.scheduleNewGame();
+//            } else {
+//                game.triggerReset();
+//            }
+//        });
+//
+//        MenuButton redTeamPlayerMenuButton = new MenuButton("Red Player", null, redTeamHumanPlayer, redTeamRandomPlayer, redTeamMinimaxPlayer, redTeamNegamaxPlayer, redTeamABNegamaxPlayer);
+//
+//
+//        MenuItem whiteTeamHumanPlayer = new MenuItem("Human");
+//        whiteTeamHumanPlayer.setOnAction(event -> {
+//            game.setWhitePlayer(new HumanPlayer(Team.WHITE));
+//            game.triggerReset();
+////            refreshGUI(game.isHumanPlaying(), new HumanPlayer(Team.WHITE));
+//        });
+//
+//        MenuItem whiteTeamRandomPlayer = new MenuItem("Random");
+//        whiteTeamRandomPlayer.setOnAction(event -> {
+//            game.setWhitePlayer(new RandomAIPlayer(Team.WHITE));
+//            if (game.getWhitePlayer().isPlayerHuman()) {
+//                game.scheduleNewGame();
+//            } else {
+//                game.triggerReset();
+//            }
+////            refreshGUI(game.isHumanPlaying(), new RandomAIPlayer(Team.WHITE));
+//        });
+//
+//        MenuItem whiteTeamMinimaxPlayer = new MenuItem("Minimax");
+//        whiteTeamMinimaxPlayer.setOnAction(event -> {
+//            game.setWhitePlayer(new MinimaxAI(Team.WHITE));
+//            if (game.getWhitePlayer().isPlayerHuman()) {
+//                game.scheduleNewGame();
+//            } else {
+//                game.triggerReset();
+//            }
+//        });
+//
+//        MenuItem whiteTeamNegamaxPlayer = new MenuItem("Negamax");
+//        whiteTeamNegamaxPlayer.setOnAction(event -> {
+//            game.setWhitePlayer(new NegamaxAI(Team.WHITE));
+//            maxAIDifficulty = 10;
+//            if (game.getWhitePlayer().isPlayerHuman()) {
+//                game.scheduleNewGame();
+//            } else {
+//                game.triggerReset();
+//            }
+//        });
+//
+//        MenuItem whiteTeamABNegamaxPlayer = new MenuItem("ABNegamax");
+//        whiteTeamABNegamaxPlayer.setOnAction(event -> {
+//            game.setWhitePlayer(new ABNegamaxAI(Team.WHITE));
+//            maxAIDifficulty = 14;
+//            if (game.getWhitePlayer().isPlayerHuman()) {
+//                game.scheduleNewGame();
+//            } else {
+//                game.triggerReset();
+//            }
+//        });
+//
+//        MenuButton whiteTeamPlayerMenuButton = new MenuButton("White Player", null, whiteTeamHumanPlayer, whiteTeamRandomPlayer, whiteTeamMinimaxPlayer, whiteTeamNegamaxPlayer, whiteTeamABNegamaxPlayer);
+//
+//        GridPane gridPane = new GridPane();
+//        gridPane.add(redTeamPlayerMenuButton, 0, 0);
+//        gridPane.add(whiteTeamPlayerMenuButton, 1, 0);
+//        return gridPane;
+//    }
 
     private Slider getMoveSpeedSlider() {
         Slider AIMoveSpeedSlider = new Slider(0, 1, 1);
@@ -269,9 +385,7 @@ public class Main extends Application {
         AIMoveSpeedSlider.setShowTickMarks(true);
         AIMoveSpeedSlider.setSnapToTicks(true);
 
-        AIMoveSpeedSlider.valueProperty().addListener((ov, old_val, new_val) -> {
-            Game.AI_MOVE_LAG_TIME = (int) AIMoveSpeedSlider.getValue();
-        });
+        AIMoveSpeedSlider.valueProperty().addListener((ov, old_val, new_val) -> Game.AI_MOVE_LAG_TIME = (int) AIMoveSpeedSlider.getValue());
         return AIMoveSpeedSlider;
     }
 
@@ -280,7 +394,7 @@ public class Main extends Application {
 
         //slider value range and default
         AIDifficultySlider.setMin(1);
-        AIDifficultySlider.setMax(maxAIDifficulty);
+        AIDifficultySlider.setMax(14);
         AIDifficultySlider.setValue(Game.AI_MAX_SEARCH_DEPTH);
 
         //major numbered slider intervals
@@ -293,9 +407,7 @@ public class Main extends Application {
         AIDifficultySlider.setShowTickMarks(true);
         AIDifficultySlider.setSnapToTicks(true);
 
-        AIDifficultySlider.valueProperty().addListener((ov, old_val, new_val) -> {
-            Game.AI_MAX_SEARCH_DEPTH = (int) AIDifficultySlider.getValue();
-        });
+        AIDifficultySlider.valueProperty().addListener((ov, old_val, new_val) -> Game.AI_MAX_SEARCH_DEPTH = (int) AIDifficultySlider.getValue());
         return AIDifficultySlider;
     }
 
@@ -364,7 +476,7 @@ public class Main extends Application {
     private Button getNewGameButton() {
         Button newGameButton = new Button("Start New Game");
         newGameButton.setOnAction(value -> {
-//            refreshGUI(game.getRedPlayer(), game.getWhitePlayer());
+//            refreshGUI(game.isHumanPlaying(), game.getWhitePlayer());
             game.triggerReset();
         });
         return newGameButton;

@@ -82,16 +82,12 @@ public class Game { //extends Application {
         board.resetTileColors();
         if (getCurrentPlayer().isPlayerHuman()) {
             refreshUserSupportHighlighting();
-            board.makeCurrentTeamAccessible(redPlayer);
+            board.makeCurrentTeamAccessible(getCurrentPlayer());
         }
     }
 
     public Player getCurrentPlayer() {
-        if (redPlayer.isPlayersTurn()) {
-            return redPlayer;
-        } else {
-            return whitePlayer;
-        }
+        return redPlayer.isPlayersTurn() ? redPlayer : whitePlayer;
     }
 
     private void refreshUserSupportHighlighting() {
@@ -180,16 +176,12 @@ public class Game { //extends Application {
         return components;
     }
 
-    public Player getRedPlayer() {
-        return redPlayer;
+    public boolean isHumanPlaying() {
+        return redPlayer.isPlayerHuman() || whitePlayer.isPlayerHuman();
     }
 
     public void setRedPlayer(Player redPlayer) {
         this.redPlayer = redPlayer;
-    }
-
-    public Player getWhitePlayer() {
-        return whitePlayer;
     }
 
     public void setWhitePlayer(Player whitePlayer) {
@@ -216,28 +208,36 @@ public class Game { //extends Application {
             Coordinates target = new Coordinates(origin, targetX, targetY);
 
             if (Game.DEVELOPMENT_MODE_ENABLED) {
-                if (origin.equals(target)) {
-                    unit.toggleKing();
-                    board.moveUnit(origin, target, unit, false);
-                } else {
-                    board.moveUnit(origin, target, unit, false);
-                }
+                programUnitDevMode(unit, origin, target);
             } else {
-                Move actualMove = null;
-                for (Move move : board.getPossibleMoves()) {
-                    if (move.getOrigin().equals(origin) && move.getTarget().equals(target)) {
-                        actualMove = move;
-                        break;
-                    }
-                }
-                if (actualMove == null) {
-                    MoveResult result = new MoveResult(MoveType.NONE);
-                    actualMove = new Move(unit.getPos(), target, result);
-                }
-
-                executePlayerMove(actualMove);
+                programUnitNormalMode(unit, origin, target);
             }
         });
+    }
+
+    private void programUnitNormalMode(Unit unit, Coordinates origin, Coordinates target) {
+        Move actualMove = null;
+        for (Move move : board.getPossibleMoves()) {
+            if (move.getOrigin().equals(origin) && move.getTarget().equals(target)) {
+                actualMove = move;
+                break;
+            }
+        }
+        if (actualMove == null) {
+            MoveResult result = new MoveResult(MoveType.NONE);
+            actualMove = new Move(unit.getPos(), target, result);
+        }
+
+        executePlayerMove(actualMove);
+    }
+
+    private void programUnitDevMode(Unit unit, Coordinates origin, Coordinates target) {
+        if (origin.equals(target)) {
+            unit.toggleKing();
+            board.moveUnit(origin, target, unit, false);
+        } else {
+            board.moveUnit(origin, target, unit, false);
+        }
     }
 
     public void triggerReset() {
