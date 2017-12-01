@@ -254,14 +254,16 @@ public class BoardSim {
         return redUnits.size() - whiteUnits.size();*/
 
         //heuristic - absolute piece count - kings worth double
-        double reds = whiteUnits.isEmpty() ? 100 : 0;
-        double whites = redUnits.isEmpty() ? 100 : 0;
+//        double reds = whiteUnits.isEmpty() ? 100 : 0;
+//        double whites = redUnits.isEmpty() ? 100 : 0;
+        double reds = 0;
+        double whites = 0;
 
         for (Coordinates pos : redUnits) {
             Type type = getTile(pos);
-            if (Coordinates.isBoardEdge(pos)) {//edges are safe, so encourage their use
-                reds += 0.1;
-            }
+//            if (Coordinates.isBoardEdge(pos)) {//edges are safe, so encourage their use
+//                reds += 0.1;
+//            }
             if (type == Type.RED) {
                 reds++;
             } else if (type == Type.RED_KING) {//kings are better than pawns, get and protect them
@@ -272,9 +274,9 @@ public class BoardSim {
 
         for (Coordinates pos : whiteUnits) {
             Type type = getTile(pos);
-            if (Coordinates.isBoardEdge(pos)) {//edges are safe, so encourage their use
-                whites += 0.1;
-            }
+//            if (Coordinates.isBoardEdge(pos)) {//edges are safe, so encourage their use
+//                whites += 0.1;
+//            }
             if (type == Type.WHITE) {
                 whites++;
             } else if (type == Type.WHITE_KING) {
