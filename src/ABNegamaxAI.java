@@ -27,7 +27,7 @@ public class ABNegamaxAI implements Player {
     }
 
     private MoveAndScore negamax(BoardSim node, int depth, int team, MoveAndScore alpha, MoveAndScore beta) {
-        if (node.getTeamsPossibleMoves().isEmpty() || depth == maxDepth) {
+        if (node.getTeamsPossibleMoves().isEmpty() || depth == 12) {
             MoveAndScore result = new MoveAndScore(null, node.evaluateState());
             result.score *= team;
             return result;

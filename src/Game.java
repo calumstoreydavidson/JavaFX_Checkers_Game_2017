@@ -82,7 +82,7 @@ public class Game { //extends Application {
         board.resetTileColors();
         if (getCurrentPlayer().isPlayerHuman()) {
             refreshUserSupportHighlighting();
-            board.makeCurrentTeamAccessible(getCurrentPlayer());
+            board.makeCurrentTeamAccessible(redPlayer, whitePlayer);
         }
     }
 
@@ -107,11 +107,8 @@ public class Game { //extends Application {
                 Main.output.appendText("---------------------------------------------------\n");
                 return true;
             }
-        } else if (RESET_GAME) {
-            return true;
-        } else {
-            return false;
         }
+        return RESET_GAME;
     }
 
     //this does work and does not gate the GUI - because on each turn, a the current thread creates a successor thread
@@ -144,7 +141,8 @@ public class Game { //extends Application {
     }
 
     private void executePlayerMove(Move move) {
-        if (board.executeMove(move)) {
+        boolean turnFinished = board.executeMove(move);
+        if (turnFinished) {
             //actual next players turn
             switchPlayerTurn();
             printNewTurnDialogue();

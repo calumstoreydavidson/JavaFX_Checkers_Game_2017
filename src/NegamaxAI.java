@@ -29,7 +29,7 @@ public class NegamaxAI implements Player {
     }
 
     private MoveAndScore negamax(BoardSim node, int depth, int team) {
-        if (node.getTeamsPossibleMoves().isEmpty() || depth == maxDepth) {
+        if (node.getTeamsPossibleMoves().isEmpty() || depth == 7) {
             MoveAndScore result = new MoveAndScore(null, node.evaluateState());
             result.score *= team;
             return result;

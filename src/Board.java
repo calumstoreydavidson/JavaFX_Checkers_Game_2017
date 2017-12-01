@@ -4,6 +4,7 @@ import java.util.stream.Collectors;
 
 import javax.rmi.CORBA.Tie;
 
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -255,9 +256,9 @@ public class Board {
         }
     }
 
-    public void makeCurrentTeamAccessible(Player player) {
-        redUnits.setMouseTransparent(!player.isPlayersTurn());
-        whiteUnits.setMouseTransparent(player.isPlayersTurn());
+    public void makeCurrentTeamAccessible(Player redPlayer, Player whitePlayer) {
+        redUnits.setMouseTransparent(!redPlayer.isPlayersTurn());
+        whiteUnits.setMouseTransparent(!whitePlayer.isPlayersTurn());
     }
 
     public Group getRedUnits() {

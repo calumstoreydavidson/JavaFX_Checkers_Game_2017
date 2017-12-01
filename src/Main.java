@@ -40,16 +40,23 @@ public class Main extends Application {
         this.primaryStage.initStyle(StageStyle.UNIFIED);
 
         maxAIDifficulty = 14;
-        refreshGUI(new ABNegamaxAI(Team.RED), new ABNegamaxAI(Team.WHITE));
+
+        Player initialRedPlayer = new HumanPlayer(Team.RED);
+        Player initialWhitePlayer = new ABNegamaxAI(Team.WHITE);
+        refreshGUI(initialRedPlayer, initialWhitePlayer);
 
 //        game.startNewGame(); //startNewGame(getUserInput()); TODO because effort
     }
 
     private void refreshGUI(Player redPlayer, Player whitePlayer) {
-        game = new Game(redPlayer, whitePlayer);
+        refreshGame(redPlayer, whitePlayer);
         Scene GUI = new Scene(createGUI());
         primaryStage.setScene(GUI);
         primaryStage.show();
+    }
+
+    private void refreshGame(Player redPlayer, Player whitePlayer) {
+        game = new Game(redPlayer, whitePlayer);
     }
 
     private Parent createGUI() {
@@ -127,8 +134,8 @@ public class Main extends Application {
 
     private GridPane getTeamPlayerMenus() {
         ComboBox redPlayer = new ComboBox();
-        redPlayer.getItems().addAll("Human", "AI", "Minimax", "ABMinimax", "Negamax", "ABNegamax");
-        redPlayer.getSelectionModel().select("ABNegamax");
+        redPlayer.getItems().setAll("Human", "Random AI", "Minimax AI", "AB Minimax AI", "Negamax AI", "AB Negamax AI");
+        redPlayer.getSelectionModel().select("Random AI");
         redPlayer.setOnAction((event -> {
             switch (redPlayer.getSelectionModel().getSelectedIndex()){
                 case 0:
@@ -152,7 +159,7 @@ public class Main extends Application {
                     }
                     break;
                 case 3:
-                    game.setRedPlayer(new MinimaxAI(Team.RED));
+                    game.setRedPlayer(new ABMinimaxAI(Team.RED));
                     if (game.isHumanPlaying()) {
                         game.startNewGame();
                     } else {
@@ -181,16 +188,16 @@ public class Main extends Application {
         }));
 
         ComboBox whitePlayer = new ComboBox();
-        whitePlayer.getItems().addAll("Human", "AI", "Minimax", "ABMinimax", "Negamax", "ABNegamax");
-        whitePlayer.getSelectionModel().select("ABNegamax");
+        whitePlayer.getItems().setAll("Human", "Random AI", "Minimax AI", "AB Minimax AI", "Negamax AI", "AB Negamax AI");
+        whitePlayer.getSelectionModel().select("Random AI");
         whitePlayer.setOnAction((event -> {
             switch (whitePlayer.getSelectionModel().getSelectedIndex()){
                 case 0:
-                    game.setWhitePlayer(new HumanPlayer(Team.RED));
+                    game.setWhitePlayer(new HumanPlayer(Team.WHITE));
                     game.triggerReset();
                     break;
                 case 1:
-                    game.setWhitePlayer(new RandomAIPlayer(Team.RED));
+                    game.setWhitePlayer(new RandomAIPlayer(Team.WHITE));
                     if (game.isHumanPlaying()) {
                         game.startNewGame();
                     } else {
@@ -198,7 +205,7 @@ public class Main extends Application {
                     }
                     break;
                 case 2:
-                    game.setWhitePlayer(new MinimaxAI(Team.RED));
+                    game.setWhitePlayer(new MinimaxAI(Team.WHITE));
                     if (game.isHumanPlaying()) {
                         game.startNewGame();
                     } else {
@@ -206,7 +213,7 @@ public class Main extends Application {
                     }
                     break;
                 case 3:
-                    game.setWhitePlayer(new MinimaxAI(Team.RED));
+                    game.setWhitePlayer(new ABMinimaxAI(Team.WHITE));
                     if (game.isHumanPlaying()) {
                         game.startNewGame();
                     } else {
@@ -215,7 +222,7 @@ public class Main extends Application {
                     break;
                 case 4:
                     maxAIDifficulty = 10;
-                    game.setWhitePlayer(new NegamaxAI(Team.RED));
+                    game.setWhitePlayer(new NegamaxAI(Team.WHITE));
                     if (game.isHumanPlaying()) {
                         game.scheduleNewGame();
                     } else {
@@ -224,7 +231,7 @@ public class Main extends Application {
                     break;
                 case 5:
                     maxAIDifficulty = 14;
-                    game.setWhitePlayer(new ABNegamaxAI(Team.RED));
+                    game.setWhitePlayer(new ABNegamaxAI(Team.WHITE));
                     if (game.isHumanPlaying()) {
                         game.scheduleNewGame();
                     } else {
@@ -246,13 +253,13 @@ public class Main extends Application {
     }
 
     private Button getVerbosOutputButton() {
-        Button verbosOutputButton = new Button("Disable Verbose Output\n");
-        verbosOutputButton.setOnAction(value -> {
+        Button verboseOutputButton = new Button("Disable Verbose Output\n");
+        verboseOutputButton.setOnAction(value -> {
             Game.VERBOSE_OUTPUT = !Game.VERBOSE_OUTPUT;
-            verbosOutputButton.setText(Game.VERBOSE_OUTPUT ? "Disable Verbose Output\n" : "Enable Verbose Output\n");
+            verboseOutputButton.setText(Game.VERBOSE_OUTPUT ? "Disable Verbose Output\n" : "Enable Verbose Output\n");
             output.appendText(Game.VERBOSE_OUTPUT ? "Verbose Output Enabled\n" : "Verbose Output Disabled\n");
         });
-        return verbosOutputButton;
+        return verboseOutputButton;
     }
 
 //    private GridPane getTeamPlayerMenus() {
@@ -389,7 +396,7 @@ public class Main extends Application {
         return AIMoveSpeedSlider;
     }
 
-    private Slider getAIDifficultySlider() {
+    private Slider getAIDifficultySlider() {//TODO one of these for each AI
         Slider AIDifficultySlider = new Slider(0, 1, 1);
 
         //slider value range and default
@@ -444,7 +451,6 @@ public class Main extends Application {
             Game.PLAY_SQUARE = Game.PLAY_SQUARE == 0 ? 1 : 0;
             togglePlayTileButton.setText(Game.PLAY_SQUARE == 0 ? "Play on White" : "Play on Black"); //TODO what the fuck is up with this fucking button
             output.appendText(String.valueOf(Game.PLAY_SQUARE == 0 ? "You are now playing on the black squares" : "You are now playing on the white squares"));
-            //TODO rework this so that the UI is not being reset as well
             game.triggerReset();
         });
         return togglePlayTileButton;
@@ -476,7 +482,6 @@ public class Main extends Application {
     private Button getNewGameButton() {
         Button newGameButton = new Button("Start New Game");
         newGameButton.setOnAction(value -> {
-//            refreshGUI(game.isHumanPlaying(), game.getWhitePlayer());
             game.triggerReset();
         });
         return newGameButton;
