@@ -21,9 +21,10 @@ public class Main extends Application {
 
     public static TextArea output;
     private Game game;
-    VBox controls = buildControls();
     private Stage primaryStage;
-    private int maxAIDifficulty;//allow altering difficulty slider based on AI - pruning can be harder while not slowing the game down
+    public static int maxWhiteAIDifficulty;//allow altering difficulty slider based on AI - pruning can be harder while not slowing the game down
+    public static int maxRedAIDifficulty;//allow altering difficulty slider based on AI - pruning can be harder while not slowing the game down
+    VBox controls = buildControls();
 
     public static void main(String[] args) {
         launch(args);
@@ -39,10 +40,8 @@ public class Main extends Application {
         this.primaryStage.setResizable(false);
         this.primaryStage.initStyle(StageStyle.UNIFIED);
 
-        maxAIDifficulty = 14;
-
-        Player initialRedPlayer = new HumanPlayer(Team.RED);
-        Player initialWhitePlayer = new ABNegamaxAI(Team.WHITE);
+        Player initialRedPlayer = new RandomAIPlayer(Team.RED);
+        Player initialWhitePlayer = new RandomAIPlayer(Team.WHITE);
         refreshGUI(initialRedPlayer, initialWhitePlayer);
 
 //        game.startNewGame(); //startNewGame(getUserInput()); TODO because effort
@@ -125,7 +124,7 @@ public class Main extends Application {
 
         GridPane teamPlayerMenus = getTeamPlayerMenus();
 
-        VBox controls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileButton, developmentModeButton, verbosOutputButton, displayInstructionsButton, AITurnLengthLabel, AITurnLengthSlider, teamPlayerMenus, AIDifficultyLabel, AIDifficultySlider);
+        VBox controls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileButton, developmentModeButton, verbosOutputButton, displayInstructionsButton, teamPlayerMenus, AITurnLengthLabel, AITurnLengthSlider, AIDifficultyLabel, AIDifficultySlider);
 
         controls.setPrefWidth(300);
 
@@ -134,10 +133,10 @@ public class Main extends Application {
 
     private GridPane getTeamPlayerMenus() {
         ComboBox redPlayer = new ComboBox();
-        redPlayer.getItems().setAll("Human", "Random AI", "Minimax AI", "AB Minimax AI", "Negamax AI", "AB Negamax AI");
+        redPlayer.getItems().setAll("Human", "Random AI", "Negamax AI", "AB Negamax AI");
         redPlayer.getSelectionModel().select("Random AI");
         redPlayer.setOnAction((event -> {
-            switch (redPlayer.getSelectionModel().getSelectedIndex()){
+            switch (redPlayer.getSelectionModel().getSelectedIndex()) {
                 case 0:
                     game.setRedPlayer(new HumanPlayer(Team.RED));
                     game.triggerReset();
@@ -151,23 +150,6 @@ public class Main extends Application {
                     }
                     break;
                 case 2:
-                    game.setRedPlayer(new MinimaxAI(Team.RED));
-                    if (game.isHumanPlaying()) {
-                        game.startNewGame();
-                    } else {
-                        game.triggerReset();
-                    }
-                    break;
-                case 3:
-                    game.setRedPlayer(new ABMinimaxAI(Team.RED));
-                    if (game.isHumanPlaying()) {
-                        game.startNewGame();
-                    } else {
-                        game.triggerReset();
-                    }
-                    break;
-                case 4:
-                    maxAIDifficulty = 10;
                     game.setRedPlayer(new NegamaxAI(Team.RED));
                     if (game.isHumanPlaying()) {
                         game.scheduleNewGame();
@@ -175,8 +157,7 @@ public class Main extends Application {
                         game.triggerReset();
                     }
                     break;
-                case 5:
-                    maxAIDifficulty = 14;
+                case 3:
                     game.setRedPlayer(new ABNegamaxAI(Team.RED));
                     if (game.isHumanPlaying()) {
                         game.scheduleNewGame();
@@ -188,10 +169,10 @@ public class Main extends Application {
         }));
 
         ComboBox whitePlayer = new ComboBox();
-        whitePlayer.getItems().setAll("Human", "Random AI", "Minimax AI", "AB Minimax AI", "Negamax AI", "AB Negamax AI");
+        whitePlayer.getItems().setAll("Human", "Random AI", "Negamax AI", "AB Negamax AI");
         whitePlayer.getSelectionModel().select("Random AI");
         whitePlayer.setOnAction((event -> {
-            switch (whitePlayer.getSelectionModel().getSelectedIndex()){
+            switch (whitePlayer.getSelectionModel().getSelectedIndex()) {
                 case 0:
                     game.setWhitePlayer(new HumanPlayer(Team.WHITE));
                     game.triggerReset();
@@ -205,23 +186,6 @@ public class Main extends Application {
                     }
                     break;
                 case 2:
-                    game.setWhitePlayer(new MinimaxAI(Team.WHITE));
-                    if (game.isHumanPlaying()) {
-                        game.startNewGame();
-                    } else {
-                        game.triggerReset();
-                    }
-                    break;
-                case 3:
-                    game.setWhitePlayer(new ABMinimaxAI(Team.WHITE));
-                    if (game.isHumanPlaying()) {
-                        game.startNewGame();
-                    } else {
-                        game.triggerReset();
-                    }
-                    break;
-                case 4:
-                    maxAIDifficulty = 10;
                     game.setWhitePlayer(new NegamaxAI(Team.WHITE));
                     if (game.isHumanPlaying()) {
                         game.scheduleNewGame();
@@ -229,8 +193,7 @@ public class Main extends Application {
                         game.triggerReset();
                     }
                     break;
-                case 5:
-                    maxAIDifficulty = 14;
+                case 3:
                     game.setWhitePlayer(new ABNegamaxAI(Team.WHITE));
                     if (game.isHumanPlaying()) {
                         game.scheduleNewGame();
@@ -401,7 +364,7 @@ public class Main extends Application {
 
         //slider value range and default
         AIDifficultySlider.setMin(1);
-        AIDifficultySlider.setMax(14);
+        AIDifficultySlider.setMax(7);
         AIDifficultySlider.setValue(Game.AI_MAX_SEARCH_DEPTH);
 
         //major numbered slider intervals

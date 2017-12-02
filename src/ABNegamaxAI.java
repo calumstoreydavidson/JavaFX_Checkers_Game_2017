@@ -5,7 +5,6 @@ public class ABNegamaxAI implements Player {
     boolean isPlayerHuman;
     private boolean isPlayersTurn;
     private Team playerTeam;
-    private int maxDepth;
 
     public ABNegamaxAI(Team playerTeam) {
         this.playerTeam = playerTeam;
@@ -15,7 +14,6 @@ public class ABNegamaxAI implements Player {
     }
 
     @Override public Optional<Move> getPlayerMove(Board board) {
-        maxDepth = Game.AI_MAX_SEARCH_DEPTH;
         if (Game.VERBOSE_OUTPUT) {
             Main.output.appendText("AI is thinking \n");
         }
@@ -27,9 +25,8 @@ public class ABNegamaxAI implements Player {
     }
 
     private MoveAndScore negamax(BoardSim node, int depth, int team, double alpha, double beta) {
-        if (node.getTeamsPossibleMoves().isEmpty() || depth == 12) {
+        if (node.getTeamsPossibleMoves().isEmpty() || depth == getMaxSearchDepth()) {
             MoveAndScore result = new MoveAndScore(null, node.evaluateState());
-//            result.score = result.score * team;
             debugBaseCase(node, depth, result, team);
             return result;
         }
@@ -106,7 +103,6 @@ public class ABNegamaxAI implements Player {
         }
     }
 
-
     public boolean isPlayerHuman() {
         return isPlayerHuman;
     }
@@ -131,6 +127,10 @@ public class ABNegamaxAI implements Player {
 
     @Override public void resetPlayer() {
         isPlayersTurn = playerTeam == Team.RED;
+    }
+
+    private int getMaxSearchDepth() {
+        return (int) ((double) Game.AI_MAX_SEARCH_DEPTH * 1.7);//get 1.4 of 1..8 then round it to an int
     }
 
     private class MoveAndScore {

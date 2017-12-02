@@ -1,13 +1,10 @@
 import java.util.Optional;
 
-import com.sun.org.glassfish.gmbal.GmbalException;
-
 public class NegamaxAI implements Player {
 
     boolean isPlayerHuman;
     private boolean isPlayersTurn;
     private Team playerTeam;
-    private int maxDepth = Game.AI_MAX_SEARCH_DEPTH;
 
     public NegamaxAI(Team playerTeam) {
         this.playerTeam = playerTeam;
@@ -29,7 +26,7 @@ public class NegamaxAI implements Player {
     }
 
     private MoveAndScore negamax(BoardSim node, int depth, int team) {
-        if (node.getTeamsPossibleMoves().isEmpty() || depth == 7) {
+        if (node.getTeamsPossibleMoves().isEmpty() || depth == getMaxSearchDepth()) {
             MoveAndScore result = new MoveAndScore(null, node.evaluateState());
             result.score *= team;
             return result;
@@ -68,6 +65,10 @@ public class NegamaxAI implements Player {
 
     @Override public void resetPlayer() {
         isPlayersTurn = playerTeam == Team.RED;
+    }
+
+    private int getMaxSearchDepth(){
+        return Game.AI_MAX_SEARCH_DEPTH;
     }
 
     private class MoveAndScore {

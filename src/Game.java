@@ -15,7 +15,7 @@ public class Game { //extends Application {
     public static boolean DEVELOPMENT_MODE_ENABLED = false;
     public static int AI_MOVE_LAG_TIME = 500; //milliseconds
     public static boolean RESET_GAME;
-    public static int AI_MAX_SEARCH_DEPTH = 12; //Minimax AI Difficulty
+    public static int AI_MAX_SEARCH_DEPTH = 7; //Negamax AI Difficulty
     public static boolean VERBOSE_OUTPUT = true;//TODO add a button for this
 
     private Player redPlayer;
