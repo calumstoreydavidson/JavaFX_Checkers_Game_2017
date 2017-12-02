@@ -1,11 +1,10 @@
-import java.util.ArrayList;
 import java.util.Optional;
 
 public interface Player {
 
     boolean isPlayerHuman();
 
-    Optional<Move> getPlayerMove(Board board);
+    Optional<Move> getPlayerMove(DisplayBoard displayBoard);
 
     boolean isPlayersTurn();
 

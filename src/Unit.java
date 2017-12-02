@@ -20,14 +20,12 @@ public class Unit extends StackPane {
 
         PaintUnit();
 
-        setOnMousePressed(e -> {
-            mouseX = e.getSceneX();
-            mouseY = e.getSceneY();
+        setOnMousePressed(event -> {
+            mouseX = event.getSceneX();
+            mouseY = event.getSceneY();
         });
 
-        setOnMouseDragged(e -> {
-            relocate(e.getSceneX() - mouseX + currentX, e.getSceneY() - mouseY + currentY);
-        });
+        setOnMouseDragged(event -> relocate(event.getSceneX() - mouseX + currentX, event.getSceneY() - mouseY + currentY));
 
     }
 

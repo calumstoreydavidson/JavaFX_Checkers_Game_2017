@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-public class BoardSim {
+public class SimulationBoard extends Board{
 
     private enum Type {
         EMPTY, WHITE, RED, WHITE_KING, RED_KING
@@ -14,12 +14,12 @@ public class BoardSim {
     private ArrayList<Coordinates> whiteUnits = new ArrayList<>();
     private Team currentTeam;
 
-    public BoardSim(Board oldBoard, Team team) {
-        generateSimTiles(oldBoard);
+    public SimulationBoard(DisplayBoard oldDisplayBoard, Team team) {
+        generateSimTiles(oldDisplayBoard);
         currentTeam = team;
     }
 
-    public BoardSim(BoardSim oldBoard){
+    public SimulationBoard(SimulationBoard oldBoard){
 //        simBoard = oldBoard.getSimBoard().clone();
         for (int i = 0; i < Game.SCALE; i++) {
             for (int j = 0; j < Game.SCALE; j++) {
@@ -31,17 +31,17 @@ public class BoardSim {
         currentTeam = oldBoard.getCurrentTeam();
     }
 
-    public void generateSimTiles(Board oldBoard) {
+    public void generateSimTiles(DisplayBoard oldDisplayBoard) {
         simBoard = new Type[Game.SCALE][Game.SCALE];
         for (int i = 0; i < Game.SCALE; i++) {
             for (int j = 0; j < Game.SCALE; j++) {
-                generateSimTile(oldBoard, i, j);
+                generateSimTile(oldDisplayBoard, i, j);
             }
         }
     }
 
-    public void generateSimTile(Board oldBoard, int i, int j) {
-        Tile tile = oldBoard.getTile(new Coordinates(i, j));
+    public void generateSimTile(DisplayBoard oldDisplayBoard, int i, int j) {
+        Tile tile = oldDisplayBoard.getTile(new Coordinates(i, j));
         if (tile.getUnit() == null) {
             simBoard[i][j] = Type.EMPTY;
         } else {
@@ -73,21 +73,6 @@ public class BoardSim {
         }
 
         return prioritiseAttackMoves(possibleTeamMoves);
-    }
-
-    public ArrayList<Move> prioritiseAttackMoves(ArrayList<Move> possibleUnitMoves) {
-        ArrayList<Move> attackMoves = new ArrayList<>();
-        for (Move move : possibleUnitMoves) {
-            if (move.getType() == MoveType.KILL) {
-                attackMoves.add(move);
-            }
-        }
-
-        if (!attackMoves.isEmpty()) {
-            return attackMoves;
-        } else {
-            return possibleUnitMoves;
-        }
     }
 
     public ArrayList<Move> getUnitsPossibleMoves(Coordinates origin) {
@@ -247,23 +232,13 @@ public class BoardSim {
     }
 
     public double evaluateState() {
-        //heuristic - absolute piece count
-/*        if (team == Team.WHITE) {
-            return whiteUnits.size() - redUnits.size();
-        }
-        return redUnits.size() - whiteUnits.size();*/
-
         //heuristic - absolute piece count - kings worth double
-//        double reds = whiteUnits.isEmpty() ? 100 : 0;
-//        double whites = redUnits.isEmpty() ? 100 : 0;
         double reds = 0;
         double whites = 0;
 
         for (Coordinates pos : redUnits) {
             Type type = getTile(pos);
-//            if (Coordinates.isBoardEdge(pos)) {//edges are safe, so encourage their use
-//                reds += 0.1;
-//            }
+
             if (type == Type.RED) {
                 reds++;
             } else if (type == Type.RED_KING) {//kings are better than pawns, get and protect them
@@ -274,9 +249,6 @@ public class BoardSim {
 
         for (Coordinates pos : whiteUnits) {
             Type type = getTile(pos);
-//            if (Coordinates.isBoardEdge(pos)) {//edges are safe, so encourage their use
-//                whites += 0.1;
-//            }
             if (type == Type.WHITE) {
                 whites++;
             } else if (type == Type.WHITE_KING) {
@@ -292,38 +264,11 @@ public class BoardSim {
         }
     }
 
-    public BoardSim getChild(Move move){
-        BoardSim child = new BoardSim(this);
+    public SimulationBoard getChild(Move move){
+        SimulationBoard child = new SimulationBoard(this);
         child.doMove(move);
         child.setNextPlayer();
         return child;
-    }
-
-    public void outputSimBoard(int depth) {
-        for (int x = 0; x < Game.SCALE; x++) {
-            for(int i = 1; i<=depth;i++){
-                System.out.print(" | ");
-            }
-            System.out.print("|");
-            for (int y = 0; y < Game.SCALE; y++) {
-                Type type = getTile(new Coordinates(y,x));
-                String out;
-                if (type == Type.RED){
-                    out = "r";
-                }else if(type == Type.RED_KING){
-                    out = "R";
-                }else if (type == Type.WHITE){
-                    out = "w";
-                }else if(type == Type.WHITE_KING){
-                    out = "W";
-                }else {
-                    out = "_";
-                }
-                System.out.print(out + "|");
-            }
-            System.out.println("");
-        }
-        System.out.println("");
     }
 
     public Team getCurrentTeam(){

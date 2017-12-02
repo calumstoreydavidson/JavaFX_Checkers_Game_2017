@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Optional;
 
 public class HumanPlayer implements Player {
@@ -14,7 +13,7 @@ public class HumanPlayer implements Player {
         this.isPlayerHuman = true;
     }
 
-    @Override public Optional<Move> getPlayerMove(Board board) {
+    @Override public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
         return Optional.empty();
     }
 

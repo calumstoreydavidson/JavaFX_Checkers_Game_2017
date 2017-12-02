@@ -20,7 +20,7 @@ public class Game { //extends Application {
 
     private Player redPlayer;
     private Player whitePlayer;
-    private Board board;
+    private DisplayBoard displayBoard;
     private Group components;
 
     public Game(Player redPlayer, Player whitePlayer) {
@@ -48,10 +48,10 @@ public class Game { //extends Application {
     }
 
     private void resetGame() {
-        board = new Board();
+        displayBoard = new DisplayBoard();
         addMouseControlToAllUnits();
 
-        components.getChildren().setAll(board.getGUIComponents().getChildren());
+        components.getChildren().setAll(displayBoard.getGUIComponents().getChildren());
 
         redPlayer.resetPlayer();
         whitePlayer.resetPlayer();
@@ -61,9 +61,9 @@ public class Game { //extends Application {
         if (DEVELOPMENT_MODE_ENABLED) {
             refreshTurn();
         } else {
-            board.resetTileColors();
-            board.getRedUnits().setMouseTransparent(false);
-            board.getWhiteUnits().setMouseTransparent(false);
+            displayBoard.resetTileColors();
+            displayBoard.getRedUnits().setMouseTransparent(false);
+            displayBoard.getWhiteUnits().setMouseTransparent(false);
         }
         DEVELOPMENT_MODE_ENABLED = !DEVELOPMENT_MODE_ENABLED;
     }
@@ -88,10 +88,10 @@ public class Game { //extends Application {
     }
 
     private void refreshBoard() {
-        board.resetTileColors();
+        displayBoard.resetTileColors();
         if (getCurrentPlayer().isPlayerHuman()) {
             refreshUserSupportHighlighting();
-            board.makeCurrentTeamAccessible(redPlayer, whitePlayer);
+            displayBoard.makeCurrentTeamAccessible(redPlayer, whitePlayer);
         }
     }
 
@@ -100,11 +100,11 @@ public class Game { //extends Application {
     }
 
     private void refreshUserSupportHighlighting() {
-        board.highlightAvailableMoves();
+        displayBoard.highlightAvailableMoves();
     }
 
     private boolean isGameOver() {
-        if (board.getPossibleMoves().isEmpty()) {
+        if (displayBoard.getPossibleMoves().isEmpty()) {
             if (redPlayer.isPlayersTurn()) {
                 Main.output.appendText("---------------------------------------------------\n");
                 Main.output.appendText("!!!!!!!!!!!!!!!!!!!  WHITE WINS  !!!!!!!!!!!!!!!!!!\n");
@@ -128,9 +128,9 @@ public class Game { //extends Application {
             @Override public Void call() throws Exception {
                 Thread.sleep(AI_MOVE_LAG_TIME);
 
-                player.getPlayerMove(board).ifPresent(move -> {
-                    board.getTile(move.getTarget()).highlightAIMove();
-                    board.getTile(move.getOrigin()).highlightAIMove();
+                player.getPlayerMove(displayBoard).ifPresent(move -> {
+                    displayBoard.getTile(move.getTarget()).highlightAIMove();
+                    displayBoard.getTile(move.getOrigin()).highlightAIMove();
 
                     try {
                         Thread.sleep(AI_MOVE_LAG_TIME);
@@ -150,7 +150,7 @@ public class Game { //extends Application {
     }
 
     private void executePlayerMove(Move move) {
-        boolean turnFinished = board.executeMove(move);
+        boolean turnFinished = displayBoard.executeMove(move);
         if (turnFinished) {
             //actual next players turn
             switchPlayerTurn();
@@ -176,7 +176,7 @@ public class Game { //extends Application {
     }
 
     private void refreshTeamsAvailableMoves() {
-        board.getTeamMoves(getCurrentPlayer().getPlayerTeam());
+        displayBoard.getTeamMoves(getCurrentPlayer().getPlayerTeam());
     }
 
     public Group getComponents() {
@@ -187,20 +187,20 @@ public class Game { //extends Application {
         return redPlayer.isPlayerHuman() || whitePlayer.isPlayerHuman();
     }
 
-    public void setRedPlayer(Player redPlayer) {
-        this.redPlayer = redPlayer;
-    }
-
-    public void setWhitePlayer(Player whitePlayer) {
-        this.whitePlayer = whitePlayer;
+    public void setPlayer(Player player) {
+        if (player.getPlayerTeam() == Team.RED){
+            this.redPlayer = player;
+        }else {
+            this.whitePlayer = player;
+        }
     }
 
     private void addMouseControlToAllUnits() {
-        for (Node node : board.getRedUnits().getChildren()) {
+        for (Node node : displayBoard.getRedUnits().getChildren()) {
             Unit unit = (Unit) node;
             addMouseControlToUnit(unit);
         }
-        for (Node node : board.getWhiteUnits().getChildren()) {
+        for (Node node : displayBoard.getWhiteUnits().getChildren()) {
             Unit unit = (Unit) node;
             addMouseControlToUnit(unit);
         }
@@ -224,7 +224,7 @@ public class Game { //extends Application {
 
     private void programUnitNormalMode(Unit unit, Coordinates origin, Coordinates target) {
         Move actualMove = null;
-        for (Move move : board.getPossibleMoves()) {
+        for (Move move : displayBoard.getPossibleMoves()) {
             if (move.getOrigin().equals(origin) && move.getTarget().equals(target)) {
                 actualMove = move;
                 break;
@@ -238,11 +238,15 @@ public class Game { //extends Application {
     }
 
     private void programUnitGodMode(Unit unit, Coordinates origin, Coordinates target) {
-        if (origin.equals(target)) {
-            unit.toggleKing();
-            board.moveUnit(origin, target, unit, false);
-        } else {
-            board.moveUnit(origin, target, unit, false);
+        if (!Coordinates.isOutsideBoard(target)) {
+            if (origin.equals(target)) {
+                unit.toggleKing();
+                displayBoard.moveUnit(origin, target, unit, false);
+            } else {
+                displayBoard.moveUnit(origin, target, unit, false);
+            }
+        }else {
+            unit.abortMove();
         }
     }
 

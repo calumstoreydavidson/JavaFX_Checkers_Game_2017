@@ -13,11 +13,11 @@ public class NegamaxAI implements Player {
         this.isPlayerHuman = false;
     }
 
-    @Override public Optional<Move> getPlayerMove(Board board) {
+    @Override public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
         if (Game.VERBOSE_OUTPUT) {
             Main.output.appendText("AI is thinking \n");
         }
-        BoardSim sim = new BoardSim(board, playerTeam);
+        SimulationBoard sim = new SimulationBoard(displayBoard, playerTeam);
 
         System.out.println("--------------------------------------------------------------------------------------------------");
         System.out.println("--------------------------------------------------------------------------------------------------");
@@ -25,7 +25,7 @@ public class NegamaxAI implements Player {
         return Optional.of(negamax(sim, 0, 1).move);
     }
 
-    private MoveAndScore negamax(BoardSim node, int depth, int team) {
+    private MoveAndScore negamax(SimulationBoard node, int depth, int team) {
         if (node.getTeamsPossibleMoves().isEmpty() || depth == getMaxSearchDepth()) {
             MoveAndScore result = new MoveAndScore(null, node.evaluateState());
             result.score *= team;

@@ -16,12 +16,12 @@ public class RandomAIPlayer implements Player {
         this.isPlayerHuman = false;
     }
 
-    @Override public Optional<Move> getPlayerMove(Board board) {
+    @Override public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
         if (Game.VERBOSE_OUTPUT) {
             Main.output.appendText("AI is thinking \n");
         }
 
-        ArrayList<Move> possibleMoves = board.getPossibleMoves();
+        ArrayList<Move> possibleMoves = displayBoard.getPossibleMoves();
         int r = rand.nextInt(possibleMoves.size());
         return Optional.of(possibleMoves.get(r));
     }

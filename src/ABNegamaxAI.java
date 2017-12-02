@@ -13,18 +13,18 @@ public class ABNegamaxAI implements Player {
         this.isPlayerHuman = false;
     }
 
-    @Override public Optional<Move> getPlayerMove(Board board) {
+    @Override public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
         if (Game.VERBOSE_OUTPUT) {
             Main.output.appendText("AI is thinking \n");
         }
         double alpha = Integer.MIN_VALUE;
         double beta = Integer.MAX_VALUE;
-        BoardSim sim = new BoardSim(board, playerTeam);
+        SimulationBoard sim = new SimulationBoard(displayBoard, playerTeam);
 
         return Optional.of(negamax(sim, 0, 1, alpha, beta).move);
     }
 
-    private MoveAndScore negamax(BoardSim node, int depth, int team, double alpha, double beta) {
+    private MoveAndScore negamax(SimulationBoard node, int depth, int team, double alpha, double beta) {
         if (node.getTeamsPossibleMoves().isEmpty() || depth == getMaxSearchDepth()) {
             MoveAndScore result = new MoveAndScore(null, node.evaluateState());
             return result;
