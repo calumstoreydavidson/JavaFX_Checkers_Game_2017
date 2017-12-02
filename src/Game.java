@@ -68,8 +68,18 @@ public class Game { //extends Application {
         DEVELOPMENT_MODE_ENABLED = !DEVELOPMENT_MODE_ENABLED;
     }
 
+    private void refreshTurn() {
+        refreshTeamsAvailableMoves();
+        refreshBoard();
+    }
+
     public void nextPlayersTurn() {
-        refreshTurn();
+        refreshTeamsAvailableMoves();
+        runNextMove();
+    }
+
+    public void runNextMove() {
+        refreshBoard();
         if (isGameOver()) {
             scheduleNewGame();
         } else {
@@ -77,8 +87,7 @@ public class Game { //extends Application {
         }
     }
 
-    private void refreshTurn() {
-        refreshTeamsAvailableMoves();
+    private void refreshBoard() {
         board.resetTileColors();
         if (getCurrentPlayer().isPlayerHuman()) {
             refreshUserSupportHighlighting();
@@ -149,7 +158,7 @@ public class Game { //extends Application {
             nextPlayersTurn();
         } else {
             //for multikill logic, next move, not next turn
-            nextPlayersTurn();
+            runNextMove();
         }
     }
 
