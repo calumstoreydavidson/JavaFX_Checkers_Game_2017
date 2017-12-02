@@ -111,8 +111,8 @@ public class Game { //extends Application {
         return RESET_GAME;
     }
 
-    //this does work and does not gate the GUI - because on each turn, a the current thread creates a successor thread
-    // with the next turn, the new thread is started and the current thread is disposed of
+    //this does work and does not gate the GUI - because on each turn, the current thread creates a successor thread
+    // containing the next turn, the new thread is started and the current thread is disposed of.
     public void runPlayerMove(Player player) {
         //create the task to run the next turn
         Task<Void> task = new Task<Void>() {
@@ -206,7 +206,7 @@ public class Game { //extends Application {
             Coordinates target = new Coordinates(origin, targetX, targetY);
 
             if (Game.DEVELOPMENT_MODE_ENABLED) {
-                programUnitDevMode(unit, origin, target);
+                programUnitGodMode(unit, origin, target);
             } else {
                 programUnitNormalMode(unit, origin, target);
             }
@@ -222,14 +222,13 @@ public class Game { //extends Application {
             }
         }
         if (actualMove == null) {
-            MoveResult result = new MoveResult(MoveType.NONE);
-            actualMove = new Move(unit.getPos(), target, result);
+            actualMove = new Move(unit.getPos(), target, MoveType.NONE);
         }
 
         executePlayerMove(actualMove);
     }
 
-    private void programUnitDevMode(Unit unit, Coordinates origin, Coordinates target) {
+    private void programUnitGodMode(Unit unit, Coordinates origin, Coordinates target) {
         if (origin.equals(target)) {
             unit.toggleKing();
             board.moveUnit(origin, target, unit, false);

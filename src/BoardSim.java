@@ -78,7 +78,7 @@ public class BoardSim {
     public ArrayList<Move> prioritiseAttackMoves(ArrayList<Move> possibleUnitMoves) {
         ArrayList<Move> attackMoves = new ArrayList<>();
         for (Move move : possibleUnitMoves) {
-            if (move.getResult().getType() == MoveType.KILL) {
+            if (move.getType() == MoveType.KILL) {
                 attackMoves.add(move);
             }
         }
@@ -95,17 +95,17 @@ public class BoardSim {
 
         for (Coordinates possiblePosition : getUnitsPossiblePositions(origin)) {
             if (!isOccupiedTile(possiblePosition)) {
-                MoveResult result = new MoveResult(MoveType.NORMAL);
+                Move normalMove = new Move(origin, possiblePosition, MoveType.NORMAL);
                 if (possiblePosition.isEnemyKingRow(currentTeam) && !isKing(origin)) {
-                    result.createKing();
+                    normalMove.createKing();
                 }
-                moves.add(new Move(origin, possiblePosition, result));
+                moves.add(normalMove);
             } else if (isEnemyUnit(possiblePosition) && isAttackPossible(possiblePosition)) {
-                MoveResult result = new MoveResult(MoveType.KILL);
+                Move attackMove = new Move(origin, possiblePosition.getNextOnPath(), MoveType.KILL);
                 if (possiblePosition.getNextOnPath().isEnemyKingRow(currentTeam) && !isKing(origin) || isKing(possiblePosition) && !isKing(origin) && Game.CROWN_STEALING_ALLOWED) {
-                    result.createKing();
+                    attackMove.createKing();
                 }
-                moves.add(new Move(origin, possiblePosition.getNextOnPath(), result));
+                moves.add(attackMove);
             }
         }
         return prioritiseAttackMoves(moves);
@@ -169,7 +169,7 @@ public class BoardSim {
     private boolean canAttack(Move move) {
         ArrayList<Move> possibleMoves = getUnitsPossibleMoves(move.getTarget());
         if (!possibleMoves.isEmpty()) {
-            return possibleMoves.get(0).getResult().getType() == MoveType.KILL;
+            return possibleMoves.get(0).getType() == MoveType.KILL;
         } else {
             return false;
         }
@@ -178,10 +178,10 @@ public class BoardSim {
     private void doMove(Move move){
         moveUnit(move);
 
-        if(move.getResult().getType() == MoveType.KILL){
+        if(move.getType() == MoveType.KILL){
             killUnit(Coordinates.getKillCoords(move));
 
-            if (canAttack(move) && !move.getResult().isKingCreated()) {
+            if (canAttack(move) && !move.isKingCreated()) {
                 doMove(getRandomMove(getUnitsPossibleMoves(move.getTarget())));
             }
         }
@@ -199,7 +199,7 @@ public class BoardSim {
         setTile(move.getTarget(), getTile(move.getOrigin()));
         setTile(move.getOrigin(), Type.EMPTY);
 
-       if (move.getResult().isKingCreated()){
+       if (move.isKingCreated()){
            crownKing(move.getTarget());
        }
     }

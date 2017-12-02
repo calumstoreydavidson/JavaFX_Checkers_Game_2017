@@ -96,7 +96,7 @@ public class Board {
 
     public void highlightAvailableMoves() {
         for (Move move : possibleMoves) {
-            if (move.getResult().getType() == MoveType.KILL) {
+            if (move.getType() == MoveType.KILL) {
                 //TODO make these optional
                 getTile(move.getTarget()).highlightAttackDestination();
             } else {
@@ -133,7 +133,7 @@ public class Board {
     public ArrayList<Move> prioritiseAttackMoves(ArrayList<Move> possibleUnitMoves) {
         ArrayList<Move> attackMoves = new ArrayList<>();
         for (Move move : possibleUnitMoves) {
-            if (move.getResult().getType() == MoveType.KILL) {
+            if (move.getType() == MoveType.KILL) {
                 attackMoves.add(move);
             }
         }
@@ -151,18 +151,18 @@ public class Board {
 
         for (Coordinates possiblePosition : unit.getPossiblePositions()) {
             if (!isOccupiedTile(possiblePosition)) {
-                MoveResult result = new MoveResult(MoveType.NORMAL);
+                Move normalMove = new Move(unit.getPos(), possiblePosition, MoveType.NORMAL);
                 if (possiblePosition.isEnemyKingRow(unit.getTeam()) && !unit.isKing()) {
-                    result.createKing();
+                    normalMove.createKing();
                 }
-                moves.add(new Move(unit.getPos(), possiblePosition, result));
+                moves.add(normalMove);
             } else if (isEnemyUnit(unit, possiblePosition) && isAttackPossible(possiblePosition)) {
                 Unit attackedUnit = getTile(possiblePosition).getUnit();
-                MoveResult result = new MoveResult(MoveType.KILL);
+                Move attackMove = new Move(unit.getPos(), possiblePosition.getNextOnPath(), MoveType.KILL);
                 if (possiblePosition.getNextOnPath().isEnemyKingRow(unit.getTeam()) && !unit.isKing() || attackedUnit.isKing() && !unit.isKing() && Game.CROWN_STEALING_ALLOWED) {
-                    result.createKing();
+                    attackMove.createKing();
                 }
-                moves.add(new Move(unit.getPos(), possiblePosition.getNextOnPath(), result));
+                moves.add(attackMove);
             }
         }
         return moves;
@@ -198,11 +198,10 @@ public class Board {
         Coordinates origin = move.getTarget().origin;
         Coordinates target = move.getTarget();
         Unit unit = getUnitAtPos(move.getOrigin());
-        MoveResult result = move.getResult();
-        boolean kingIsCreated = result.isKingCreated();
+        boolean kingIsCreated = move.isKingCreated();
 
         boolean turnFinished = false;
-        switch (result.getType()) {
+        switch (move.getType()) {
             case NONE:
                 unit.abortMove();
                 Main.output.appendText("That Is An Invalid Move\n");
@@ -220,7 +219,7 @@ public class Board {
                 moveUnit(origin, target, unit, kingIsCreated);
                 killUnit(attackedUnit);
 
-                if (canMove(unit) && canAttack(unit) && !result.isKingCreated()) {
+                if (canMove(unit) && canAttack(unit) && !move.isKingCreated()) {
                     possibleMoves = getUnitMoves(unit);
                 } else {
                     turnFinished = true;
@@ -234,7 +233,7 @@ public class Board {
     }
 
     private boolean canAttack(Unit unit) {
-        return getUnitMoves(unit).get(0).getResult().getType() == MoveType.KILL;
+        return getUnitMoves(unit).get(0).getType() == MoveType.KILL;
     }
 
     public boolean canMove(Unit unit) {

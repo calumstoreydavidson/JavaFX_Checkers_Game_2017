@@ -2,12 +2,26 @@ public class Move {
 
     private final Coordinates origin;
     private final Coordinates target;
-    private final MoveResult result;//TODO this could hold another move if it were a kill move, and so on until no more kill moves available
+    //TODO this could hold another move if it were a kill move, and so on until no more kill moves available
+    private MoveType type;
+    private boolean kingCreated;
 
-    public Move(Coordinates origin, Coordinates target, MoveResult result) {
+    public Move(Coordinates origin, Coordinates target, MoveType type) {
         this.origin = origin;
         this.target = target;
-        this.result = result;
+        this.type = type;
+    }
+
+    public MoveType getType() {
+        return type;
+    }
+
+    public boolean isKingCreated() {
+        return kingCreated;
+    }
+
+    public void createKing() {
+        kingCreated = true;
     }
 
     public Coordinates getOrigin() {
@@ -18,7 +32,4 @@ public class Move {
         return target;
     }
 
-    public MoveResult getResult() {
-        return result;
-    }
 }
