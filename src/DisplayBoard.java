@@ -350,7 +350,7 @@ public class DisplayBoard extends Board {
         getTile(origin).setUnit(null);
         getTile(target).setUnit(unit);
         if (Game.VERBOSE_OUTPUT) {
-            GUI.output.appendText(unit.getTeam() + " " + (target.origin.x + 1) + ", " + (target.origin.y + 1) + " -> " + (target.x + 1) + ", " + (target.y + 1) + "\n");
+            GUI.output.appendText((target.origin.x + 1) + ", " + (target.origin.y + 1) + " -> " + (target.x + 1) + ", " + (target.y + 1) + "\n");
         }
         if (kingIsCreated) {
             unit.toggleKing();

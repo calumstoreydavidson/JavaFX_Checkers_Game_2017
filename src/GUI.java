@@ -22,6 +22,16 @@ import javafx.stage.StageStyle;
  */
 public class GUI {
 
+    // this should be the first text printed to the games output feed upon a new game
+    public static final String GAME_PREAMBLE_AND_INSTRUCTIONS
+            = "Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning "
+              + "- checkers game coursework.\n\nInstructions:\n"
+              + "- Drag and drop units with your mouse to make your moves\n"
+              + "- Green squares are units that can move.\n"
+              + "- Blue squares are where they can go.\n"
+              + "- And red squares are mandatory attacks.\n"
+              + "---------------------------------------------------\n";
+
     // the games output / announcement feed
     public static TextArea output;
 
@@ -133,9 +143,9 @@ public class GUI {
         Button togglePlayTileButton = getTogglePlayTileButton();
 
         //god mode toggle
-        Button developmentModeButton = getGodModeButton();
+        Button godModeButton = getGodModeButton();
 
-        Button verbosOutputButton = getVerbosOutputButton();
+        Button verboseOutputButton = getVerboseOutputButton();
 
         //game Instructions
         Button displayInstructionsButton = getDisplayInstructionsButton();
@@ -166,7 +176,7 @@ public class GUI {
 
         GridPane teamPlayerMenus = getTeamPlayerMenus();
 
-        VBox controls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileButton, developmentModeButton, verbosOutputButton, displayInstructionsButton, teamPlayerMenus, AITurnLengthLabel, AITurnLengthSlider, AIDifficultyLabel, AIDifficultySlider);
+        VBox controls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileButton, godModeButton, verboseOutputButton, displayInstructionsButton, teamPlayerMenus, AITurnLengthLabel, AITurnLengthSlider, AIDifficultyLabel, AIDifficultySlider);
 
         controls.setPrefWidth(300);
         controls.setMinWidth(300);
@@ -223,7 +233,12 @@ public class GUI {
         return playerMenu;
     }
 
-    private Button getVerbosOutputButton() {
+    /**
+     * create the button that allows the user to toggle verbose output in the game feed
+     *
+     * @return the verbose output toggle button
+     */
+    private Button getVerboseOutputButton() {
         Button verboseOutputButton = new Button("Disable Verbose Output\n");
         verboseOutputButton.setOnAction(value -> {
             Game.VERBOSE_OUTPUT = !Game.VERBOSE_OUTPUT;
@@ -234,6 +249,11 @@ public class GUI {
         return verboseOutputButton;
     }
 
+    /**
+     * create the slider that allows the user to increase and decrease the speed of AI moves
+     *
+     * @return the slider that allows the user to alter the speed of AI moves
+     */
     private Slider getTurnLengthSlider() {
         Slider AITurnLengthSlider = new Slider(100, 1000, Game.AI_MOVE_LAG_TIME);
         configureSlider(AITurnLengthSlider, 0, 100);
@@ -242,7 +262,13 @@ public class GUI {
         return AITurnLengthSlider;
     }
 
-    private Slider getAIDifficultySlider() {//TODO one of these for each AI
+    /**
+     * create the slider that allows the user to increase and decrease the difficulty of AI players,
+     * by manipulating the depth of the future state space they are allowed to evaluate for the ideal move
+     *
+     * @return the slider that allows the user to alter the difficulty of AI players
+     */
+    private Slider getAIDifficultySlider() {//TODO one of these for each AI?
         Slider AIDifficultySlider = new Slider(1, 7, Game.AI_MAX_SEARCH_DEPTH);
         configureSlider(AIDifficultySlider, 0, 1);
 
@@ -250,6 +276,13 @@ public class GUI {
         return AIDifficultySlider;
     }
 
+    /**
+     * apply basic standard configuration to pre-assembled GUI sliders
+     *
+     * @param slider        the slider to configure
+     * @param minorTickUnit the number of lines between the major value lines
+     * @param majorTickUnit the number of major value lines on the entire slider
+     */
     public void configureSlider(Slider slider, int minorTickUnit, int majorTickUnit) {
         //major numbered slider intervals
         slider.setMajorTickUnit(majorTickUnit);
@@ -262,8 +295,11 @@ public class GUI {
         slider.setSnapToTicks(true);
     }
 
+    /**
+     * create and configure the games output feed
+     */
     private void setUpGameOutputFeed() {
-        output = new TextArea("Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning " + "- checkers game coursework.\n\nInstructions:\n" + "- Drag and drop units with your mouse to make your moves\n" + "- Green squares are units that can move.\n" + "- Blue squares are where they can go.\n" + "- And red squares are mandatory attacks.");
+        output = new TextArea();
         output.setPrefWidth(350);
         output.setMaxWidth(TextArea.USE_PREF_SIZE);
         output.setMinWidth(TextArea.USE_PREF_SIZE);
@@ -273,6 +309,11 @@ public class GUI {
         output.setWrapText(true);
     }
 
+    /**
+     * create the button that allows the user to toggle god mode in order to manipulate the game state mid game
+     *
+     * @return the button that allows the user to toggle god mode in order to manipulate the game state mid game
+     */
     private Button getGodModeButton() {
         Button godModeButton = new Button("Enable God Mode");
         godModeButton.setOnAction(value -> {
@@ -284,6 +325,11 @@ public class GUI {
         return godModeButton;
     }
 
+    /**
+     * create the button that allows the user to toggle which color tiles the game is played on
+     *
+     * @return the button that allows the user to toggle which color tiles the game is played on
+     */
     private Button getTogglePlayTileButton() {
         Button togglePlayTileButton = new Button("Play on Black");
         togglePlayTileButton.setOnAction(value -> {
@@ -296,6 +342,11 @@ public class GUI {
         return togglePlayTileButton;
     }
 
+    /**
+     * create the button that allows the user to have the original instructions for game opened in their browser
+     *
+     * @return the button that allows the user to have the original instructions for game opened in their browser
+     */
     private Button getDisplayInstructionsButton() {
         Button displayInstructionsButton = new Button("Open Game Rules In Browser");
         displayInstructionsButton.setOnAction(e -> {
@@ -310,6 +361,12 @@ public class GUI {
         return displayInstructionsButton;
     }
 
+    /**
+     * create the button that allows the user to toggle whether the game is played with the rule that gives pawns the
+     * ability to become a king if they kill a king
+     *
+     * @return the button for toggling whether pawns have the ability to become a king if they kill a king
+     */
     private Button getCrownStealingToggleButton() {
         Button crownStealingToggleButton = new Button("Disable King On King Kill");
         crownStealingToggleButton.setOnAction(value -> {
@@ -321,11 +378,15 @@ public class GUI {
         return crownStealingToggleButton;
     }
 
+    /**
+     * create the button that allows the user to have the game restart as soon as possible
+     *
+     * @return the button that allows the user to have the game restart as soon as possible
+     */
     private Button getNewGameButton() {
         Button newGameButton = new Button("Start New Game");
         newGameButton.setOnAction(value -> game.restartGame(null));
         newGameButton.setMaxWidth(Double.MAX_VALUE);
         return newGameButton;
     }
-
 }

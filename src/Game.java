@@ -77,10 +77,10 @@ public class Game {
      * reinitialise a new game, reset the necessary variables and run the new game
      */
     public void startNewGame() {
+        GUI.output.setText(GUI.GAME_PREAMBLE_AND_INSTRUCTIONS);
         resetGame();
         if (VERBOSE_OUTPUT) {
-            GUI.output.appendText("\n---------------------------------------------------\n\n");
-            GUI.output.appendText("A NEW GAME BEGINS --FIGHT!--\n");
+            GUI.output.appendText("           A NEW GAME BEGINS --FIGHT!--\n");
             printNewTurnDialogue();
         }
 
@@ -135,7 +135,7 @@ public class Game {
     }
 
     /**
-     * set whether all units should react to mouse events
+     * set whether all units should react to mouse events / locks units against user manipulation
      *
      * @param unitsLocked whether units should react
      */
@@ -173,7 +173,7 @@ public class Game {
     }
 
     /**
-     * refresh the boards highlighting and which units react to mouse events
+     * refresh the boards highlighting and which units react to mouse events / are locked against user controls
      */
     private void refreshBoard() {
         displayBoard.resetTileColors();
@@ -296,9 +296,9 @@ public class Game {
      */
     private void printNewTurnDialogue() {
         if (VERBOSE_OUTPUT) {
-            GUI.output.appendText("\n---------------------------------------------------\n\n");
             String player = redPlayer.isPlayersTurn() ? "Red" : "White";
-            GUI.output.appendText(player + "'s Turn\n");
+            GUI.output.appendText("---------------------------------------------------\n");
+            GUI.output.appendText("                                  " + player + "'s Turn\n");
         }
     }
 
@@ -310,9 +310,9 @@ public class Game {
     }
 
     /**
-     * get the game components to be passed upto and displayed by the GUI
+     * get the game components to be passed up to and displayed by the GUI
      *
-     * @return the game components to be passed upto and displayed by the GUI
+     * @return the game components to be passed up to and displayed by the GUI
      */
     public Group getComponents() {
         return components;
