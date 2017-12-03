@@ -64,7 +64,7 @@ public class Unit extends StackPane {
     }
 
     //returns positions adjacent to the unit, that exist on the board
-    public ArrayList<Coordinates> getPossiblePositions() {
+    public ArrayList<Coordinates> getAdjacentPositions() {
         ArrayList<Coordinates> potentiallyAdjacentTiles = new ArrayList<>();
 
         Coordinates origin = getPos();

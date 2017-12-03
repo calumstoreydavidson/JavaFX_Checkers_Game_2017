@@ -1,23 +1,18 @@
 import java.util.Optional;
 
-public class NegamaxAI implements Player {
-
-    boolean isPlayerHuman;
-    private boolean isPlayersTurn;
-    private Team playerTeam;
+public class NegamaxAI extends Player {
 
     public NegamaxAI(Team playerTeam) {
-        this.playerTeam = playerTeam;
-        //red always goes first
-        isPlayersTurn = playerTeam == Team.RED;
-        this.isPlayerHuman = false;
+        setPlayerTeam(playerTeam);
+        resetPlayer();
+        setPlayerHuman(false);
     }
 
     @Override public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
         if (Game.VERBOSE_OUTPUT) {
             Main.output.appendText("AI is thinking \n");
         }
-        SimulationBoard sim = new SimulationBoard(displayBoard, playerTeam);
+        SimulationBoard sim = new SimulationBoard(displayBoard, getPlayerTeam());
 
         System.out.println("--------------------------------------------------------------------------------------------------");
         System.out.println("--------------------------------------------------------------------------------------------------");
@@ -45,26 +40,6 @@ public class NegamaxAI implements Player {
     public MoveAndScore negate(MoveAndScore value) {
         value.negateScore();
         return value;
-    }
-
-    public boolean isPlayerHuman() {
-        return isPlayerHuman;
-    }
-
-    public boolean isPlayersTurn() {
-        return isPlayersTurn;
-    }
-
-    public void switchTurn() {
-        isPlayersTurn = !isPlayersTurn;
-    }
-
-    public Team getPlayerTeam() {
-        return playerTeam;
-    }
-
-    @Override public void resetPlayer() {
-        isPlayersTurn = playerTeam == Team.RED;
     }
 
     private int getMaxSearchDepth() {

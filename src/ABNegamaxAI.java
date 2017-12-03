@@ -1,29 +1,48 @@
 import java.util.Optional;
 
-public class ABNegamaxAI implements Player {
+/**
+ * Represents an AI player operating a Negamax with alpha beta pruning decision process for selecting optimal moves
+ */
+public class ABNegamaxAI extends Player {
 
-    boolean isPlayerHuman;
-    private boolean isPlayersTurn;
-    private Team playerTeam;
-
+    /**
+     * creates an ABNegamx AI player with the specified team
+     *
+     * @param playerTeam the players team
+     */
     public ABNegamaxAI(Team playerTeam) {
-        this.playerTeam = playerTeam;
-        //red always goes first
-        isPlayersTurn = playerTeam == Team.RED;
-        this.isPlayerHuman = false;
+        setPlayerTeam(playerTeam);
+        resetPlayer();
+        setPlayerHuman(false);
     }
 
+    /**
+     * gets the players move
+     *
+     * @param displayBoard the current base state of the game board to be processed
+     * @return the move the player wishes to make this turn
+     */
     @Override public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
         if (Game.VERBOSE_OUTPUT) {
             Main.output.appendText("AI is thinking \n");
         }
         double alpha = Integer.MIN_VALUE;
         double beta = Integer.MAX_VALUE;
-        SimulationBoard sim = new SimulationBoard(displayBoard, playerTeam);
+        SimulationBoard sim = new SimulationBoard(displayBoard, getPlayerTeam());
 
         return Optional.of(negamax(sim, 0, 1, alpha, beta).move);
     }
 
+    /**
+     * runs Negamax with alpha beta pruning to select the ideal move for the current turn
+     *
+     * @param node  the current simulatedBoard state in the Negamax process
+     * @param depth the current recursive depth of the negamax run
+     * @param team  the minimising of maximising player in the negamax process
+     * @param alpha the maximising players best found value so far
+     * @param beta  the minimising players best found value so far
+     * @return the move the player wishes to make this turn
+     */
     private MoveAndScore negamax(SimulationBoard node, int depth, int team, double alpha, double beta) {
         if (node.getTeamsPossibleMoves().isEmpty() || depth == getMaxSearchDepth()) {
             MoveAndScore result = new MoveAndScore(null, node.evaluateState());
@@ -45,32 +64,25 @@ public class ABNegamaxAI implements Player {
         return max;
     }
 
-    public boolean isPlayerHuman() {
-        return isPlayerHuman;
-    }
-
-    public boolean isPlayersTurn() {
-        return isPlayersTurn;
-    }
-
-    public void switchTurn() {
-        isPlayersTurn = !isPlayersTurn;
-    }
-
-    public Team getPlayerTeam() {
-        return playerTeam;
-    }
-
+    /**
+     * invert the score of the specified MoveAndScore as is necessary in negamax while ensuring that existing objects
+     * are not altered to prevent bugs
+     *
+     * @param value the specified MoveAndScore containing an associated move and score value pair
+     * @return a new inverted copy of the provided MoveAndScore for use in negamax
+     */
     public MoveAndScore negate(MoveAndScore value) {
         MoveAndScore inverted = new MoveAndScore(value.move, value.score);
         inverted.negateScore();
         return inverted;
     }
 
-    @Override public void resetPlayer() {
-        isPlayersTurn = playerTeam == Team.RED;
-    }
-
+    /**
+     * to avoid having to do complex things with changing GUI sliders as players are changed, get the proportional max
+     * depth before lag is incurred relative to standard negamax
+     *
+     * @return the proportional max depth of the algorithm based on the users specified value from the GUI slider
+     */
     private int getMaxSearchDepth() {
         return (int) ((double) Game.AI_MAX_SEARCH_DEPTH * 1.7);//get 1.4 of 1..8 then round it to an int
     }

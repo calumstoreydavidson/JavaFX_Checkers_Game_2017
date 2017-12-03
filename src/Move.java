@@ -3,6 +3,7 @@ public class Move {
     private final Coordinates origin;
     private final Coordinates target;
     //TODO this could hold another move if it were a kill move, and so on until no more kill moves available
+    //TODO this could also hold the killCoords central pos of origin and target
     private MoveType type;
     private boolean kingCreated;
 

@@ -15,7 +15,7 @@ public class SimulationBoard extends Board {
     public SimulationBoard(DisplayBoard oldDisplayBoard, Team team) {
         generateSimTiles(oldDisplayBoard);
         setCurrentTeam(team);
-        setMovingUnit(oldDisplayBoard.getMovingUnit());
+        setUnitInMotion(oldDisplayBoard.getUnitInMotion());
     }
 
     public SimulationBoard(SimulationBoard oldSimBoard) {
@@ -66,8 +66,8 @@ public class SimulationBoard extends Board {
         ArrayList<Move> possibleTeamMoves = new ArrayList<>();
         ArrayList<Coordinates> teamUnits = getCurrentTeam() == Team.RED ? redUnits : whiteUnits;
 
-        if (getMovingUnit() != null) {
-            possibleTeamMoves.addAll(getUnitsPossibleMoves(getMovingUnit().getPos()));
+        if (getUnitInMotion() != null) {
+            possibleTeamMoves.addAll(getUnitsPossibleMoves(getUnitInMotion().getPos()));
         } else {
             for (Coordinates position : teamUnits) {
                 possibleTeamMoves.addAll(getUnitsPossibleMoves(position));

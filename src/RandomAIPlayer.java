@@ -2,21 +2,19 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 
-public class RandomAIPlayer implements Player {
+public class RandomAIPlayer extends Player {
 
-    boolean isPlayerHuman;
     private Random rand = new Random();
-    private boolean isPlayersTurn;
-    private Team playerTeam;
 
     public RandomAIPlayer(Team playerTeam) {
-        this.playerTeam = playerTeam;
+        setPlayerTeam(playerTeam);
         //red always goes first
         resetPlayer();
-        this.isPlayerHuman = false;
+        setPlayerHuman(false);
     }
 
-    @Override public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
+    @Override
+    public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
         if (Game.VERBOSE_OUTPUT) {
             Main.output.appendText("AI is thinking \n");
         }
@@ -26,23 +24,4 @@ public class RandomAIPlayer implements Player {
         return Optional.of(possibleMoves.get(r));
     }
 
-    public boolean isPlayerHuman() {
-        return isPlayerHuman;
-    }
-
-    public boolean isPlayersTurn() {
-        return isPlayersTurn;
-    }
-
-    public void switchTurn() {
-        isPlayersTurn = !isPlayersTurn;
-    }
-
-    public Team getPlayerTeam() {
-        return playerTeam;
-    }
-
-    public void resetPlayer() {
-        isPlayersTurn = playerTeam == Team.RED;
-    }
 }
