@@ -2,10 +2,18 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 
+/**
+ * Represents an AI player operating a random decision process for selecting moves
+ */
 public class RandomAIPlayer extends Player {
 
     private Random rand = new Random();
 
+    /**
+     * creates an Negamx AI player with the specified team
+     *
+     * @param playerTeam the players team
+     */
     public RandomAIPlayer(Team playerTeam) {
         setPlayerTeam(playerTeam);
         //red always goes first
@@ -13,8 +21,13 @@ public class RandomAIPlayer extends Player {
         setPlayerHuman(false);
     }
 
-    @Override
-    public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
+    /**
+     * gets the players move
+     *
+     * @param displayBoard the current base state of the game board to be processed
+     * @return the move the player wishes to make this turn
+     */
+    @Override public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
         if (Game.VERBOSE_OUTPUT) {
             GUI.output.appendText("AI is thinking \n");
         }

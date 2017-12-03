@@ -54,11 +54,11 @@ public class DisplayBoard extends Board {
     /**
      * create a new tile at a given location
      *
-     * @param pos the board position at which to create the new tile
+     * @param position the board position at which to create the new tile
      */
-    private void generateTile(Coordinates pos) {
-        Tile tile = new Tile((pos.x + pos.y) % 2 == 0, pos.x, pos.y);
-        board[pos.x][pos.y] = tile;
+    private void generateTile(Coordinates position) {
+        Tile tile = new Tile(position);
+        board[position.x][position.y] = tile;
         tiles.getChildren().add(tile);
     }
 
@@ -195,10 +195,9 @@ public class DisplayBoard extends Board {
     }
 
     /**
-     * returns all valid moves to empty adjacent spaces and empty spaces behind adjacent enemies
-     * (a space is only adjacent if the unit can move in that direction)
+     * returns the possible moves available for the given unit for the current player
      *
-     * @param unit the unit the get all the possible moves for
+     * @param unit the unit the to get all the possible moves for
      * @return all the possible moves of the unit
      */
     public ArrayList<Move> getUnitsPossibleMoves(Unit unit) {

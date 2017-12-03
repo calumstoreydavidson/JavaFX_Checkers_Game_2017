@@ -1,7 +1,7 @@
 import java.util.Optional;
 
 /**
- * Represents an AI player operating a Negamax with alpha beta pruning decision process for selecting optimal moves
+ * Represents an AI player operating a Negamax(simplified minimax) with alpha beta pruning decision process for selecting optimal moves
  */
 public class ABNegamaxAI extends Player {
 
