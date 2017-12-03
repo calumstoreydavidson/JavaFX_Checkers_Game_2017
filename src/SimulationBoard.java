@@ -3,8 +3,12 @@ import java.util.Random;
 
 public class SimulationBoard extends Board {
 
+    private enum Type {
+        EMPTY, WHITE, RED, WHITE_KING, RED_KING
+    }
+
     private Random rand = new Random();
-    private Type[][] simBoard = new Type[Game.SCALE][Game.SCALE];
+    private Type[][] board = new Type[Game.SCALE][Game.SCALE];
     private ArrayList<Coordinates> redUnits = new ArrayList<>();
     private ArrayList<Coordinates> whiteUnits = new ArrayList<>();
 
@@ -17,7 +21,7 @@ public class SimulationBoard extends Board {
     public SimulationBoard(SimulationBoard oldSimBoard) {
         for (int i = 0; i < Game.SCALE; i++) {
             for (int j = 0; j < Game.SCALE; j++) {
-                simBoard[i][j] = oldSimBoard.getSimBoard()[i][j];
+                board[i][j] = oldSimBoard.getBoard()[i][j];
             }
         }
         redUnits = new ArrayList<>(oldSimBoard.getRedUnits());
@@ -26,7 +30,7 @@ public class SimulationBoard extends Board {
     }
 
     public void generateSimTiles(DisplayBoard oldDisplayBoard) {
-        simBoard = new Type[Game.SCALE][Game.SCALE];
+        board = new Type[Game.SCALE][Game.SCALE];
         for (int i = 0; i < Game.SCALE; i++) {
             for (int j = 0; j < Game.SCALE; j++) {
                 generateSimTile(oldDisplayBoard, i, j);
@@ -37,22 +41,22 @@ public class SimulationBoard extends Board {
     public void generateSimTile(DisplayBoard oldDisplayBoard, int i, int j) {
         Tile tile = oldDisplayBoard.getTile(new Coordinates(i, j));
         if (tile.getUnit() == null) {
-            simBoard[i][j] = Type.EMPTY;
+            board[i][j] = Type.EMPTY;
         } else {
             Unit unit = tile.getUnit();
             if (unit.isRed()) {
                 redUnits.add(new Coordinates(i, j));
                 if (unit.isKing()) {
-                    simBoard[i][j] = Type.RED_KING;
+                    board[i][j] = Type.RED_KING;
                 } else {
-                    simBoard[i][j] = Type.RED;
+                    board[i][j] = Type.RED;
                 }
             } else {
                 whiteUnits.add(new Coordinates(i, j));
                 if (unit.isKing()) {
-                    simBoard[i][j] = Type.WHITE_KING;
+                    board[i][j] = Type.WHITE_KING;
                 } else {
-                    simBoard[i][j] = Type.WHITE;
+                    board[i][j] = Type.WHITE;
                 }
             }
         }
@@ -116,11 +120,11 @@ public class SimulationBoard extends Board {
     }
 
     private Type getTile(Coordinates position) {
-        return simBoard[position.x][position.y];
+        return board[position.x][position.y];
     }
 
     private void setTile(Coordinates position, Type type) {
-        simBoard[position.x][position.y] = type;
+        board[position.x][position.y] = type;
     }
 
     private boolean isEnemyUnit(Coordinates position) {
@@ -153,14 +157,14 @@ public class SimulationBoard extends Board {
         }
     }
 
-    private void doMove(Move move) {
+    private void executeMove(Move move) {
         moveUnit(move);
 
         if (move.getType() == MoveType.KILL) {
             killUnit(Coordinates.getKillCoords(move));
 
             if (canAttack(move) && !move.isKingCreated()) {
-                doMove(getRandomMove(getUnitsPossibleMoves(move.getTarget())));
+                executeMove(getRandomMove(getUnitsPossibleMoves(move.getTarget())));
             }
         }
     }
@@ -201,8 +205,8 @@ public class SimulationBoard extends Board {
         return moves.get(r);
     }
 
-    public Type[][] getSimBoard() {
-        return simBoard;
+    public Type[][] getBoard() {
+        return board;
     }
 
     public ArrayList<Coordinates> getRedUnits() {
@@ -248,12 +252,8 @@ public class SimulationBoard extends Board {
 
     public SimulationBoard getChild(Move move) {
         SimulationBoard child = new SimulationBoard(this);
-        child.doMove(move);
+        child.executeMove(move);
         child.setNextPlayer();
         return child;
-    }
-
-    private enum Type {
-        EMPTY, WHITE, RED, WHITE_KING, RED_KING
     }
 }

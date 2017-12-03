@@ -74,18 +74,4 @@ public class ABNegamaxAI implements Player {
     private int getMaxSearchDepth() {
         return (int) ((double) Game.AI_MAX_SEARCH_DEPTH * 1.7);//get 1.4 of 1..8 then round it to an int
     }
-
-    private class MoveAndScore {
-        Move move;
-        double score;
-
-        MoveAndScore(Move move, double score) {
-            this.move = move;
-            this.score = score;
-        }
-
-        public void negateScore() {
-            score = -score;
-        }
-    }
 }

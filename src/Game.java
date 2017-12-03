@@ -140,7 +140,6 @@ public class Game { //extends Application {
                     Platform.runLater(() -> executePlayerMove(move));
                 });
 
-                //TODO recolour the unit that moves?
                 return null;
             }
         };

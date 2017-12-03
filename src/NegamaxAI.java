@@ -71,17 +71,4 @@ public class NegamaxAI implements Player {
         return Game.AI_MAX_SEARCH_DEPTH;
     }
 
-    private class MoveAndScore {
-        Move move;
-        double score;
-
-        MoveAndScore(Move move, double score) {
-            this.move = move;
-            this.score = score;
-        }
-
-        public void negateScore() {
-            score = -score;
-        }
-    }
 }
