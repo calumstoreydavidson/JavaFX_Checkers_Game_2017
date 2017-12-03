@@ -79,8 +79,8 @@ public class Game {
     public void startNewGame() {
         resetGame();
         if (VERBOSE_OUTPUT) {
-            Main.output.appendText("\n---------------------------------------------------\n\n");
-            Main.output.appendText("A NEW GAME BEGINS --FIGHT!--\n");
+            GUI.output.appendText("\n---------------------------------------------------\n\n");
+            GUI.output.appendText("A NEW GAME BEGINS --FIGHT!--\n");
             printNewTurnDialogue();
         }
 
@@ -190,14 +190,14 @@ public class Game {
     private boolean isGameOver() {
         if (displayBoard.getPossibleMoves().isEmpty()) {
             if (redPlayer.isPlayersTurn()) {
-                Main.output.appendText("---------------------------------------------------\n");
-                Main.output.appendText("!!!!!!!!!!!!!!!!!!!  WHITE WINS  !!!!!!!!!!!!!!!!!!\n");
-                Main.output.appendText("---------------------------------------------------\n");
+                GUI.output.appendText("---------------------------------------------------\n");
+                GUI.output.appendText("!!!!!!!!!!!!!!!!!!!  WHITE WINS  !!!!!!!!!!!!!!!!!!\n");
+                GUI.output.appendText("---------------------------------------------------\n");
                 return true;
             } else {
-                Main.output.appendText("---------------------------------------------------\n");
-                Main.output.appendText("!!!!!!!!!!!!!!!!!!!   RED WINS   !!!!!!!!!!!!!!!!!!\n");
-                Main.output.appendText("---------------------------------------------------\n");
+                GUI.output.appendText("---------------------------------------------------\n");
+                GUI.output.appendText("!!!!!!!!!!!!!!!!!!!   RED WINS   !!!!!!!!!!!!!!!!!!\n");
+                GUI.output.appendText("---------------------------------------------------\n");
                 return true;
             }
         }
@@ -277,9 +277,9 @@ public class Game {
      */
     private void printNewTurnDialogue() {
         if (VERBOSE_OUTPUT) {
-            Main.output.appendText("\n---------------------------------------------------\n\n");
+            GUI.output.appendText("\n---------------------------------------------------\n\n");
             String player = redPlayer.isPlayersTurn() ? "Red" : "White";
-            Main.output.appendText(player + "'s Turn\n");
+            GUI.output.appendText(player + "'s Turn\n");
         }
     }
 

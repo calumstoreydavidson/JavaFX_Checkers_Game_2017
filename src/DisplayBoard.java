@@ -286,13 +286,13 @@ public class DisplayBoard extends Board {
         switch (move.getType()) {
             case NONE:
                 unit.abortMove();
-                Main.output.appendText("That Is An Invalid Move\n");
+                GUI.output.appendText("That Is An Invalid Move\n");
                 break;
             case NORMAL:
                 moveUnit(origin, target, unit, kingIsCreated);
                 turnFinished = true;
                 if (Game.VERBOSE_OUTPUT) {
-                    Main.output.appendText(unit.getTeam() + " Move Successful\n");
+                    GUI.output.appendText(unit.getTeam() + " Move Successful\n");
                 }
                 break;
             case KILL:
@@ -308,7 +308,7 @@ public class DisplayBoard extends Board {
                     turnFinished = true;
                 }
                 if (Game.VERBOSE_OUTPUT) {
-                    Main.output.appendText(unit.getTeam() + " Attack Successful\n");
+                    GUI.output.appendText(unit.getTeam() + " Attack Successful\n");
                 }
                 break;
         }
@@ -350,12 +350,12 @@ public class DisplayBoard extends Board {
         getTile(origin).setUnit(null);
         getTile(target).setUnit(unit);
         if (Game.VERBOSE_OUTPUT) {
-            Main.output.appendText(unit.getTeam() + " " + (target.origin.x + 1) + ", " + (target.origin.y + 1) + " -> " + (target.x + 1) + ", " + (target.y + 1) + "\n");
+            GUI.output.appendText(unit.getTeam() + " " + (target.origin.x + 1) + ", " + (target.origin.y + 1) + " -> " + (target.x + 1) + ", " + (target.y + 1) + "\n");
         }
         if (kingIsCreated) {
             unit.toggleKing();
             if (Game.VERBOSE_OUTPUT) {
-                Main.output.appendText(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING\n");
+                GUI.output.appendText(unit.getCurrentX() + ", " + unit.getCurrentY() + " IS NOW A KING\n");
             }
         }
     }

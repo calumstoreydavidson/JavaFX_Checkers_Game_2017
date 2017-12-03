@@ -22,6 +22,11 @@ public abstract class Player {
         return isPlayerHuman;
     }
 
+    /**
+     * set whether the player is human
+     *
+     * @param playerHuman whether the player is human
+     */
     public void setPlayerHuman(boolean playerHuman) {
         isPlayerHuman = playerHuman;
     }
@@ -44,6 +49,11 @@ public abstract class Player {
         return playerTeam;
     }
 
+    /**
+     * set the players team
+     *
+     * @param playerTeam the players team
+     */
     public void setPlayerTeam(Team playerTeam) {
         this.playerTeam = playerTeam;
     }

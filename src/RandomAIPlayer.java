@@ -16,7 +16,7 @@ public class RandomAIPlayer extends Player {
     @Override
     public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
         if (Game.VERBOSE_OUTPUT) {
-            Main.output.appendText("AI is thinking \n");
+            GUI.output.appendText("AI is thinking \n");
         }
 
         ArrayList<Move> possibleMoves = displayBoard.getPossibleMoves();

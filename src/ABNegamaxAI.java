@@ -24,7 +24,7 @@ public class ABNegamaxAI extends Player {
      */
     @Override public Optional<Move> getPlayerMove(DisplayBoard displayBoard) {
         if (Game.VERBOSE_OUTPUT) {
-            Main.output.appendText("AI is thinking \n");
+            GUI.output.appendText("AI is thinking \n");
         }
         double alpha = Integer.MIN_VALUE;
         double beta = Integer.MAX_VALUE;
