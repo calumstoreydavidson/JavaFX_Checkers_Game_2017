@@ -33,7 +33,7 @@ public class HumanPlayer implements Player {
         return playerTeam;
     }
 
-    public void resetPlayer(){
+    public void resetPlayer() {
         isPlayersTurn = playerTeam == Team.RED;
     }
 }

@@ -67,7 +67,7 @@ public class NegamaxAI implements Player {
         isPlayersTurn = playerTeam == Team.RED;
     }
 
-    private int getMaxSearchDepth(){
+    private int getMaxSearchDepth() {
         return Game.AI_MAX_SEARCH_DEPTH;
     }
 
@@ -80,7 +80,7 @@ public class NegamaxAI implements Player {
             this.score = score;
         }
 
-        public void negateScore(){
+        public void negateScore() {
             score = -score;
         }
     }

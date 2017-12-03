@@ -88,7 +88,7 @@ public class Unit extends StackPane {
         return validAdjacentTiles;
     }
 
-    public void toggleKing(){
+    public void toggleKing() {
         type = isKing() ? UnitType.PAWN : UnitType.KING;
         PaintUnit();
     }
@@ -121,10 +121,10 @@ public class Unit extends StackPane {
 
         ellipse.setTranslateX((Game.TILE_SIZE - width * 2) / 2);
         ellipse.setTranslateY(((Game.TILE_SIZE - height * 2) / 2) + verticalOffset);
-        
+
         if (type == UnitType.PAWN) {
             getChildren().setAll(bg, ellipse);
-        }else {
+        } else {
             getChildren().addAll(bg, ellipse);
         }
     }

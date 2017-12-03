@@ -1,27 +1,20 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-public class SimulationBoard extends Board{
-
-    private enum Type {
-        EMPTY, WHITE, RED, WHITE_KING, RED_KING
-    }
+public class SimulationBoard extends Board {
 
     private Random rand = new Random();
-
     private Type[][] simBoard = new Type[Game.SCALE][Game.SCALE];
     private ArrayList<Coordinates> redUnits = new ArrayList<>();
     private ArrayList<Coordinates> whiteUnits = new ArrayList<>();
-    private Team currentTeam;
-    private Unit movingUnit;
 
     public SimulationBoard(DisplayBoard oldDisplayBoard, Team team) {
         generateSimTiles(oldDisplayBoard);
-        currentTeam = team;
-        movingUnit = oldDisplayBoard.getMovingUnit();
+        setCurrentTeam(team);
+        setMovingUnit(oldDisplayBoard.getMovingUnit());
     }
 
-    public SimulationBoard(SimulationBoard oldSimBoard){
+    public SimulationBoard(SimulationBoard oldSimBoard) {
         for (int i = 0; i < Game.SCALE; i++) {
             for (int j = 0; j < Game.SCALE; j++) {
                 simBoard[i][j] = oldSimBoard.getSimBoard()[i][j];
@@ -29,7 +22,7 @@ public class SimulationBoard extends Board{
         }
         redUnits = new ArrayList<>(oldSimBoard.getRedUnits());
         whiteUnits = new ArrayList<>(oldSimBoard.getWhiteUnits());
-        currentTeam = oldSimBoard.getCurrentTeam();
+        setCurrentTeam(oldSimBoard.getCurrentTeam());
     }
 
     public void generateSimTiles(DisplayBoard oldDisplayBoard) {
@@ -48,14 +41,14 @@ public class SimulationBoard extends Board{
         } else {
             Unit unit = tile.getUnit();
             if (unit.isRed()) {
-                redUnits.add(new Coordinates(i,j));
+                redUnits.add(new Coordinates(i, j));
                 if (unit.isKing()) {
                     simBoard[i][j] = Type.RED_KING;
                 } else {
                     simBoard[i][j] = Type.RED;
                 }
             } else {
-                whiteUnits.add(new Coordinates(i,j));
+                whiteUnits.add(new Coordinates(i, j));
                 if (unit.isKing()) {
                     simBoard[i][j] = Type.WHITE_KING;
                 } else {
@@ -67,10 +60,10 @@ public class SimulationBoard extends Board{
 
     public ArrayList<Move> getTeamsPossibleMoves() {
         ArrayList<Move> possibleTeamMoves = new ArrayList<>();
-        ArrayList<Coordinates> teamUnits = currentTeam == Team.RED ? redUnits : whiteUnits;
+        ArrayList<Coordinates> teamUnits = getCurrentTeam() == Team.RED ? redUnits : whiteUnits;
 
-        if (movingUnit != null) {
-            possibleTeamMoves.addAll(getUnitsPossibleMoves(movingUnit.getPos()));
+        if (getMovingUnit() != null) {
+            possibleTeamMoves.addAll(getUnitsPossibleMoves(getMovingUnit().getPos()));
         } else {
             for (Coordinates position : teamUnits) {
                 possibleTeamMoves.addAll(getUnitsPossibleMoves(position));
@@ -85,13 +78,13 @@ public class SimulationBoard extends Board{
         for (Coordinates possiblePosition : getUnitsPossiblePositions(origin)) {
             if (!isOccupiedTile(possiblePosition)) {
                 Move normalMove = new Move(origin, possiblePosition, MoveType.NORMAL);
-                if (possiblePosition.isEnemyKingRow(currentTeam) && !isKing(origin)) {
+                if (possiblePosition.isEnemyKingRow(getCurrentTeam()) && !isKing(origin)) {
                     normalMove.createKing();
                 }
                 moves.add(normalMove);
             } else if (isEnemyUnit(possiblePosition) && isAttackPossible(possiblePosition)) {
                 Move attackMove = new Move(origin, possiblePosition.getNextOnPath(), MoveType.KILL);
-                if (possiblePosition.getNextOnPath().isEnemyKingRow(currentTeam) && !isKing(origin) || isKing(possiblePosition) && !isKing(origin) && Game.CROWN_STEALING_ALLOWED) {
+                if (possiblePosition.getNextOnPath().isEnemyKingRow(getCurrentTeam()) && !isKing(origin) || isKing(possiblePosition) && !isKing(origin) && Game.CROWN_STEALING_ALLOWED) {
                     attackMove.createKing();
                 }
                 moves.add(attackMove);
@@ -100,14 +93,14 @@ public class SimulationBoard extends Board{
         return prioritiseAttackMoves(moves);
     }
 
-    public ArrayList<Coordinates> getUnitsPossiblePositions(Coordinates origin){
+    public ArrayList<Coordinates> getUnitsPossiblePositions(Coordinates origin) {
         ArrayList<Coordinates> potentiallyAdjacentTiles = new ArrayList<>();
 
-        if (isKing(origin) || currentTeam == Team.RED) {
+        if (isKing(origin) || getCurrentTeam() == Team.RED) {
             potentiallyAdjacentTiles.add(origin.SW());
             potentiallyAdjacentTiles.add(origin.SE());
         }
-        if (isKing(origin) || currentTeam == Team.WHITE) {
+        if (isKing(origin) || getCurrentTeam() == Team.WHITE) {
             potentiallyAdjacentTiles.add(origin.NW());
             potentiallyAdjacentTiles.add(origin.NE());
         }
@@ -122,18 +115,18 @@ public class SimulationBoard extends Board{
         return validAdjacentTiles;
     }
 
-    private Type getTile(Coordinates position){
+    private Type getTile(Coordinates position) {
         return simBoard[position.x][position.y];
     }
 
-    private void setTile(Coordinates position, Type type){
+    private void setTile(Coordinates position, Type type) {
         simBoard[position.x][position.y] = type;
     }
 
-    private boolean isEnemyUnit(Coordinates position){
-        if (currentTeam == Team.RED){
+    private boolean isEnemyUnit(Coordinates position) {
+        if (getCurrentTeam() == Team.RED) {
             return getTile(position) == Type.WHITE || getTile(position) == Type.WHITE_KING;
-        }else {
+        } else {
             return getTile(position) == Type.RED || getTile(position) == Type.RED_KING;
         }
     }
@@ -146,7 +139,7 @@ public class SimulationBoard extends Board{
         return getTile(position) != Type.EMPTY;
     }
 
-    private boolean isKing(Coordinates position){
+    private boolean isKing(Coordinates position) {
         Type type = getTile(position);
         return type == Type.WHITE_KING || type == Type.RED_KING;
     }
@@ -160,10 +153,10 @@ public class SimulationBoard extends Board{
         }
     }
 
-    private void doMove(Move move){
+    private void doMove(Move move) {
         moveUnit(move);
 
-        if(move.getType() == MoveType.KILL){
+        if (move.getType() == MoveType.KILL) {
             killUnit(Coordinates.getKillCoords(move));
 
             if (canAttack(move) && !move.isKingCreated()) {
@@ -172,11 +165,11 @@ public class SimulationBoard extends Board{
         }
     }
 
-    private void moveUnit(Move move){
-        if (getTile(move.getOrigin()) == Type.RED || getTile(move.getOrigin()) == Type.RED_KING){
+    private void moveUnit(Move move) {
+        if (getTile(move.getOrigin()) == Type.RED || getTile(move.getOrigin()) == Type.RED_KING) {
             redUnits.remove(move.getOrigin());
             redUnits.add(move.getTarget());
-        }else {
+        } else {
             whiteUnits.remove(move.getOrigin());
             whiteUnits.add(move.getTarget());
         }
@@ -184,26 +177,26 @@ public class SimulationBoard extends Board{
         setTile(move.getTarget(), getTile(move.getOrigin()));
         setTile(move.getOrigin(), Type.EMPTY);
 
-       if (move.isKingCreated()){
-           crownKing(move.getTarget());
-       }
+        if (move.isKingCreated()) {
+            crownKing(move.getTarget());
+        }
     }
 
-    private void killUnit(Coordinates position){
-        if (getTile(position) == Type.RED || getTile(position) == Type.RED_KING){
+    private void killUnit(Coordinates position) {
+        if (getTile(position) == Type.RED || getTile(position) == Type.RED_KING) {
             redUnits.remove(position);
-        }else {
+        } else {
             whiteUnits.remove(position);
         }
         setTile(position, Type.EMPTY);
     }
 
-    private void crownKing(Coordinates position){
+    private void crownKing(Coordinates position) {
         Type type = getTile(position) == Type.RED ? Type.RED_KING : Type.WHITE_KING;
         setTile(position, type);
     }
 
-    public Move getRandomMove(ArrayList<Move> moves){
+    public Move getRandomMove(ArrayList<Move> moves) {
         int r = rand.nextInt(moves.size());
         return moves.get(r);
     }
@@ -246,25 +239,21 @@ public class SimulationBoard extends Board{
             }
         }
 
-        if (currentTeam == Team.WHITE) {
+        if (getCurrentTeam() == Team.WHITE) {
             return whites - reds;
         } else {
             return reds - whites;
         }
     }
 
-    public SimulationBoard getChild(Move move){
+    public SimulationBoard getChild(Move move) {
         SimulationBoard child = new SimulationBoard(this);
         child.doMove(move);
         child.setNextPlayer();
         return child;
     }
 
-    public Team getCurrentTeam(){
-        return currentTeam;
-    }
-
-    public void setNextPlayer() {
-        currentTeam = currentTeam == Team.RED ? Team.WHITE : Team.RED;
+    private enum Type {
+        EMPTY, WHITE, RED, WHITE_KING, RED_KING
     }
 }

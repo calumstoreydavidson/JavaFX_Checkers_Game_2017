@@ -71,6 +71,10 @@ public class Coordinates {
         return new Coordinates(origin, xDest, yDest);
     }
 
+    public boolean isPlaySquare() {
+        return (x + y) % 2 != Game.PLAY_SQUARE;
+    }
+
     @Override public boolean equals(Object o) {
         if (this == o) {
             return true;

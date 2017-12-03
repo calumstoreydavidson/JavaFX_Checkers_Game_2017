@@ -1,5 +1,3 @@
-
-
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -18,8 +16,7 @@ public class Tile extends Rectangle {
         resetTileColor();
     }
 
-    public void resetTileColor(){
-//        setFill(light ? Color.valueOf("#feb") : Color.valueOf("#582"));
+    public void resetTileColor() {
         setFill(light ? Color.valueOf("white") : Color.valueOf("black"));
     }
 
@@ -35,19 +32,19 @@ public class Tile extends Rectangle {
         this.unit = unit;
     }
 
-    public void highlightAttackDestination(){
+    public void highlightAttackDestination() {
         setFill(Color.valueOf("red"));
     }
 
-    public void highlightMoveDestination(){
+    public void highlightMoveDestination() {
         setFill(Color.valueOf("blue"));
     }
 
-    public void highlightUnit(){
+    public void highlightUnit() {
         setFill(Color.valueOf("green"));
     }
 
-    public void highlightAIMove(){
+    public void highlightAIMove() {
         setFill(Color.valueOf("orange"));
     }
 }

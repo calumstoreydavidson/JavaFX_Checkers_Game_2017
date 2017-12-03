@@ -11,14 +11,12 @@ public class DisplayBoard extends Board {
     private Tile[][] board;
     private Group redUnits = new Group();
     private Group whiteUnits = new Group();
-    private Team currentTeam;
-    private Unit MovingUnit;
 
     private ArrayList<Move> possibleMoves = new ArrayList<>();
 
     public DisplayBoard() {
         board = new Tile[Game.SCALE][Game.SCALE];
-        currentTeam = Team.RED;
+        setCurrentTeam(Team.RED);
 
         generateBoard();
         populateBoard();
@@ -52,7 +50,7 @@ public class DisplayBoard extends Board {
         for (int y = 0; y < Game.SCALE; y++) {
             for (int x = 0; x < Game.SCALE; x++) {
                 Coordinates position = new Coordinates(x, y);
-                if (y < factionBorder && isPlaySquare(position) && placedUnits <= Game.MAX_RED_POPULATION) {
+                if (y < factionBorder && position.isPlaySquare() && placedUnits <= Game.MAX_RED_POPULATION) {
                     spawnUnit(position, redUnits, Team.RED);
                     placedUnits++;
                 }
@@ -67,7 +65,7 @@ public class DisplayBoard extends Board {
         for (int y = Game.SCALE - 1; y >= 0; y--) {
             for (int x = Game.SCALE - 1; x >= 0; x--) {
                 Coordinates position = new Coordinates(x, y);
-                if (y >= factionBorder && isPlaySquare(position) && placedUnits <= Game.MAX_WHITE_POPULATION) {
+                if (y >= factionBorder && position.isPlaySquare() && placedUnits <= Game.MAX_WHITE_POPULATION) {
                     spawnUnit(position, whiteUnits, Team.WHITE);
                     placedUnits++;
                 }
@@ -106,10 +104,6 @@ public class DisplayBoard extends Board {
 
     public Tile getTile(Coordinates position) {
         return board[position.x][position.y];
-    }
-
-    public boolean isPlaySquare(Coordinates c) {
-        return (c.x + c.y) % 2 != Game.PLAY_SQUARE;
     }
 
     public void getTeamMoves(Team team) {
@@ -161,7 +155,7 @@ public class DisplayBoard extends Board {
 
     public boolean isEnemyUnit(Coordinates position) {
         Unit unit = getTile(position).getUnit();
-        return currentTeam == Team.RED ? unit.isWhite() : unit.isRed();
+        return getCurrentTeam() == Team.RED ? unit.isWhite() : unit.isRed();
     }
 
     public void killUnit(Unit unit) {
@@ -254,17 +248,5 @@ public class DisplayBoard extends Board {
 
     public Unit getUnitAtPos(Coordinates position){
         return getTile(position).getUnit();
-    }
-
-    public void setNextPlayer() {
-        currentTeam = currentTeam == Team.RED ? Team.WHITE : Team.RED;
-    }
-
-    public Unit getMovingUnit() {
-        return MovingUnit;
-    }
-
-    public void setMovingUnit(Unit movingUnit) {
-        MovingUnit = movingUnit;
     }
 }
