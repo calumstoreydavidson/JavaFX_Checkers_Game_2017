@@ -1,14 +1,7 @@
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import javax.rmi.CORBA.Tie;
-
-import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
-import org.omg.CORBA.OBJ_ADAPTER;
 
 public class DisplayBoard extends Board {
 
@@ -18,11 +11,14 @@ public class DisplayBoard extends Board {
     private Tile[][] board;
     private Group redUnits = new Group();
     private Group whiteUnits = new Group();
+    private Team currentTeam;
+    private Unit MovingUnit;
 
     private ArrayList<Move> possibleMoves = new ArrayList<>();
 
     public DisplayBoard() {
         board = new Tile[Game.SCALE][Game.SCALE];
+        currentTeam = Team.RED;
 
         generateBoard();
         populateBoard();
@@ -122,18 +118,18 @@ public class DisplayBoard extends Board {
 
         for (Node node : teamUnits.getChildren()) {
             Unit unit = (Unit) node;
-            possibleTeamMoves.addAll(getPotentialUnitMoves(unit));
+            possibleTeamMoves.addAll(getUnitsPossibleMoves(unit));
         }
 
         possibleMoves = prioritiseAttackMoves(possibleTeamMoves);
     }
 
     public ArrayList<Move> getUnitMoves(Unit unit) {
-        return prioritiseAttackMoves(getPotentialUnitMoves(unit));
+        return prioritiseAttackMoves(getUnitsPossibleMoves(unit));
     }
 
     //returns moves to empty adjacent spaces and spaces beyond adjacent enemies
-    public ArrayList<Move> getPotentialUnitMoves(Unit unit) {
+    public ArrayList<Move> getUnitsPossibleMoves(Unit unit) {
         ArrayList<Move> moves = new ArrayList<>();
 
         for (Coordinates possiblePosition : unit.getPossiblePositions()) {
@@ -143,7 +139,7 @@ public class DisplayBoard extends Board {
                     normalMove.createKing();
                 }
                 moves.add(normalMove);
-            } else if (isEnemyUnit(unit, possiblePosition) && isAttackPossible(possiblePosition)) {
+            } else if (isEnemyUnit(possiblePosition) && isAttackPossible(possiblePosition)) {
                 Unit attackedUnit = getTile(possiblePosition).getUnit();
                 Move attackMove = new Move(unit.getPos(), possiblePosition.getNextOnPath(), MoveType.KILL);
                 if (possiblePosition.getNextOnPath().isEnemyKingRow(unit.getTeam()) && !unit.isKing() || attackedUnit.isKing() && !unit.isKing() && Game.CROWN_STEALING_ALLOWED) {
@@ -159,17 +155,13 @@ public class DisplayBoard extends Board {
         return !isEnemyOnEdge(adjacentTile) && !isOccupiedTile(adjacentTile.getNextOnPath());
     }
 
-    public boolean isOccupiedTile(Coordinates c) {
-        return getTile(c).hasUnit();
+    public boolean isOccupiedTile(Coordinates position) {
+        return getTile(position).hasUnit();
     }
 
-    public boolean isEnemyUnit(Unit unit, Coordinates c) {
-        Unit enemyUnit = getTile(c).getUnit();
-        return enemyUnit.getTeam() != unit.getTeam();
-    }
-
-    public boolean isEnemyOnEdge(Coordinates enemyPos) {
-        return Coordinates.isBoardEdge(enemyPos);
+    public boolean isEnemyUnit(Coordinates position) {
+        Unit unit = getTile(position).getUnit();
+        return currentTeam == Team.RED ? unit.isWhite() : unit.isRed();
     }
 
     public void killUnit(Unit unit) {
@@ -208,6 +200,7 @@ public class DisplayBoard extends Board {
 
                 if (canMove(unit) && canAttack(unit) && !move.isKingCreated()) {
                     possibleMoves = getUnitMoves(unit);
+                    setMovingUnit(unit);
                 } else {
                     turnFinished = true;
                 }
@@ -263,4 +256,15 @@ public class DisplayBoard extends Board {
         return getTile(position).getUnit();
     }
 
+    public void setNextPlayer() {
+        currentTeam = currentTeam == Team.RED ? Team.WHITE : Team.RED;
+    }
+
+    public Unit getMovingUnit() {
+        return MovingUnit;
+    }
+
+    public void setMovingUnit(Unit movingUnit) {
+        MovingUnit = movingUnit;
+    }
 }

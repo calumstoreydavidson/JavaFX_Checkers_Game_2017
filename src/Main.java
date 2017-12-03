@@ -3,7 +3,6 @@ import java.net.URI;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -14,7 +13,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -24,8 +22,6 @@ public class Main extends Application {
     public static TextArea output;
     private Game game;
     private Stage primaryStage;
-    public static int maxWhiteAIDifficulty;//allow altering difficulty slider based on AI - pruning can be harder while not slowing the game down
-    public static int maxRedAIDifficulty;//allow altering difficulty slider based on AI - pruning can be harder while not slowing the game down
     VBox controls = buildControls();
 
     public static void main(String[] args) {
@@ -68,7 +64,6 @@ public class Main extends Application {
         gameBoard.getChildren().setAll(game.getComponents());
 
         HBox layout = new HBox(10, controls, gameBoard, output);
-        HBox.setHgrow(layout, Priority.NEVER);
         layout.setPadding(new Insets(10));
 
         return layout;
@@ -88,7 +83,7 @@ public class Main extends Application {
 //        Button togglePlayerTeamButton = getTogglePlayerTeamButton();
 
         //god mode toggle
-        Button developmentModeButton = getDevelopmentModeButton();
+        Button developmentModeButton = getGodModeButton();
 
         Button verbosOutputButton = getVerbosOutputButton();
 
@@ -148,42 +143,36 @@ public class Main extends Application {
     }
 
     private ComboBox getPlayerMenu(Team team) {
-        ComboBox player = new ComboBox();
-        player.getItems().setAll("Human", "Random AI", "Negamax AI", "AB Negamax AI");
-        player.getSelectionModel().select("Random AI");
-        player.setOnAction((event -> {
-            switch (player.getSelectionModel().getSelectedIndex()) {
+        ComboBox playerMenu = new ComboBox();
+        playerMenu.getItems().setAll("Human", "Random AI", "Negamax AI", "AB Negamax AI");
+        playerMenu.getSelectionModel().select("Random AI");
+        playerMenu.setOnAction((event -> {
+            switch (playerMenu.getSelectionModel().getSelectedIndex()) {
                 case 0:
-                    game.setPlayer(new HumanPlayer(team));
-                    game.triggerReset();
+                    restartGame(new HumanPlayer(team));
                     break;
                 case 1:
-                    game.setPlayer(new RandomAIPlayer(team));
-                    if (game.isHumanPlaying()) {
-                        game.startNewGame();
-                    } else {
-                        game.triggerReset();
-                    }
+                    restartGame(new RandomAIPlayer(team));
                     break;
                 case 2:
-                    game.setPlayer(new NegamaxAI(team));
-                    if (game.isHumanPlaying()) {
-                        game.scheduleNewGame();
-                    } else {
-                        game.triggerReset();
-                    }
+                    restartGame(new NegamaxAI(team));
                     break;
                 case 3:
-                    game.setPlayer(new ABNegamaxAI(team));
-                    if (game.isHumanPlaying()) {
-                        game.scheduleNewGame();
-                    } else {
-                        game.triggerReset();
-                    }
+                    restartGame(new ABNegamaxAI(team));
                     break;
             }
         }));
-        return player;
+        return playerMenu;
+    }
+
+    private void restartGame(Player player) {
+        if (game.getCurrentPlayer().isPlayerHuman()) {
+            game.setPlayer(player);//this has to be inside the if, as the if is never true otherwise
+            game.startNewGame();
+        } else {
+            game.setPlayer(player);
+            game.triggerReset();
+        }
     }
 
     private Button getVerbosOutputButton() {
@@ -193,6 +182,7 @@ public class Main extends Application {
             verboseOutputButton.setText(Game.VERBOSE_OUTPUT ? "Disable Verbose Output\n" : "Enable Verbose Output\n");
             output.appendText(Game.VERBOSE_OUTPUT ? "Verbose Output Enabled\n" : "Verbose Output Disabled\n");
         });
+        verboseOutputButton.setMaxWidth(Double.MAX_VALUE);
         return verboseOutputButton;
     }
 
@@ -235,14 +225,15 @@ public class Main extends Application {
         output.setWrapText(true);
     }
 
-    private Button getDevelopmentModeButton() {
-        Button developmentModeButton = new Button("Enable Development Mode");
-        developmentModeButton.setOnAction(value -> {
-            game.toggleDevelopmentMode();
-            developmentModeButton.setText(game.DEVELOPMENT_MODE_ENABLED ? "Disable Development Mode" : "Enable Development Mode");
-            output.appendText(game.DEVELOPMENT_MODE_ENABLED ? "God Mode Enabled\n" : "God Mode Disabled\n");
+    private Button getGodModeButton() {
+        Button godModeButton = new Button("Enable God Mode");
+        godModeButton.setOnAction(value -> {
+            game.toggleGodMode();
+            godModeButton.setText(game.GOD_MODE_ENABLED ? "Disable God Mode" : "Enable God Mode");
+            output.appendText(game.GOD_MODE_ENABLED ? "God Mode Enabled\n" : "God Mode Disabled\n");
         });
-        return developmentModeButton;
+        godModeButton.setMaxWidth(Double.MAX_VALUE);
+        return godModeButton;
     }
 
     private Button getTogglePlayTileButton() {
@@ -253,6 +244,7 @@ public class Main extends Application {
             output.appendText(String.valueOf(Game.PLAY_SQUARE == 0 ? "You are now playing on the black squares" : "You are now playing on the white squares"));
             game.triggerReset();
         });
+        togglePlayTileButton.setMaxWidth(Double.MAX_VALUE);
         return togglePlayTileButton;
     }
 
@@ -266,6 +258,7 @@ public class Main extends Application {
                 output.appendText("Apologies, your browser can't be accessed at this time");
             }
         });
+        displayInstructionsButton.setMaxWidth(Double.MAX_VALUE);
         return displayInstructionsButton;
     }
 
@@ -276,14 +269,20 @@ public class Main extends Application {
             crownStealingToggleButton.setText(Game.CROWN_STEALING_ALLOWED ? "Disable King On King Kill" : "Enable King On King Kill");
             output.appendText(Game.CROWN_STEALING_ALLOWED ? "King On King Kill Enabled" : "King On King Kill Disabled");
         });
+        crownStealingToggleButton.setMaxWidth(Double.MAX_VALUE);
         return crownStealingToggleButton;
     }
 
     private Button getNewGameButton() {
         Button newGameButton = new Button("Start New Game");
         newGameButton.setOnAction(value -> {
-            game.triggerReset();
+            if (game.getCurrentPlayer().isPlayerHuman()) {
+                game.startNewGame();
+            } else {
+                game.triggerReset();
+            }
         });
+        newGameButton.setMaxWidth(Double.MAX_VALUE);
         return newGameButton;
     }
 

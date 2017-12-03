@@ -24,14 +24,6 @@ public class Coordinates {
         return pos.x == 0 || pos.y == 0 || pos.x == Game.SCALE - 1 || pos.y == Game.SCALE - 1;
     }
 
-    public double getPixelX(){
-        return (double) (x * Game.TILE_SIZE) + (Game.TILE_SIZE / 2);
-    }
-
-    public double getPixelY(){
-        return (double) (y * Game.TILE_SIZE) + (Game.TILE_SIZE / 2);
-    }
-
     public static Coordinates getKillCoords(Move move) {
         Coordinates attackOrigin = move.getOrigin();
         Coordinates attackTarget = move.getTarget();
@@ -41,8 +33,8 @@ public class Coordinates {
         return new Coordinates(enemyX, enemyY);
     }
 
-    public static boolean isOutsideBoard(Coordinates location) {
-        return location.x < 0 || location.y < 0 || location.x >= Game.SCALE || location.y >= Game.SCALE;
+    public boolean isOutsideBoard() {
+        return x < 0 || y < 0 || x >= Game.SCALE || y >= Game.SCALE;
     }
 
     public boolean isEnemyKingRow(Team team) {

@@ -12,7 +12,7 @@ public class Game { //extends Application {
     //toggle which colour squares the game is played on - 1 for white, 0 for black
     public static int PLAY_SQUARE = 1;
     public static boolean CROWN_STEALING_ALLOWED = true;
-    public static boolean DEVELOPMENT_MODE_ENABLED = false;
+    public static boolean GOD_MODE_ENABLED = false;
     public static int AI_MOVE_LAG_TIME = 500; //milliseconds
     public static boolean RESET_GAME;
     public static int AI_MAX_SEARCH_DEPTH = 7; //Negamax AI Difficulty
@@ -57,15 +57,15 @@ public class Game { //extends Application {
         whitePlayer.resetPlayer();
     }
 
-    public void toggleDevelopmentMode() {
-        if (DEVELOPMENT_MODE_ENABLED) {
+    public void toggleGodMode() {
+        if (GOD_MODE_ENABLED) {
             refreshTurn();
         } else {
             displayBoard.resetTileColors();
             displayBoard.getRedUnits().setMouseTransparent(false);
             displayBoard.getWhiteUnits().setMouseTransparent(false);
         }
-        DEVELOPMENT_MODE_ENABLED = !DEVELOPMENT_MODE_ENABLED;
+        GOD_MODE_ENABLED = !GOD_MODE_ENABLED;
     }
 
     private void refreshTurn() {
@@ -117,7 +117,7 @@ public class Game { //extends Application {
                 return true;
             }
         }
-        return RESET_GAME;
+        return RESET_GAME; //returns true if game set to reset
     }
 
     //this does work and does not gate the GUI - because on each turn, the current thread creates a successor thread
@@ -153,6 +153,7 @@ public class Game { //extends Application {
         boolean turnFinished = displayBoard.executeMove(move);
         if (turnFinished) {
             //actual next players turn
+            displayBoard.setMovingUnit(null);
             switchPlayerTurn();
             printNewTurnDialogue();
             nextPlayersTurn();
@@ -165,6 +166,7 @@ public class Game { //extends Application {
     private void switchPlayerTurn() {
         redPlayer.switchTurn();
         whitePlayer.switchTurn();
+        displayBoard.setNextPlayer();
     }
 
     private void printNewTurnDialogue() {
@@ -214,7 +216,7 @@ public class Game { //extends Application {
             Coordinates origin = unit.getPos();
             Coordinates target = new Coordinates(origin, targetX, targetY);
 
-            if (Game.DEVELOPMENT_MODE_ENABLED) {
+            if (Game.GOD_MODE_ENABLED) {
                 programUnitGodMode(unit, origin, target);
             } else {
                 programUnitNormalMode(unit, origin, target);
@@ -238,7 +240,7 @@ public class Game { //extends Application {
     }
 
     private void programUnitGodMode(Unit unit, Coordinates origin, Coordinates target) {
-        if (!Coordinates.isOutsideBoard(target)) {
+        if (!target.isOutsideBoard()) {
             if (origin.equals(target)) {
                 unit.toggleKing();
                 displayBoard.moveUnit(origin, target, unit, false);
@@ -253,4 +255,5 @@ public class Game { //extends Application {
     public void triggerReset() {
         RESET_GAME = true;
     }
+
 }

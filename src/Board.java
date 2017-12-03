@@ -17,5 +17,7 @@ public abstract class Board {
         }
     }
 
-
+    public boolean isEnemyOnEdge(Coordinates enemyPos) {
+        return Coordinates.isBoardEdge(enemyPos);
+    }
 }

@@ -80,7 +80,7 @@ public class Unit extends StackPane {
 
         ArrayList<Coordinates> validAdjacentTiles = new ArrayList<>();
         for (Coordinates position : potentiallyAdjacentTiles) {
-            if (!Coordinates.isOutsideBoard(position)) {
+            if (!position.isOutsideBoard()) {
                 validAdjacentTiles.add(position);
             }
         }
