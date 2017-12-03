@@ -94,13 +94,30 @@ public class Game {
      */
     private void resetGame() {
         displayBoard = new DisplayBoard();
-        setAllUnitsMouseTransparent(true);
+        setAllUnitsLocked(true);
         addMouseControlToAllUnits();
 
         components.getChildren().setAll(displayBoard.getGUIComponents().getChildren());
 
         redPlayer.resetPlayer();
         whitePlayer.resetPlayer();
+    }
+
+    /**
+     * when it is a human players turn, it is fine to just abruptly restart the game but when it is not,
+     * there may be turn threads still active and so we must trigger a reset instead which allows the threads to run
+     * their course and be cleaned up before the game restarts
+     *
+     * @param player the new player playing in the new game
+     */
+    public void restartGame(Player player) {
+        if (getCurrentPlayer().isPlayerHuman()) {
+            setPlayer(player);//this has to be inside the if, as the if is never true otherwise
+            startNewGame();
+        } else {
+            setPlayer(player);
+            triggerReset();
+        }
     }
 
     /**
@@ -112,7 +129,7 @@ public class Game {
             refreshTurn();
         } else {
             displayBoard.resetTileColors();
-            setAllUnitsMouseTransparent(false);
+            setAllUnitsLocked(false);
         }
         GOD_MODE_ENABLED = !GOD_MODE_ENABLED;
     }
@@ -120,11 +137,11 @@ public class Game {
     /**
      * set whether all units should react to mouse events
      *
-     * @param isMouseTransparent whether units should react
+     * @param unitsLocked whether units should react
      */
-    public void setAllUnitsMouseTransparent(boolean isMouseTransparent) {
-        displayBoard.getRedUnits().setMouseTransparent(isMouseTransparent);
-        displayBoard.getWhiteUnits().setMouseTransparent(isMouseTransparent);
+    public void setAllUnitsLocked(boolean unitsLocked) {
+        displayBoard.getRedUnits().setMouseTransparent(unitsLocked);
+        displayBoard.getWhiteUnits().setMouseTransparent(unitsLocked);
     }
 
     /**
@@ -163,6 +180,8 @@ public class Game {
         if (getCurrentPlayer().isPlayerHuman()) {
             refreshUserSupportHighlighting();
             displayBoard.makeCurrentTeamAccessible(redPlayer, whitePlayer);
+        }else {
+            setAllUnitsLocked(true);
         }
     }
 
@@ -300,15 +319,17 @@ public class Game {
     }
 
     /**
-     * slot the given player into its teams player slot
+     * slot the given player into its teams player slot if it exists
      *
      * @param player the player to put in its teams variable
      */
     public void setPlayer(Player player) {
-        if (player.getPlayerTeam() == Team.RED) {
-            this.redPlayer = player;
-        } else {
-            this.whitePlayer = player;
+        if (player != null) {
+            if (player.getPlayerTeam() == Team.RED) {
+                redPlayer = player;
+            } else {
+                whitePlayer = player;
+            }
         }
     }
 

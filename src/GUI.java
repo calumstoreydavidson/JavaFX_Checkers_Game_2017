@@ -28,9 +28,6 @@ public class GUI {
     //the underlying game backend
     private Game game;
 
-    //the key game controls e.g. buttons, sliders, menus, etc
-    private VBox controls;
-
     //the base JavaFX container for the application
     private Stage primaryStage;
 
@@ -92,14 +89,14 @@ public class GUI {
     }
 
     /**
-     * assemble the frontend GUI
+     * assemble the frontend GUI e.g. controls, game board and output stream
      *
      * @return the assembled GUI
      */
     private Parent createGUI() {
-        controls = buildControls();
-
+        VBox controls = buildControls();
         Pane gameBoard = getGameBoard();
+        setUpGameOutputFeed();
 
         HBox layout = new HBox(10, controls, gameBoard, output);
         layout.setPadding(new Insets(10));
@@ -108,7 +105,9 @@ public class GUI {
     }
 
     /**
-     * @return
+     * create a GUI panel for the game board and plug in the game backend component
+     *
+     * @return the assembled game board GUI block
      */
     private Pane getGameBoard() {
         Pane gameBoard = new Pane();
@@ -118,6 +117,11 @@ public class GUI {
         return gameBoard;
     }
 
+    /**
+     * create the key game controls e.g. buttons, sliders, menus, etc
+     *
+     * @return the assembled controls panel of the GUI
+     */
     private VBox buildControls() {
         //begin new game button
         Button newGameButton = getNewGameButton();
@@ -135,9 +139,6 @@ public class GUI {
 
         //game Instructions
         Button displayInstructionsButton = getDisplayInstructionsButton();
-
-        //game output
-        setUpGameOutput();
 
         //RandomAIPlayer move speed
         Label AITurnLengthLabel = new Label("AI Player turn length control");
@@ -173,6 +174,11 @@ public class GUI {
         return controls;
     }
 
+    /**
+     * create the player type menus for selecting what is playing for each team
+     *
+     * @return the labelled player type menus in a self contained grid panel
+     */
     private GridPane getTeamPlayerMenus() {
         ComboBox redPlayer = getPlayerMenu(Team.RED);
         ComboBox whitePlayer = getPlayerMenu(Team.WHITE);
@@ -188,6 +194,12 @@ public class GUI {
         return playerMenus;
     }
 
+    /**
+     * create the player type menu for selecting what is playing for the given team
+     *
+     * @param team the team to get a player options menu for
+     * @return the player options menu for the given team
+     */
     private ComboBox getPlayerMenu(Team team) {
         ComboBox playerMenu = new ComboBox();
         playerMenu.getItems().setAll("Human", "Random AI", "Negamax AI", "AB Negamax AI");
@@ -195,30 +207,20 @@ public class GUI {
         playerMenu.setOnAction((event -> {
             switch (playerMenu.getSelectionModel().getSelectedIndex()) {
                 case 0:
-                    restartGame(new HumanPlayer(team));
+                    game.restartGame(new HumanPlayer(team));
                     break;
                 case 1:
-                    restartGame(new RandomAIPlayer(team));
+                    game.restartGame(new RandomAIPlayer(team));
                     break;
                 case 2:
-                    restartGame(new NegamaxAI(team));
+                    game.restartGame(new NegamaxAI(team));
                     break;
                 case 3:
-                    restartGame(new ABNegamaxAI(team));
+                    game.restartGame(new ABNegamaxAI(team));
                     break;
             }
         }));
         return playerMenu;
-    }
-
-    private void restartGame(Player player) {
-        if (game.getCurrentPlayer().isPlayerHuman()) {
-            game.setPlayer(player);//this has to be inside the if, as the if is never true otherwise
-            game.startNewGame();
-        } else {
-            game.setPlayer(player);
-            game.triggerReset();
-        }
     }
 
     private Button getVerbosOutputButton() {
@@ -260,7 +262,7 @@ public class GUI {
         slider.setSnapToTicks(true);
     }
 
-    private void setUpGameOutput() {
+    private void setUpGameOutputFeed() {
         output = new TextArea("Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning " + "- checkers game coursework.\n\nInstructions:\n" + "- Drag and drop units with your mouse to make your moves\n" + "- Green squares are units that can move.\n" + "- Blue squares are where they can go.\n" + "- And red squares are mandatory attacks.");
         output.setPrefWidth(350);
         output.setMaxWidth(TextArea.USE_PREF_SIZE);
@@ -321,13 +323,7 @@ public class GUI {
 
     private Button getNewGameButton() {
         Button newGameButton = new Button("Start New Game");
-        newGameButton.setOnAction(value -> {
-            if (game.getCurrentPlayer().isPlayerHuman()) {
-                game.startNewGame();
-            } else {
-                game.triggerReset();
-            }
-        });
+        newGameButton.setOnAction(value -> game.restartGame(null));
         newGameButton.setMaxWidth(Double.MAX_VALUE);
         return newGameButton;
     }
