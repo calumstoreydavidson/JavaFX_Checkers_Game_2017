@@ -295,7 +295,7 @@ public class GUI {
      *
      * @return the slider that allows the user to alter the difficulty of AI players
      */
-    private Slider getAIDifficultySlider() {//TODO one of these for each AI?
+    private Slider getAIDifficultySlider() {
         Slider AIDifficultySlider = new Slider(1, 7, Game.AI_MAX_SEARCH_DEPTH);
         configureSlider(AIDifficultySlider, 0, 1);
 

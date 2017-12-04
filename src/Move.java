@@ -8,14 +8,15 @@ public class Move {
 
     // the coordinates where the move ends
     private final Coordinates target;
-    //TODO this could hold another move if it were a kill move, and so on until no more kill moves available
-    //TODO this could also hold the killCoords central pos of origin and target
 
     // the type of the move, e.g. normal, attack, invalid
     private MoveType type;
 
     //whether or not this move action will create a king with the moving unit
     private boolean kingCreated;
+
+    //an explanation of why the move failed - if it was invalid
+    private String invalidMoveExplanation = null;
 
     /**
      * create a move action with an origin, a destination and a type
@@ -71,5 +72,23 @@ public class Move {
      */
     public Coordinates getTarget() {
         return target;
+    }
+
+    /**
+     * get the invalid move explanation
+     *
+     * @return the invalid move explanation
+     */
+    public String getInvalidMoveExplanation() {
+        return invalidMoveExplanation;
+    }
+
+    /**
+     * set the invalid move explanation
+     *
+     * @param invalidMoveExplanation why the move was considered invalid
+     */
+    public void setInvalidMoveExplanation(String invalidMoveExplanation) {
+        this.invalidMoveExplanation = invalidMoveExplanation;
     }
 }

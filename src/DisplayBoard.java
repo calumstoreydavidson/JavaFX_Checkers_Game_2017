@@ -148,7 +148,6 @@ public class DisplayBoard extends Board {
     public void highlightUsersAvailableMoves() {
         for (Move move : possibleMoves) {
             if (move.getType() == MoveType.KILL) {
-                //TODO make these optional
                 getTile(move.getTarget()).highlightAttackDestination();
             } else {
                 getTile(move.getTarget()).highlightMoveDestination();
@@ -285,7 +284,10 @@ public class DisplayBoard extends Board {
         switch (move.getType()) {
             case NONE:
                 unit.abortMove();
-                GUI.output.appendText("That Is An Invalid Move\n");
+                if (Game.VERBOSE_OUTPUT) {
+                    GUI.output.appendText("That Is An Invalid Move\n");
+                    GUI.output.appendText(move.getInvalidMoveExplanation());
+                }
                 break;
             case NORMAL:
                 moveUnit(origin, target, unit, kingIsCreated);

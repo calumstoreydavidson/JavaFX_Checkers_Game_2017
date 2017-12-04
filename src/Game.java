@@ -381,12 +381,12 @@ public class Game {
             int targetY = Coordinates.toBoard(unit.getLayoutY());
 
             Coordinates origin = unit.getPos();
-            Coordinates target = new Coordinates(origin, targetX, targetY);
+            Coordinates mouseDragTarget = new Coordinates(origin, targetX, targetY);
 
             if (Game.GOD_MODE_ENABLED) {
-                programUnitGodMode(unit, origin, target);
+                programUnitGodMode(unit, origin, mouseDragTarget);
             } else {
-                programUnitNormalMode(unit, origin, target);
+                programUnitNormalMode(unit, origin, mouseDragTarget);
             }
         });
     }
@@ -396,21 +396,58 @@ public class Game {
      *
      * @param unit   the unit to program
      * @param origin the units starting position
-     * @param target the position to place the unit
+     * @param mouseDragTarget the position to place the unit
      */
-    private void programUnitNormalMode(Unit unit, Coordinates origin, Coordinates target) {
+    private void programUnitNormalMode(Unit unit, Coordinates origin, Coordinates mouseDragTarget) {
         Move actualMove = null;
         for (Move move : displayBoard.getPossibleMoves()) {
-            if (move.getOrigin().equals(origin) && move.getTarget().equals(target)) {
+            if (move.getOrigin().equals(origin) && move.getTarget().equals(mouseDragTarget)) {
                 actualMove = move;
                 break;
             }
         }
         if (actualMove == null) {
-            actualMove = new Move(unit.getPos(), target, MoveType.NONE);
+            actualMove = new Move(unit.getPos(), mouseDragTarget, MoveType.NONE);
+            actualMove.setInvalidMoveExplanation(getInvalidMoveExplanation(actualMove));
         }
-
         executePlayerMove(actualMove);
+    }
+
+    /**
+     * figure out what was wrong with the unacceptable move, and return an mildly humorous explanation
+     * - subtly inspired by portal
+     *
+     * @param move the move containing the point the user dragged a unit too that must have been unacceptable
+     * @return an explanation for why the move was invalid
+     */
+    private String getInvalidMoveExplanation(Move move){
+        Coordinates mouseDragTarget = move.getTarget();
+        Coordinates origin = move.getOrigin();
+        String explanation = "";
+        if (mouseDragTarget.isOutsideBoard()){
+            explanation = "\nIt appears that you tried to move beyond the bounds of the game board. " +
+                          "\n- Do you throw you're pieces off the board in real life?" +
+                          "\n- In any case, if you're really that desperate to play over there, " +
+                          "I suppose you could just move the window?\n\n";
+        }else if (origin.equals(mouseDragTarget) ){
+            explanation = "\nYou might have more success if you actually move something?" +
+                          "\n- Tell you what though, why don't you try that again in god mode, have fun.\n\n";
+        }else if (displayBoard.isOccupiedTile(mouseDragTarget)){
+            explanation = "\nIt seems that spot is already occupied by another unit. " +
+                          "\n- Surely it can't have offended you that badly?, I hear he's actually quite nice. " +
+                          "\n- But if its really bothering you that much, perhaps you should just use god mode to " +
+                          "dispose of it?\n\n";
+        }else if (!mouseDragTarget.isPlaySquare()){
+            explanation = "\nIt looks like your trying to play on the wrong color squares. " +
+                          "\n- Its probably worth noting that if we let you move there... the game might last forever... " +
+                          "\n- Of course we're delighted you're enjoying the game this much, but we really should point out that " +
+                          "there is a button provided for this exact situation.\n\n";
+        }else {
+            explanation = "\nYou probably just tried to move to some distant square - you have played this game before right?" +
+                          "\n- If, somehow, that's not what you did and your seeing this message anyway, congratulations " +
+                          "you found an error we didn't think of, you should be proud of your ability to break things.\n\n";
+        }
+        return explanation;
     }
 
     /**
@@ -418,15 +455,15 @@ public class Game {
      *
      * @param unit   the unit to program
      * @param origin the units starting position
-     * @param target the position to place the unit
+     * @param mouseDragTarget the position to place the unit
      */
-    private void programUnitGodMode(Unit unit, Coordinates origin, Coordinates target) {
-        if (!target.isOutsideBoard()) {
-            if (origin.equals(target)) {
+    private void programUnitGodMode(Unit unit, Coordinates origin, Coordinates mouseDragTarget) {
+        if (!mouseDragTarget.isOutsideBoard()) {
+            if (origin.equals(mouseDragTarget)) {
                 unit.toggleKing();
-                displayBoard.moveUnit(origin, target, unit, false);
+                displayBoard.moveUnit(origin, mouseDragTarget, unit, false);
             } else {
-                displayBoard.moveUnit(origin, target, unit, false);
+                displayBoard.moveUnit(origin, mouseDragTarget, unit, false);
             }
         } else {
             unit.abortMove();

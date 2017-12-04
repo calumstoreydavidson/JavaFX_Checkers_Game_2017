@@ -3,5 +3,5 @@
  * e.g. normal shift, attack jump, invalid / impossible
  */
 public enum MoveType {
-    NONE, NORMAL, KILL//TODO attach strings to these, make NONE say why invalid move
+    NONE, NORMAL, KILL//TODO attach strings to these, make NONE say why invalid move ;
 }
