@@ -23,14 +23,7 @@ import javafx.stage.StageStyle;
 public class GUI {
 
     // this should be the first text printed to the games output feed upon a new game
-    public static final String GAME_PREAMBLE_AND_INSTRUCTIONS
-            = "Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning "
-              + "- checkers game coursework.\n\nInstructions:\n"
-              + "- Drag and drop units with your mouse to make your moves\n"
-              + "- Green squares are units that can move.\n"
-              + "- Blue squares are where they can go.\n"
-              + "- And red squares are mandatory attacks.\n"
-              + "---------------------------------------------------\n";
+    public static final String GAME_PREAMBLE_AND_INSTRUCTIONS = "Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning " + "- checkers game coursework.\n\nInstructions:\n" + "- Drag and drop units with your mouse to make your moves\n" + "- Green squares are units that can move.\n" + "- Blue squares are where they can go.\n" + "- And red squares are mandatory attacks.\n" + "---------------------------------------------------\n";
 
     // the games output / announcement feed
     public static TextArea output;
@@ -147,6 +140,10 @@ public class GUI {
 
         Button verboseOutputButton = getVerboseOutputButton();
 
+        Button userMoveHighlightingToggleButton = getUserMoveHighlightingToggleButton();
+
+        Button AIMoveHighlightingToggleButton = getAIMoveHighlightingToggleButton();
+
         //game Instructions
         Button displayInstructionsButton = getDisplayInstructionsButton();
 
@@ -157,26 +154,16 @@ public class GUI {
         Label AIDifficultyLabel = new Label("AI Player difficulty control");
         Slider AIDifficultySlider = getAIDifficultySlider();
 
-        //TODO toggle moveable piece highlighting
-
         //TODO toggle moveable piece target highlighting
-
-        //TODO toggle player team
-
-        //TODO toggle algorithm type
 
         //TODO swap teams sides of the board
 
         //TODO show board axis
-        //TODO make 0,0 in bottom left rather thant top left
-
-        //TODO toggle number of AI players
-
-        //TODO AI difficulty slider
+        //TODO make 0,0 in bottom left rather than the top left
 
         GridPane teamPlayerMenus = getTeamPlayerMenus();
 
-        VBox controls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileButton, godModeButton, verboseOutputButton, displayInstructionsButton, teamPlayerMenus, AITurnLengthLabel, AITurnLengthSlider, AIDifficultyLabel, AIDifficultySlider);
+        VBox controls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileButton, godModeButton, verboseOutputButton, userMoveHighlightingToggleButton, AIMoveHighlightingToggleButton, displayInstructionsButton, teamPlayerMenus, AITurnLengthLabel, AITurnLengthSlider, AIDifficultyLabel, AIDifficultySlider);
 
         controls.setPrefWidth(300);
         controls.setMinWidth(300);
@@ -233,18 +220,49 @@ public class GUI {
         return playerMenu;
     }
 
+    private Button getUserMoveHighlightingToggleButton() {
+        String mechanism = "User Move Highlighting";
+        Button userMoveHighlightingToggleButton = new Button("Disable " + mechanism + "\n");
+
+        userMoveHighlightingToggleButton.setOnAction(value -> {
+            game.toggleUserMoveHighlighting();
+            userMoveHighlightingToggleButton.setText(Game.USER_MOVE_HIGHLIGHTING ? "Disable " + mechanism + "\n" : "Enable " + mechanism + "\n");
+            output.appendText(Game.USER_MOVE_HIGHLIGHTING ? mechanism + " Enabled\n" : mechanism + " Disabled\n");
+        });
+
+        userMoveHighlightingToggleButton.setMaxWidth(Double.MAX_VALUE);
+        return userMoveHighlightingToggleButton;
+    }
+
+    private Button getAIMoveHighlightingToggleButton() {
+        String mechanism = "AI Move Highlighting";
+        Button AIMoveHighlightingToggleButton = new Button("Disable " + mechanism + "\n");
+
+        AIMoveHighlightingToggleButton.setOnAction(value -> {
+            Game.AI_MOVE_HIGHLIGHTING = !Game.AI_MOVE_HIGHLIGHTING;
+            AIMoveHighlightingToggleButton.setText(Game.AI_MOVE_HIGHLIGHTING ? "Disable " + mechanism + "\n" : "Enable " + mechanism + "\n");
+            output.appendText(Game.AI_MOVE_HIGHLIGHTING ? mechanism + " Enabled\n" : mechanism + " Disabled\n");
+        });
+
+        AIMoveHighlightingToggleButton.setMaxWidth(Double.MAX_VALUE);
+        return AIMoveHighlightingToggleButton;
+    }
+
     /**
      * create the button that allows the user to toggle verbose output in the game feed
      *
      * @return the verbose output toggle button
      */
     private Button getVerboseOutputButton() {
-        Button verboseOutputButton = new Button("Disable Verbose Output\n");
+        String mechanism = "Verbose Output";
+        Button verboseOutputButton = new Button("Disable " + mechanism + "\n");
+
         verboseOutputButton.setOnAction(value -> {
             Game.VERBOSE_OUTPUT = !Game.VERBOSE_OUTPUT;
-            verboseOutputButton.setText(Game.VERBOSE_OUTPUT ? "Disable Verbose Output\n" : "Enable Verbose Output\n");
-            output.appendText(Game.VERBOSE_OUTPUT ? "Verbose Output Enabled\n" : "Verbose Output Disabled\n");
+            verboseOutputButton.setText(Game.VERBOSE_OUTPUT ? "Disable " + mechanism + "\n" : "Enable " + mechanism + "\n");
+            output.appendText(Game.VERBOSE_OUTPUT ? mechanism + " Enabled\n" : mechanism + " Disabled\n");
         });
+
         verboseOutputButton.setMaxWidth(Double.MAX_VALUE);
         return verboseOutputButton;
     }
@@ -315,12 +333,15 @@ public class GUI {
      * @return the button that allows the user to toggle god mode in order to manipulate the game state mid game
      */
     private Button getGodModeButton() {
-        Button godModeButton = new Button("Enable God Mode");
+        String mechanism = "God Mode";
+        Button godModeButton = new Button("Enable " + mechanism + "\n");
+
         godModeButton.setOnAction(value -> {
             game.toggleGodMode();
-            godModeButton.setText(game.GOD_MODE_ENABLED ? "Disable God Mode" : "Enable God Mode");
-            output.appendText(game.GOD_MODE_ENABLED ? "God Mode Enabled\n" : "God Mode Disabled\n");
+            godModeButton.setText(game.GOD_MODE_ENABLED ? "Disable " + mechanism + "\n" : "Enable " + mechanism + "\n");
+            output.appendText(game.GOD_MODE_ENABLED ? mechanism + " Enabled\n" : mechanism + " Disabled\n");
         });
+
         godModeButton.setMaxWidth(Double.MAX_VALUE);
         return godModeButton;
     }
@@ -332,12 +353,14 @@ public class GUI {
      */
     private Button getTogglePlayTileButton() {
         Button togglePlayTileButton = new Button("Play on Black");
+
         togglePlayTileButton.setOnAction(value -> {
             Game.PLAY_SQUARE = Game.PLAY_SQUARE == 0 ? 1 : 0;
-            togglePlayTileButton.setText(Game.PLAY_SQUARE == 0 ? "Play on White" : "Play on Black"); //TODO what the fuck is up with this fucking button
-            output.appendText(String.valueOf(Game.PLAY_SQUARE == 0 ? "You are now playing on the black squares" : "You are now playing on the white squares"));
-            game.triggerReset();
+            togglePlayTileButton.setText(Game.PLAY_SQUARE == 0 ? "Play on White" : "Play on Black");
+            output.appendText(String.valueOf(Game.PLAY_SQUARE == 0 ? "You are now playing on the black squares\n" : "You are now playing on the white squares\n"));
+            game.restartGame(null);
         });
+
         togglePlayTileButton.setMaxWidth(Double.MAX_VALUE);
         return togglePlayTileButton;
     }
@@ -349,14 +372,16 @@ public class GUI {
      */
     private Button getDisplayInstructionsButton() {
         Button displayInstructionsButton = new Button("Open Game Rules In Browser");
+
         displayInstructionsButton.setOnAction(e -> {
             try {
                 Desktop.getDesktop().browse(new URI("http://www.indepthinfo.com/checkers/play.shtml"));
                 output.appendText("Instructions Displayed - see browser");
-            } catch (Exception e1) {
-                output.appendText("Apologies, your browser can't be accessed at this time");
+            } catch (Exception exception) {
+                output.appendText("Apologies, your browser can't be accessed at this time\n");
             }
         });
+
         displayInstructionsButton.setMaxWidth(Double.MAX_VALUE);
         return displayInstructionsButton;
     }
@@ -368,12 +393,15 @@ public class GUI {
      * @return the button for toggling whether pawns have the ability to become a king if they kill a king
      */
     private Button getCrownStealingToggleButton() {
-        Button crownStealingToggleButton = new Button("Disable King On King Kill");
+        String mechanism = "Crown Stealing";
+        Button crownStealingToggleButton = new Button("Disable " + mechanism + "\n");
+
         crownStealingToggleButton.setOnAction(value -> {
             Game.CROWN_STEALING_ALLOWED = !Game.CROWN_STEALING_ALLOWED;
-            crownStealingToggleButton.setText(Game.CROWN_STEALING_ALLOWED ? "Disable King On King Kill" : "Enable King On King Kill");
-            output.appendText(Game.CROWN_STEALING_ALLOWED ? "King On King Kill Enabled" : "King On King Kill Disabled");
+            crownStealingToggleButton.setText(Game.CROWN_STEALING_ALLOWED ? "Disable " + mechanism + "\n" : "Enable " + mechanism + "\n");
+            output.appendText(Game.CROWN_STEALING_ALLOWED ? mechanism + " Enabled\n" : mechanism + " Disabled\n");
         });
+
         crownStealingToggleButton.setMaxWidth(Double.MAX_VALUE);
         return crownStealingToggleButton;
     }
@@ -385,7 +413,9 @@ public class GUI {
      */
     private Button getNewGameButton() {
         Button newGameButton = new Button("Start New Game");
+
         newGameButton.setOnAction(value -> game.restartGame(null));
+
         newGameButton.setMaxWidth(Double.MAX_VALUE);
         return newGameButton;
     }

@@ -11,7 +11,7 @@ public class Move {
     //TODO this could hold another move if it were a kill move, and so on until no more kill moves available
     //TODO this could also hold the killCoords central pos of origin and target
 
-    // the type of move, e.g. normal, attack, invalid
+    // the type of the move, e.g. normal, attack, invalid
     private MoveType type;
 
     //whether or not this move action will create a king with the moving unit

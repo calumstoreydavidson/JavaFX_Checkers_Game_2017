@@ -142,10 +142,10 @@ public class DisplayBoard extends Board {
     }
 
     /**
-     * for each of the current players possible moves, highlight tiles at origin coordinates green,
+     * for each of the current human players possible moves, highlight tiles at origin coordinates green,
      * tiles at target coordinates orange, and tiles at attack move target coordinates orange
      */
-    public void highlightAvailableMoves() {
+    public void highlightUsersAvailableMoves() {
         for (Move move : possibleMoves) {
             if (move.getType() == MoveType.KILL) {
                 //TODO make these optional

@@ -40,6 +40,12 @@ public class Game {
     //the configurable option to prevent superfluous output to the games announcement feed
     public static boolean VERBOSE_OUTPUT = true;
 
+    //
+    public static boolean USER_MOVE_HIGHLIGHTING = true;
+
+    //
+    public static boolean AI_MOVE_HIGHLIGHTING = true;
+
     //the games Red player
     private Player redPlayer;
 
@@ -126,12 +132,22 @@ public class Game {
      */
     public void toggleGodMode() {
         if (GOD_MODE_ENABLED) {
-            refreshTurn();
+            refreshTurn(); // deactivation
         } else {
-            displayBoard.resetTileColors();
+            displayBoard.resetTileColors();//activation
             setAllUnitsLocked(false);
         }
         GOD_MODE_ENABLED = !GOD_MODE_ENABLED;
+    }
+
+    public void toggleUserMoveHighlighting() {
+        if (USER_MOVE_HIGHLIGHTING) {
+            USER_MOVE_HIGHLIGHTING = false;
+            displayBoard.resetTileColors();// deactivation
+        } else {
+            USER_MOVE_HIGHLIGHTING = true;
+            refreshBoard(); //activation
+        }
     }
 
     /**
@@ -198,7 +214,9 @@ public class Game {
      * apply the move highlighting on the board for the current player their available moves
      */
     private void refreshUserSupportHighlighting() {
-        displayBoard.highlightAvailableMoves();
+        if (USER_MOVE_HIGHLIGHTING) {
+            displayBoard.highlightUsersAvailableMoves();
+        }
     }
 
     /**
@@ -236,8 +254,10 @@ public class Game {
                 Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
 
                 player.getPlayerMove(displayBoard).ifPresent(move -> {
-                    displayBoard.getTile(move.getTarget()).highlightAIMove(); // show the user what the AI is moving and where
-                    displayBoard.getTile(move.getOrigin()).highlightAIMove();
+                    if(AI_MOVE_HIGHLIGHTING) {
+                        displayBoard.getTile(move.getTarget()).highlightAIMove(); // show the user what the AI is moving and where
+                        displayBoard.getTile(move.getOrigin()).highlightAIMove();
+                    }
 
                     try {
                         Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
