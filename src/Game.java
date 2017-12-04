@@ -140,6 +140,9 @@ public class Game {
         GOD_MODE_ENABLED = !GOD_MODE_ENABLED;
     }
 
+    /**
+     * if user move highlighting is active then disable it and erase all board highlighting, else activate and apply it
+     */
     public void toggleUserMoveHighlighting() {
         if (USER_MOVE_HIGHLIGHTING) {
             USER_MOVE_HIGHLIGHTING = false;

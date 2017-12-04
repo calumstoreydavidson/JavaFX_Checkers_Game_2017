@@ -154,11 +154,10 @@ public class GUI {
         Label AIDifficultyLabel = new Label("AI Player difficulty control");
         Slider AIDifficultySlider = getAIDifficultySlider();
 
-        //TODO toggle moveable piece target highlighting
-
         //TODO swap teams sides of the board
 
         //TODO show board axis
+
         //TODO make 0,0 in bottom left rather than the top left
 
         GridPane teamPlayerMenus = getTeamPlayerMenus();
@@ -220,6 +219,11 @@ public class GUI {
         return playerMenu;
     }
 
+    /**
+     * create the button that allows the user to toggle their move highlighting
+     *
+     * @return the user move highlighting toggle button
+     */
     private Button getUserMoveHighlightingToggleButton() {
         String mechanism = "User Move Highlighting";
         Button userMoveHighlightingToggleButton = new Button("Disable " + mechanism + "\n");
@@ -234,6 +238,11 @@ public class GUI {
         return userMoveHighlightingToggleButton;
     }
 
+    /**
+     * create the button that allows the user to toggle the AI's move highlighting
+     *
+     * @return the AI move highlighting toggle button
+     */
     private Button getAIMoveHighlightingToggleButton() {
         String mechanism = "AI Move Highlighting";
         Button AIMoveHighlightingToggleButton = new Button("Disable " + mechanism + "\n");
