@@ -199,7 +199,7 @@ public class DisplayBoard extends Board {
      * @param unit the unit the to get all the possible moves for
      * @return all the possible moves of the unit
      */
-    public ArrayList<Move> getUnitsPossibleMoves(Unit unit) {
+    public ArrayList<Move> getUnitsPossibleMoves(Unit unit) {//TODO get this and all subordinate code generic enough to go in the Board class
         ArrayList<Move> moves = new ArrayList<>();
 
         for (Coordinates adjacentPositions : unit.getAdjacentPositions()) {
@@ -269,7 +269,8 @@ public class DisplayBoard extends Board {
 
     /**
      * run / execute the specified move on the game if it is a valid move and finish the turn if this move did not start
-     * a multijump
+     * a multijump, if it did then set possible moves to the possible attacks of the relevant unit and run the users
+     * next move
      *
      * @param move the move to run / execute
      * @return whether or not this turn is finished
@@ -286,7 +287,7 @@ public class DisplayBoard extends Board {
                 unit.abortMove();
                 if (Game.VERBOSE_OUTPUT) {
                     GUI.output.appendText("That Is An Invalid Move\n");
-                    GUI.output.appendText(move.getInvalidMoveExplanation());
+                    GUI.output.appendText(move.getInvalidMoveError().getExplanation());
                 }
                 break;
             case NORMAL:
@@ -317,7 +318,7 @@ public class DisplayBoard extends Board {
     }
 
     /**
-     * TODO see if I can refactor this away / more efficient - fixed by implementing Move refactor
+     * TODO see if I can refactor this away / make more efficient - fixed by implementing Move refactor
      * check if the given unit has any attack moves available
      *
      * @param unit the unit to check for possible attack moves

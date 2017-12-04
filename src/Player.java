@@ -1,5 +1,8 @@
 import java.util.Optional;
 
+/**
+ * this class is responsible for representing that logic which is applicable to all players in the application
+ */
 public abstract class Player {
 
     // stores whether or not this player is human

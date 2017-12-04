@@ -160,6 +160,8 @@ public class GUI {
 
         //TODO make 0,0 in bottom left rather than the top left
 
+        //TODO give each AI its own difficulty slider and make it change the max size of those sliders with the teams AI
+
         GridPane teamPlayerMenus = getTeamPlayerMenus();
 
         VBox controls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileButton, godModeButton, verboseOutputButton, userMoveHighlightingToggleButton, AIMoveHighlightingToggleButton, displayInstructionsButton, teamPlayerMenus, AITurnLengthLabel, AITurnLengthSlider, AIDifficultyLabel, AIDifficultySlider);

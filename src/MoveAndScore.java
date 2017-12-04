@@ -11,7 +11,7 @@ public class MoveAndScore {
      * @param move the move to be associated with a score
      * @param score the score to be associated with a move
      */
-    MoveAndScore(Move move, double score) {
+    MoveAndScore(Move move, double score) {//TODO create NEGAMAXAI abstract class - make this private in there
         this.move = move;
         this.score = score;
     }

@@ -8,7 +8,8 @@ public abstract class Board {
     // stores the team whose turn it currently is
     private Team currentTeam;
 
-    // stores Units that have just made an attack and must attack again - multijumps
+    // stores Units that have just made an attack and must attack again - multijumps - primarily needed to ensure proper
+    // transition of state when converting the real game state to the simulated game state.
     private Unit unitInMotion;
 
     /**

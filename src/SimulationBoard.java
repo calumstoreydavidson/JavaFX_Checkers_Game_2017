@@ -118,7 +118,7 @@ public class SimulationBoard extends Board {
      * @param position the position of the unit to get the possible moves of
      * @return all the possible moves of the given unit
      */
-    public ArrayList<Move> getUnitsPossibleMoves(Coordinates position) {
+    public ArrayList<Move> getUnitsPossibleMoves(Coordinates position) { //TODO get this and all subordinate code generic enough to go in the Board class
         ArrayList<Move> moves = new ArrayList<>();
 
         for (Coordinates possiblePosition : getUnitsPossiblePositions(position)) {
@@ -358,7 +358,7 @@ public class SimulationBoard extends Board {
      *
      * @return the score value of the current board state
      */
-    public double evaluateState() {
+    public double evaluateState() { //TODO extend this based on further research, tried giving it an afinity for edges but seemed detrimental
         //heuristic - absolute piece count - kings worth double
         double reds = 0;
         double whites = 0;

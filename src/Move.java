@@ -16,7 +16,10 @@ public class Move {
     private boolean kingCreated;
 
     //an explanation of why the move failed - if it was invalid
-    private String invalidMoveExplanation = null;
+    private InvalidMoveError InvalidMoveError = null;
+
+    //TODO this could hold another move if it were a kill move, and so on until no more kill moves available
+    //TODO this could also hold the killCoords central pos of origin and target
 
     /**
      * create a move action with an origin, a destination and a type
@@ -79,16 +82,16 @@ public class Move {
      *
      * @return the invalid move explanation
      */
-    public String getInvalidMoveExplanation() {
-        return invalidMoveExplanation;
+    public InvalidMoveError getInvalidMoveError() {
+        return InvalidMoveError;
     }
 
     /**
      * set the invalid move explanation
      *
-     * @param invalidMoveExplanation why the move was considered invalid
+     * @param InvalidMoveError why the move was considered invalid
      */
-    public void setInvalidMoveExplanation(String invalidMoveExplanation) {
-        this.invalidMoveExplanation = invalidMoveExplanation;
+    public void setInvalidMoveExplanation(InvalidMoveError InvalidMoveError) {
+        this.InvalidMoveError = InvalidMoveError;
     }
 }

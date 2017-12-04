@@ -40,10 +40,10 @@ public class Game {
     //the configurable option to prevent superfluous output to the games announcement feed
     public static boolean VERBOSE_OUTPUT = true;
 
-    //
+    //the configurable option to allow the user to toggle their move highlighting
     public static boolean USER_MOVE_HIGHLIGHTING = true;
 
-    //
+    //the configurable option to allow the user to toggle the AI's move highlighting
     public static boolean AI_MOVE_HIGHLIGHTING = true;
 
     //the games Red player
@@ -408,46 +408,34 @@ public class Game {
         }
         if (actualMove == null) {
             actualMove = new Move(unit.getPos(), mouseDragTarget, MoveType.NONE);
-            actualMove.setInvalidMoveExplanation(getInvalidMoveExplanation(actualMove));
+            actualMove.setInvalidMoveExplanation(getInvalidMoveError(actualMove));
         }
         executePlayerMove(actualMove);
     }
 
     /**
-     * figure out what was wrong with the unacceptable move, and return an mildly humorous explanation
-     * - subtly inspired by portal
+     * figure out what was wrong with the unacceptable move, and return an InvalidMoveError
      *
      * @param move the move containing the point the user dragged a unit too that must have been unacceptable
-     * @return an explanation for why the move was invalid
+     * @return invalid move error
      */
-    private String getInvalidMoveExplanation(Move move){
+    private InvalidMoveError getInvalidMoveError(Move move){
         Coordinates mouseDragTarget = move.getTarget();
         Coordinates origin = move.getOrigin();
-        String explanation = "";
+
+        InvalidMoveError invalidMoveError;
         if (mouseDragTarget.isOutsideBoard()){
-            explanation = "\nIt appears that you tried to move beyond the bounds of the game board. " +
-                          "\n- Do you throw you're pieces off the board in real life?" +
-                          "\n- In any case, if you're really that desperate to play over there, " +
-                          "I suppose you could just move the window?\n\n";
+            invalidMoveError = InvalidMoveError.OUTSIDE_BOARD_ERROR;
         }else if (origin.equals(mouseDragTarget) ){
-            explanation = "\nYou might have more success if you actually move something?" +
-                          "\n- Tell you what though, why don't you try that again in god mode, have fun.\n\n";
+            invalidMoveError = InvalidMoveError.SAME_POSITION_ERROR;
         }else if (displayBoard.isOccupiedTile(mouseDragTarget)){
-            explanation = "\nIt seems that spot is already occupied by another unit. " +
-                          "\n- Surely it can't have offended you that badly?, I hear he's actually quite nice. " +
-                          "\n- But if its really bothering you that much, perhaps you should just use god mode to " +
-                          "dispose of it?\n\n";
+            invalidMoveError = InvalidMoveError.TILE_ALREADY_OCCUPIED_ERROR;
         }else if (!mouseDragTarget.isPlaySquare()){
-            explanation = "\nIt looks like your trying to play on the wrong color squares. " +
-                          "\n- Its probably worth noting that if we let you move there... the game might last forever... " +
-                          "\n- Of course we're delighted you're enjoying the game this much, but we really should point out that " +
-                          "there is a button provided for this exact situation.\n\n";
+            invalidMoveError = InvalidMoveError.NOT_PLAY_SQUARE_ERROR;
         }else {
-            explanation = "\nYou probably just tried to move to some distant square - you have played this game before right?" +
-                          "\n- If, somehow, that's not what you did and your seeing this message anyway, congratulations " +
-                          "you found an error we didn't think of, you should be proud of your ability to break things.\n\n";
+            invalidMoveError = InvalidMoveError.DISTANT_MOVE_AND_CATCHALL_ERROR;
         }
-        return explanation;
+        return invalidMoveError;
     }
 
     /**
