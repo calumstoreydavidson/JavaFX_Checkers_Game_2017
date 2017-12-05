@@ -5,8 +5,8 @@ import java.util.Optional;
  */
 public abstract class Player {
 
-    // stores whether or not this player is human
-    private boolean isPlayerHuman;
+    // stores what type of player this is
+    private PlayerType playerType;
 
     // stores whether or not it is this players turn
     private boolean isPlayersTurn;
@@ -17,21 +17,30 @@ public abstract class Player {
     abstract Optional<Move> getPlayerMove(DisplayBoard displayBoard);
 
     /**
+     * check what type of player this is
+     *
+     * @return what type of player this is
+     */
+    public PlayerType getPlayerType() {
+        return playerType;
+    }
+
+    /**
+     * set what type of player this is
+     *
+     * @param playerType what type of player this is
+     */
+    public void setPlayerType(PlayerType playerType) {
+        this.playerType = playerType;
+    }
+
+    /**
      * check if the current player is human
      *
      * @return whether or not this player is human
      */
     public boolean isPlayerHuman() {
-        return isPlayerHuman;
-    }
-
-    /**
-     * set whether the player is human
-     *
-     * @param playerHuman whether the player is human
-     */
-    public void setPlayerHuman(boolean playerHuman) {
-        isPlayerHuman = playerHuman;
+        return playerType == PlayerType.USER;
     }
 
     /**

@@ -13,7 +13,7 @@ public class ABNegamaxAI extends Player {
     public ABNegamaxAI(Team playerTeam) {
         setPlayerTeam(playerTeam);
         resetPlayer();
-        setPlayerHuman(false);
+        setPlayerType(PlayerType.AI);
     }
 
     /**

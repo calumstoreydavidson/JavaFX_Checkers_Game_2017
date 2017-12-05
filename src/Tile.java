@@ -88,4 +88,11 @@ public class Tile extends Rectangle {
     public void highlightAIMove() {
         setFill(Color.valueOf("orange"));
     }
+
+    /**
+     * recolor this tile to highlight it to the user as the origin or destination of the AI advisors suggested move (both are implemented)
+     */
+    public void highlightAdvisorSuggestedMove() {
+        setFill(Color.valueOf("gold"));
+    }
 }

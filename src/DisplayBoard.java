@@ -143,16 +143,63 @@ public class DisplayBoard extends Board {
 
     /**
      * for each of the current human players possible moves, highlight tiles at origin coordinates green,
-     * tiles at target coordinates orange, and tiles at attack move target coordinates orange
+     * tiles at target coordinates blue, and tiles at attack move target coordinates red
      */
     public void highlightUsersAvailableMoves() {
-        for (Move move : possibleMoves) {
-            if (move.getType() == MoveType.KILL) {
-                getTile(move.getTarget()).highlightAttackDestination();
-            } else {
-                getTile(move.getTarget()).highlightMoveDestination();
+        if(Game.USER_MOVE_HIGHLIGHTING) {
+            for (Move move : possibleMoves) {
+                highlightMove(move, PlayerType.USER);
             }
-            getTile(move.getOrigin()).highlightUnit();
+        }
+    }
+
+    /**
+     * highlight the unit and move destination of the move the users AI advisor thinks they should make
+     *
+     * @param advisor the users AI advisor
+     */
+    public void highlightAdvisorsSuggestedMove(Player advisor){// TODO this needs to be run through the multi threading turn system, to prevent user turn lags
+        if(Game.USERS_AI_ADVISOR) {
+            advisor.getPlayerMove(this).ifPresent(move -> highlightMove(move, PlayerType.USER_ADVISOR));
+        }
+    }
+
+    /**
+     * highlight the the unit and move destination of the move the AI is making
+     */
+    public void highlightAIMove(Move move) {
+        if(Game.AI_MOVE_HIGHLIGHTING) {
+            highlightMove(move, PlayerType.AI);
+        }
+    }
+
+    /**
+     * highlight the tiles involved in moves and possible moves,
+     * based on the the type of player asking for highlights
+     *
+     * @param move the move with positions to highlight
+     * @param playerType the type of player to consider when deciding how to apply the moves highlighting
+     */
+    public void highlightMove(Move move, PlayerType playerType) {
+        Coordinates destination = move.getTarget();
+        Coordinates origin = move.getOrigin();
+        switch (playerType) {
+            case AI:
+                getTile(destination).highlightAIMove();
+                getTile(origin).highlightAIMove();
+                break;
+            case USER_ADVISOR:
+                getTile(destination).highlightAdvisorSuggestedMove();
+                getTile(origin).highlightAdvisorSuggestedMove();
+                break;
+            case USER:
+                if (move.getType() == MoveType.KILL) {
+                    getTile(destination).highlightAttackDestination();
+                } else {
+                    getTile(destination).highlightMoveDestination();
+                }
+                getTile(origin).highlightUnit();
+                break;
         }
     }
 
@@ -294,7 +341,7 @@ public class DisplayBoard extends Board {
                 moveUnit(origin, target, unit, kingIsCreated);
                 turnFinished = true;
                 if (Game.VERBOSE_OUTPUT) {
-                    GUI.output.appendText(unit.getTeam() + " Move Successful\n");
+                    GUI.output.appendText(unit.getTeam() + " Made a Normal Move\n");
                 }
                 break;
             case KILL:
@@ -310,7 +357,7 @@ public class DisplayBoard extends Board {
                     turnFinished = true;
                 }
                 if (Game.VERBOSE_OUTPUT) {
-                    GUI.output.appendText(unit.getTeam() + " Attack Successful\n");
+                    GUI.output.appendText(unit.getTeam() + " Made an Attack Move\n");
                 }
                 break;
         }

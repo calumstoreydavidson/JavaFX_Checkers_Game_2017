@@ -22,7 +22,7 @@ import javafx.stage.StageStyle;
  */
 public class GUI {
 
-    // this should be the first text printed to the games output feed upon a new game
+    // this should be the first text printed to the games output feed upon a new game //TODO distribute this to the relevant buttons
     public static final String GAME_PREAMBLE_AND_INSTRUCTIONS = "Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning " + "- checkers game coursework.\n\nInstructions:\n" + "- Drag and drop units with your mouse to make your moves\n" + "- Green squares are units that can move.\n" + "- Blue squares are where they can go.\n" + "- And red squares are mandatory attacks.\n" + "---------------------------------------------------\n";
 
     // the games output / announcement feed
@@ -133,12 +133,14 @@ public class GUI {
         Button crownStealingToggleButton = getCrownStealingToggleButton();
 
         //play tile toggle
-        Button togglePlayTileButton = getTogglePlayTileButton();
+        Button togglePlayTileToggleButton = getPlayTileToggleButton();
 
         //god mode toggle
-        Button godModeButton = getGodModeButton();
+        Button godModeToggleButton = getGodModeToggleButton();
 
-        Button verboseOutputButton = getVerboseOutputButton();
+        Button advisorAIToggleButton = getAdvisorAIToggleButton();
+
+        Button verboseOutputToggleButton = getVerboseOutputToggleButton();
 
         Button userMoveHighlightingToggleButton = getUserMoveHighlightingToggleButton();
 
@@ -164,7 +166,7 @@ public class GUI {
 
         GridPane teamPlayerMenus = getTeamPlayerMenus();
 
-        VBox controls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileButton, godModeButton, verboseOutputButton, userMoveHighlightingToggleButton, AIMoveHighlightingToggleButton, displayInstructionsButton, teamPlayerMenus, AITurnLengthLabel, AITurnLengthSlider, AIDifficultyLabel, AIDifficultySlider);
+        VBox controls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileToggleButton, godModeToggleButton, verboseOutputToggleButton, userMoveHighlightingToggleButton, AIMoveHighlightingToggleButton, advisorAIToggleButton, displayInstructionsButton, teamPlayerMenus, AITurnLengthLabel, AITurnLengthSlider, AIDifficultyLabel, AIDifficultySlider);
 
         controls.setPrefWidth(300);
         controls.setMinWidth(300);
@@ -264,7 +266,7 @@ public class GUI {
      *
      * @return the verbose output toggle button
      */
-    private Button getVerboseOutputButton() {
+    private Button getVerboseOutputToggleButton() {
         String mechanism = "Verbose Output";
         Button verboseOutputButton = new Button("Disable " + mechanism + "\n");
 
@@ -343,18 +345,38 @@ public class GUI {
      *
      * @return the button that allows the user to toggle god mode in order to manipulate the game state mid game
      */
-    private Button getGodModeButton() {
-        String mechanism = "God Mode";
-        Button godModeButton = new Button("Enable " + mechanism + "\n");
+    private Button getAdvisorAIToggleButton() {
+        String mechanism = "Advisor AI";
+        Button advisorAIToggleButton = new Button("Disable " + mechanism + "\n");
 
-        godModeButton.setOnAction(value -> {
-            game.toggleGodMode();
-            godModeButton.setText(game.GOD_MODE_ENABLED ? "Disable " + mechanism + "\n" : "Enable " + mechanism + "\n");
-            output.appendText(game.GOD_MODE_ENABLED ? mechanism + " Enabled\n" : mechanism + " Disabled\n");
+        advisorAIToggleButton.setOnAction(value -> {
+            Game.USERS_AI_ADVISOR = !Game.USERS_AI_ADVISOR;
+            game.toggleUserAdvisorAISuggestedMoveHighlighting();
+            advisorAIToggleButton.setText(Game.USERS_AI_ADVISOR ? "Disable " + mechanism + "\n" : "Enable " + mechanism + "\n");
+            output.appendText(Game.USERS_AI_ADVISOR ? mechanism + " Enabled\n" : mechanism + " Disabled\n");
         });
 
-        godModeButton.setMaxWidth(Double.MAX_VALUE);
-        return godModeButton;
+        advisorAIToggleButton.setMaxWidth(Double.MAX_VALUE);
+        return advisorAIToggleButton;
+    }
+
+    /**
+     * create the button that allows the user to toggle god mode in order to manipulate the game state mid game
+     *
+     * @return the button that allows the user to toggle god mode in order to manipulate the game state mid game
+     */
+    private Button getGodModeToggleButton() {
+        String mechanism = "God Mode";
+        Button godModeToggleButton = new Button("Enable " + mechanism + "\n");
+
+        godModeToggleButton.setOnAction(value -> {
+            game.toggleGodMode();
+            godModeToggleButton.setText(Game.GOD_MODE_ENABLED ? "Disable " + mechanism + "\n" : "Enable " + mechanism + "\n");
+            output.appendText(Game.GOD_MODE_ENABLED ? mechanism + " Enabled\n" : mechanism + " Disabled\n");
+        });
+
+        godModeToggleButton.setMaxWidth(Double.MAX_VALUE);
+        return godModeToggleButton;
     }
 
     /**
@@ -362,7 +384,7 @@ public class GUI {
      *
      * @return the button that allows the user to toggle which color tiles the game is played on
      */
-    private Button getTogglePlayTileButton() {
+    private Button getPlayTileToggleButton() {
         Button togglePlayTileButton = new Button("Play on Black");
 
         togglePlayTileButton.setOnAction(value -> {

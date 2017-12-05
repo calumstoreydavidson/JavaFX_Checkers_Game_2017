@@ -31,7 +31,7 @@ public class Game {
     public static int AI_MOVE_LAG_TIME = 500; //milliseconds
 
     // whether or not the game should be reset at the next opportunity -
-    // protects against bugs tht develop from resetting the game while turn threads are still running
+    // protects against bugs that develop from resetting the game while turn threads are still running
     public static boolean RESET_GAME;
 
     // the configurable maximum depth to which the AI is allowed to search the future state space for optimal moves
@@ -45,6 +45,9 @@ public class Game {
 
     //the configurable option to allow the user to toggle the AI's move highlighting
     public static boolean AI_MOVE_HIGHLIGHTING = true;
+
+    //the configurable option to allow the user to toggle their AI advisor suggesting moves
+    public static boolean USERS_AI_ADVISOR = true;
 
     //the games Red player
     private Player redPlayer;
@@ -76,7 +79,7 @@ public class Game {
      * schedule the game to be restarted once the JavaFX core thread has finished whatever it is doing
      */
     public void scheduleNewGame() {
-        Platform.runLater(() -> startNewGame());
+        Platform.runLater(this::startNewGame);
     }
 
     /**
@@ -143,7 +146,7 @@ public class Game {
     /**
      * if user move highlighting is active then disable it and erase all board highlighting, else activate and apply it
      */
-    public void toggleUserMoveHighlighting() {
+    public void toggleUserMoveHighlighting() { //TODO really need a better way of passing user config through the system
         if (USER_MOVE_HIGHLIGHTING) {
             USER_MOVE_HIGHLIGHTING = false;
             displayBoard.resetTileColors();// deactivation
@@ -151,6 +154,10 @@ public class Game {
             USER_MOVE_HIGHLIGHTING = true;
             refreshBoard(); //activation
         }
+    }
+
+    public void toggleUserAdvisorAISuggestedMoveHighlighting() {
+        refreshBoard();
     }
 
     /**
@@ -214,12 +221,12 @@ public class Game {
     }
 
     /**
-     * apply the move highlighting on the board for the current player their available moves
+     * apply the move highlighting on the board for the current player based on their available moves
      */
     private void refreshUserSupportHighlighting() {
-        if (USER_MOVE_HIGHLIGHTING) {
-            displayBoard.highlightUsersAvailableMoves();
-        }
+        displayBoard.highlightUsersAvailableMoves();
+        HumanPlayer user = (HumanPlayer) getCurrentPlayer();
+        displayBoard.highlightAdvisorsSuggestedMove(user.getAIAdvisor());
     }
 
     /**
@@ -257,10 +264,7 @@ public class Game {
                 Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
 
                 player.getPlayerMove(displayBoard).ifPresent(move -> {
-                    if(AI_MOVE_HIGHLIGHTING) {
-                        displayBoard.getTile(move.getTarget()).highlightAIMove(); // show the user what the AI is moving and where
-                        displayBoard.getTile(move.getOrigin()).highlightAIMove();
-                    }
+                    displayBoard.highlightAIMove(move);// show the user what the AI is moving and where
 
                     try {
                         Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening

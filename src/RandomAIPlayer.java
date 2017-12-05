@@ -18,7 +18,7 @@ public class RandomAIPlayer extends Player {
         setPlayerTeam(playerTeam);
         //red always goes first
         resetPlayer();
-        setPlayerHuman(false);
+        setPlayerType(PlayerType.AI);
     }
 
     /**

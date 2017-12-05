@@ -13,7 +13,7 @@ public class NegamaxAI extends Player {
     public NegamaxAI(Team playerTeam) {
         setPlayerTeam(playerTeam);
         resetPlayer();
-        setPlayerHuman(false);
+        setPlayerType(PlayerType.AI);
     }
 
     /**
