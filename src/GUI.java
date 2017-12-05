@@ -169,12 +169,7 @@ public class GUI {
         //game Instructions
         Button displayInstructionsButton = getDisplayInstructionsButton();
 
-        //RandomAIPlayer move speed
-        Label AITurnLengthLabel = new Label("AI Player turn length control");
-        Slider AITurnLengthSlider = getTurnLengthSlider();
-
-        Label AIDifficultyLabel = new Label("AI Player difficulty control");
-        Slider AIDifficultySlider = getAIDifficultySlider();
+        VBox playerControls = getPlayerControls();
 
         //TODO swap teams sides of the board
 
@@ -184,14 +179,31 @@ public class GUI {
 
         //TODO give each AI its own difficulty slider and make it change the max size of those sliders with the teams AI
 
+        VBox userControls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileToggleButton, godModeToggleButton, verboseOutputToggleButton, userMoveHighlightingToggleButton, AIMoveHighlightingToggleButton, advisorAIToggleButton, displayInstructionsButton, playerControls);
+
+        userControls.setPrefWidth(300);
+        userControls.setMinWidth(300);
+
+        return userControls;
+    }
+
+    /**
+     * get the controls for editing the players of the game
+     *
+     * @return the controls for editing the players of the game
+     */
+    private VBox getPlayerControls() {
+        //player type selectors
         GridPane teamPlayerMenus = getTeamPlayerMenus();
 
-        VBox controls = new VBox(10, newGameButton, crownStealingToggleButton, togglePlayTileToggleButton, godModeToggleButton, verboseOutputToggleButton, userMoveHighlightingToggleButton, AIMoveHighlightingToggleButton, advisorAIToggleButton, displayInstructionsButton, teamPlayerMenus, AITurnLengthLabel, AITurnLengthSlider, AIDifficultyLabel, AIDifficultySlider);
+        //RandomAIPlayer move speed
+        Label AITurnLengthLabel = new Label("AI Player turn length control");
+        Slider AITurnLengthSlider = getTurnLengthSlider();
 
-        controls.setPrefWidth(300);
-        controls.setMinWidth(300);
+        Label AIDifficultyLabel = new Label("AI Player difficulty control");
+        Slider AIDifficultySlider = getAIDifficultySlider();
 
-        return controls;
+        return new VBox(10, teamPlayerMenus, AITurnLengthLabel, AITurnLengthSlider, AIDifficultyLabel, AIDifficultySlider);
     }
 
     /**
