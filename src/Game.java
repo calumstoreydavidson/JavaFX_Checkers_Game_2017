@@ -3,6 +3,11 @@ import javafx.concurrent.Task;
 import javafx.scene.Group;
 import javafx.scene.Node;
 
+/**
+ * The Game class is responsible for the overarching game structure including the player turn rotation cycle,
+ * instantiation of the board state space,
+ * much of the game output log and the scheduling of new moves and game restarts via JavaFX concurrency mechanisms.
+ */
 public class Game {
 
     //TODO make these final and initialised upon game creation
@@ -86,9 +91,9 @@ public class Game {
      * reinitialise a new game, reset the necessary variables and run the new game
      */
     public void startNewGame() {
-        GUI.output.setText(GUI.GAME_PREAMBLE_AND_INSTRUCTIONS);
         resetGame();
         if (VERBOSE_OUTPUT) {
+            GUI.output.setText(GUI.GAME_PREAMBLE_AND_INSTRUCTIONS);
             GUI.output.appendText("           A NEW GAME BEGINS --FIGHT!--\n");
             printNewTurnDialogue();
         }

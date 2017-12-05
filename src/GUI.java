@@ -22,8 +22,28 @@ import javafx.stage.StageStyle;
  */
 public class GUI {
 
-    // this should be the first text printed to the games output feed upon a new game //TODO distribute this to the relevant buttons
-    public static final String GAME_PREAMBLE_AND_INSTRUCTIONS = "Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning " + "- checkers game coursework.\n\nInstructions:\n" + "- Drag and drop units with your mouse to make your moves\n" + "- Green squares are units that can move.\n" + "- Blue squares are where they can go.\n" + "- And red squares are mandatory attacks.\n" + "---------------------------------------------------\n";
+    // this should be the first text printed to the games output feed upon a new game
+    public static final String GAME_PREAMBLE_AND_INSTRUCTIONS = "Welcome!!! to Calum Storey Davidson's University Of Sussex - Knowledge And Reasoning " +
+                                                                "- checkers game coursework." +
+                                                                "\n\nApplication Instructions:\n" +
+                                                                "- Select the types of player to be included in the game\n" +
+                                                                "- Control AI player move speed with the AI move speed slider\n" +
+                                                                "- Control AI player difficulty with the AI difficulty slider\n" +
+                                                                "- Drag and drop units with your mouse to make your moves\n" +
+                                                                "- Game rules can be opened in the browser\n" +
+                                                                "\nToggleable Features:\n"+
+                                                                "- User move highlighting\n"+
+                                                                "- AI move highlighting\n"+
+                                                                "- User's AI advisor move highlighting\n"+
+                                                                "- Allow pawns to become kings when they kill other kings\n"+
+                                                                "- Verbose output in the game feed - limit to win alerts\n"+
+                                                                "- God mode, move any unit anywhere and toggle units as kings\n"+
+                                                                "- Select the colour tiles the game is played on\n"+
+                                                                "- Green squares are units that can move.\n" +
+                                                                "- Blue squares are where they can go.\n" +
+                                                                "- And red squares are mandatory attacks.\n" +
+
+                                                                "---------------------------------------------------\n";
 
     // the games output / announcement feed
     public static TextArea output;
@@ -236,6 +256,10 @@ public class GUI {
             game.toggleUserMoveHighlighting();
             userMoveHighlightingToggleButton.setText(Game.USER_MOVE_HIGHLIGHTING ? "Disable " + mechanism + "\n" : "Enable " + mechanism + "\n");
             output.appendText(Game.USER_MOVE_HIGHLIGHTING ? mechanism + " Enabled\n" : mechanism + " Disabled\n");
+
+            if(Game.USER_MOVE_HIGHLIGHTING) {
+                output.appendText("\n\n- Green squares are units that can move." + "\n- Blue squares are where they can go." + "\n- And red squares are mandatory attacks.\n\n");
+            }
         });
 
         userMoveHighlightingToggleButton.setMaxWidth(Double.MAX_VALUE);
@@ -331,7 +355,7 @@ public class GUI {
      */
     private void setUpGameOutputFeed() {
         output = new TextArea();
-        output.setPrefWidth(350);
+        output.setPrefWidth(400);
         output.setMaxWidth(TextArea.USE_PREF_SIZE);
         output.setMinWidth(TextArea.USE_PREF_SIZE);
         output.setEditable(false);
