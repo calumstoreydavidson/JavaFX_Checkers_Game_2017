@@ -236,7 +236,7 @@ public class GUI {
                     game.restartGame(new NegamaxAI(team));
                     break;
                 case 3:
-                    game.restartGame(new ABNegamaxAI(team));
+                    game.restartGame(new ABNegamaxAI(team, PlayerType.AI));
                     break;
             }
         }));
@@ -374,7 +374,6 @@ public class GUI {
         Button advisorAIToggleButton = new Button("Disable " + mechanism + "\n");
 
         advisorAIToggleButton.setOnAction(value -> {
-            Game.USERS_AI_ADVISOR = !Game.USERS_AI_ADVISOR;
             game.toggleUserAdvisorAISuggestedMoveHighlighting();
             advisorAIToggleButton.setText(Game.USERS_AI_ADVISOR ? "Disable " + mechanism + "\n" : "Enable " + mechanism + "\n");
             output.appendText(Game.USERS_AI_ADVISOR ? mechanism + " Enabled\n" : mechanism + " Disabled\n");

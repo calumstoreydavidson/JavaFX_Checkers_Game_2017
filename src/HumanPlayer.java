@@ -17,7 +17,7 @@ public class HumanPlayer extends Player {
         setPlayerTeam(playerTeam);
         resetPlayer();
         setPlayerType(PlayerType.USER);
-        AIAdvisor = new ABNegamaxAI(getPlayerTeam());
+        AIAdvisor = new ABNegamaxAI(getPlayerTeam(), PlayerType.USER_ADVISOR);
     }
 
     /**

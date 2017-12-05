@@ -151,17 +151,13 @@ public class Game {
     /**
      * if user move highlighting is active then disable it and erase all board highlighting, else activate and apply it
      */
-    public void toggleUserMoveHighlighting() { //TODO really need a better way of passing user config through the system
-        if (USER_MOVE_HIGHLIGHTING) {
-            USER_MOVE_HIGHLIGHTING = false;
-            displayBoard.resetTileColors();// deactivation
-        } else {
-            USER_MOVE_HIGHLIGHTING = true;
-            refreshBoard(); //activation
-        }
+    public void toggleUserMoveHighlighting() { //TODO really need a better way of passing user config through the system, perhaps a config state object
+        USER_MOVE_HIGHLIGHTING = !USER_MOVE_HIGHLIGHTING;
+        refreshBoard();
     }
 
     public void toggleUserAdvisorAISuggestedMoveHighlighting() {
+        Game.USERS_AI_ADVISOR = !Game.USERS_AI_ADVISOR;
         refreshBoard();
     }
 
@@ -199,7 +195,7 @@ public class Game {
         if (isGameOver()) {
             scheduleNewGame();
         } else {
-            runPlayerMove(getCurrentPlayer());
+            processPlayerMove(getCurrentPlayer());
         }
     }
 
@@ -231,7 +227,9 @@ public class Game {
     private void refreshUserSupportHighlighting() {
         displayBoard.highlightUsersAvailableMoves();
         HumanPlayer user = (HumanPlayer) getCurrentPlayer();
-        displayBoard.highlightAdvisorsSuggestedMove(user.getAIAdvisor());
+        if(Game.USERS_AI_ADVISOR) {
+            processPlayerMove(user.getAIAdvisor());
+        }
     }
 
     /**
@@ -262,21 +260,25 @@ public class Game {
      *
      * @param player the player whose move should be retrieved and executed
      */
-    public void runPlayerMove(Player player) {
+    public void processPlayerMove(Player player) {
         //create the task to run the next turn
         Task<Void> task = new Task<Void>() {
             @Override public Void call() throws Exception {
                 Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
 
                 player.getPlayerMove(displayBoard).ifPresent(move -> {
-                    displayBoard.highlightAIMove(move);// show the user what the AI is moving and where
+                    if (player.getPlayerType() == PlayerType.USER_ADVISOR) {
+                        displayBoard.highlightAdvisorsSuggestedMove(move);
+                    } else {
+                        displayBoard.highlightAIMove(move);// show the user what the AI is moving and where
 
-                    try {
-                        Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        try {
+                            Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        Platform.runLater(() -> executePlayerMove(move));
                     }
-                    Platform.runLater(() -> executePlayerMove(move));
                 });
 
                 return null;

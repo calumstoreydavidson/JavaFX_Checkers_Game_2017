@@ -10,10 +10,10 @@ public class ABNegamaxAI extends Player {
      *
      * @param playerTeam the players team
      */
-    public ABNegamaxAI(Team playerTeam) {
+    public ABNegamaxAI(Team playerTeam, PlayerType playerType) {
         setPlayerTeam(playerTeam);
         resetPlayer();
-        setPlayerType(PlayerType.AI);
+        setPlayerType(playerType);
     }
 
     /**
@@ -29,7 +29,7 @@ public class ABNegamaxAI extends Player {
         double alpha = Integer.MIN_VALUE;
         double beta = Integer.MAX_VALUE;
         SimulationBoard sim = new SimulationBoard(displayBoard, getPlayerTeam());
-        
+
         return Optional.of(negamax(sim, 0, 1, alpha, beta).move);
     }
 

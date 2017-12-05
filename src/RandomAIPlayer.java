@@ -7,6 +7,7 @@ import java.util.Random;
  */
 public class RandomAIPlayer extends Player {
 
+    //the random value generator to be used by this player
     private Random rand = new Random();
 
     /**

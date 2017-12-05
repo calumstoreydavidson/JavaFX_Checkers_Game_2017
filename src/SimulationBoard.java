@@ -358,7 +358,8 @@ public class SimulationBoard extends Board {
      *
      * @return the score value of the current board state
      */
-    public double evaluateState() { //TODO extend this based on further research, tried giving it an afinity for edges but seemed detrimental
+    public double evaluateState() { //TODO extend this based on further research, tried giving it an affinity for edges but seemed detrimental, tried a random uncertainty multiplier on returned scores but seemed to lag the game
+//        int uncertainty = rand.nextInt(potentialDivergence) + 1;
         //heuristic - absolute piece count - kings worth double
         double reds = 0;
         double whites = 0;
