@@ -33,6 +33,7 @@ public class ABNegamaxAI extends Player {
         return Optional.of(negamax(sim, 0, 1, alpha, beta).move);
     }
 
+    //TODO - it would be nice to implement a negascout player - given decent move sorting
     /**
      * runs Negamax with alpha beta pruning to select the ideal move for the current turn
      *
@@ -43,20 +44,20 @@ public class ABNegamaxAI extends Player {
      * @param beta  the minimising players best found value so far
      * @return the move the player wishes to make this turn
      */
-    private MoveAndScore negamax(SimulationBoard node, int depth, int team, double alpha, double beta) {
-        if (node.getTeamsPossibleMoves().isEmpty() || depth == getSelectedSearchDepth()) {
+    private MoveAndScore negamax(SimulationBoard node, int depth, int team, double alpha, double beta) {//TODO implementing transposition tables could further improve performance
+        if (node.getTeamsPossibleMoves().isEmpty() || depth == getSelectedSearchDepth()) { //check if node is a leaf
             MoveAndScore result = new MoveAndScore(null, node.evaluateState());
             return result;
         }
         MoveAndScore max = new MoveAndScore(null, Integer.MIN_VALUE);
+        //TODO adding move sorting here would make the pruning even more effective
 
-        //for all moves
-        for (Move move : node.getTeamsPossibleMoves()) {
+        for (Move move : node.getTeamsPossibleMoves()) { //for each possible move available to the current player
             MoveAndScore child = negate(negamax(node.getChild(move), depth + 1, -team, -beta, -alpha));
-            child.move = move;
+            child.move = move;// associate score and move
             max = child.score > max.score ? child : max;
             alpha = max.score > alpha ? max.score : alpha;
-            if (beta <= alpha) {
+            if (beta <= alpha) { //when continuing to evaluate child nodes is pointless
                 break;
             }
         }
@@ -83,6 +84,10 @@ public class ABNegamaxAI extends Player {
      * @return the proportional max depth of the algorithm based on the users specified value from the GUI slider
      */
     private int getSelectedSearchDepth() {
-        return (int) ((double) Game.AI_MAX_SEARCH_DEPTH * 1.7);//get 1.4 of 1..8 then round it to an int
+        if(Game.USERS_AI_ADVISOR){
+            return (int) ((double) Game.AI_MAX_SEARCH_DEPTH * 1.7) - 1;//-1 ensures the game runs at a reasonable speed, by lowering difficulty of AI and thus processing
+        }else{
+            return (int) ((double) Game.AI_MAX_SEARCH_DEPTH * 1.7);//get 1.4 of 1..8 then round it to an int
+        }
     }
 }

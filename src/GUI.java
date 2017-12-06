@@ -134,7 +134,7 @@ public class GUI {
      */
     private Pane getGameBoard() {
         Pane gameBoard = new Pane();
-        int squareEdgeLength = Game.SCALE * Game.TILE_SIZE;
+        int squareEdgeLength = Game.BOARD_SIZE * Game.TILE_SIZE;
         gameBoard.setMinSize(squareEdgeLength, squareEdgeLength);
         gameBoard.getChildren().setAll(game.getComponents());
         return gameBoard;
@@ -320,7 +320,7 @@ public class GUI {
      * @return the slider that allows the user to alter the speed of AI moves
      */
     private VBox getAITurnLengthSlider() {
-        Label AITurnLengthLabel = new Label("AI Player turn length control");
+        Label AITurnLengthLabel = new Label("AI Player Turn Length Control");
 
         Slider AITurnLengthSlider = new Slider(100, 1000, Game.AI_MOVE_LAG_TIME);
         configureSlider(AITurnLengthSlider, 0, 100);
@@ -336,7 +336,7 @@ public class GUI {
      * @return the slider that allows the user to alter the difficulty of AI players
      */
     private VBox getAIDifficultySlider() {
-        Label AIDifficultyLabel = new Label("AI Player difficulty control");
+        Label AIDifficultyLabel = new Label("AI Player Difficulty Control");
 
         Slider AIDifficultySlider = new Slider(1, 7, Game.AI_MAX_SEARCH_DEPTH);
         configureSlider(AIDifficultySlider, 0, 1);
@@ -345,12 +345,18 @@ public class GUI {
         return new VBox(10, AIDifficultyLabel, AIDifficultySlider);
     }
 
+    //TODO - it would be interesting to implement a board scale slider, to allow the player to experiment with board sizes, requires further decoupling of code to be feasible
+
+    //TODO - allow both teams max number of units to be controlled by the user, e.g. to handicap the AI
+
+    //TODO separate team controls, so that different teams can have different values
+
     /**
      * apply basic standard configuration to pre-assembled GUI sliders
      *
      * @param slider        the slider to configure
-     * @param minorTickUnit the number of lines between the major value lines
-     * @param majorTickUnit the number of major value lines on the entire slider
+     * @param minorTickUnit the number of dashes between the major value lines
+     * @param majorTickUnit the number of major value dashes on the entire slider
      */
     public void configureSlider(Slider slider, int minorTickUnit, int majorTickUnit) {
         //major numbered slider intervals

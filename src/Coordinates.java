@@ -55,7 +55,7 @@ public class Coordinates {
      * @return whether or not the provided position is on the edge of the current board
      */
     public static boolean isBoardEdge(Coordinates pos) {
-        return pos.x == 0 || pos.y == 0 || pos.x == Game.SCALE - 1 || pos.y == Game.SCALE - 1;
+        return pos.x == 0 || pos.y == 0 || pos.x == Game.BOARD_SIZE - 1 || pos.y == Game.BOARD_SIZE - 1;
     }
 
     /**
@@ -79,7 +79,7 @@ public class Coordinates {
      * @return whether or not this Coordinate is beyond the bounds of the board
      */
     public boolean isOutsideBoard() {
-        return x < 0 || y < 0 || x >= Game.SCALE || y >= Game.SCALE;
+        return x < 0 || y < 0 || x >= Game.BOARD_SIZE || y >= Game.BOARD_SIZE;
     }
 
     /**
@@ -90,7 +90,7 @@ public class Coordinates {
      */
     public boolean isEnemyKingRow(Team team) {
         if (team == Team.RED) {
-            return y == Game.SCALE - 1; //white side
+            return y == Game.BOARD_SIZE - 1; //white side
         } else {
             return y == 0; //red side
         }

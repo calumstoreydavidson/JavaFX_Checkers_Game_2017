@@ -30,7 +30,7 @@ public class DisplayBoard extends Board {
      * creates a new Board populated with the initial state of a new checkers game
      */
     public DisplayBoard() {
-        board = new Tile[Game.SCALE][Game.SCALE];
+        board = new Tile[Game.BOARD_SIZE][Game.BOARD_SIZE];
         setCurrentTeam(Team.RED);
 
         generateBoard();
@@ -43,8 +43,8 @@ public class DisplayBoard extends Board {
      * fill the board array with new tiles
      */
     private void generateBoard() {
-        for (int y = 0; y < Game.SCALE; y++) {
-            for (int x = 0; x < Game.SCALE; x++) {
+        for (int y = 0; y < Game.BOARD_SIZE; y++) {
+            for (int x = 0; x < Game.BOARD_SIZE; x++) {
 
                 generateTile(new Coordinates(x, y));
             }
@@ -77,10 +77,10 @@ public class DisplayBoard extends Board {
      */
     private void populateRed() {
         //Red units keep generating down the board till they hit their border
-        int factionBorder = Math.round(Game.SCALE / 3f); // determine the row that is the red border
+        int factionBorder = Math.round(Game.BOARD_SIZE / 3f); // determine the row that is the red border
         int placedUnits = 0;
-        for (int y = 0; y < Game.SCALE; y++) {
-            for (int x = 0; x < Game.SCALE; x++) {
+        for (int y = 0; y < Game.BOARD_SIZE; y++) {
+            for (int x = 0; x < Game.BOARD_SIZE; x++) {
                 Coordinates position = new Coordinates(x, y);
                 if (y < factionBorder && position.isPlaySquare() && placedUnits <= Game.MAX_RED_POPULATION) {
                     spawnUnit(position, redUnits, Team.RED);
@@ -96,10 +96,10 @@ public class DisplayBoard extends Board {
      */
     private void populateWhite() {
         //White units keep generating up the board till they hit their border
-        int factionBorder = Math.round((Game.SCALE / 3f) * 2); // determine the row that is the white border
+        int factionBorder = Math.round((Game.BOARD_SIZE / 3f) * 2); // determine the row that is the white border
         int placedUnits = 0;
-        for (int y = Game.SCALE - 1; y >= 0; y--) {
-            for (int x = Game.SCALE - 1; x >= 0; x--) {
+        for (int y = Game.BOARD_SIZE - 1; y >= 0; y--) {
+            for (int x = Game.BOARD_SIZE - 1; x >= 0; x--) {
                 Coordinates position = new Coordinates(x, y);
                 if (y >= factionBorder && position.isPlaySquare() && placedUnits <= Game.MAX_WHITE_POPULATION) {
                     spawnUnit(position, whiteUnits, Team.WHITE);

@@ -10,9 +10,9 @@ import javafx.scene.Node;
  */
 public class Game {
 
-    //TODO make these final and initialised upon game creation
+    //TODO make these final and initialised upon game creation, they cause too much coupling
     //the configurable number of tiles across the game board should be
-    public static int SCALE = 8;
+    public static int BOARD_SIZE = 8;
 
     //the configurable number of pixels across each board tile should be
     public static int TILE_SIZE = 100;
@@ -193,9 +193,23 @@ public class Game {
     public void runNextMove() {
         refreshBoard();
         if (isGameOver()) {
+            temporaryPause(1000);
             scheduleNewGame();
         } else {
             processPlayerMove(getCurrentPlayer());
+        }
+    }
+
+    /**
+     * allow the user to see what is happening more easily by slowing things down, to iterative jumps, rather than all at once
+     *
+     * @param millis how long to pause for
+     */
+    public void temporaryPause(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -266,16 +280,11 @@ public class Game {
         //create the task to run the next turn
         Task<Void> task = new Task<Void>() {
             @Override public Void call() throws Exception {
-                Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
+                temporaryPause(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
 
                 player.getPlayerMove(displayBoard).ifPresent(move -> {
                     displayBoard.highlightAIMove(move);// show the user what the AI is moving and where
-
-                    try {
-                        Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    temporaryPause(AI_MOVE_LAG_TIME);
                     Platform.runLater(() -> executePlayerMove(move));
                 });
                 return null;

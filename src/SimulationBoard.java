@@ -12,7 +12,7 @@ public class SimulationBoard extends Board {
     private Random rand = new Random();
 
     //the grid of Types that represent the simulated board
-    private Type[][] board = new Type[Game.SCALE][Game.SCALE];//TODO looking into bit board systems to increase efficiency could be interesting
+    private Type[][] board = new Type[Game.BOARD_SIZE][Game.BOARD_SIZE];//TODO looking into bit board systems to increase efficiency could be interesting
 
     //all the units on the red team
     private ArrayList<Coordinates> redUnits = new ArrayList<>();
@@ -38,8 +38,8 @@ public class SimulationBoard extends Board {
      * @param oldSimBoard the previous simulated game state
      */
     public SimulationBoard(SimulationBoard oldSimBoard) {
-        for (int i = 0; i < Game.SCALE; i++) {
-            for (int j = 0; j < Game.SCALE; j++) {
+        for (int i = 0; i < Game.BOARD_SIZE; i++) {
+            for (int j = 0; j < Game.BOARD_SIZE; j++) {
                 board[i][j] = oldSimBoard.getBoard()[i][j];
             }
         }
@@ -54,9 +54,9 @@ public class SimulationBoard extends Board {
      * @param oldDisplayBoard the real games state representation to be duplicated
      */
     public void generateSimBoardFromRealBoard(DisplayBoard oldDisplayBoard) {
-        board = new Type[Game.SCALE][Game.SCALE];
-        for (int x = 0; x < Game.SCALE; x++) {
-            for (int y = 0; y < Game.SCALE; y++) {
+        board = new Type[Game.BOARD_SIZE][Game.BOARD_SIZE];
+        for (int x = 0; x < Game.BOARD_SIZE; x++) {
+            for (int y = 0; y < Game.BOARD_SIZE; y++) {
                 Tile tile = oldDisplayBoard.getTile(new Coordinates(x, y));
                 generateSimTile(tile, x, y);
             }
