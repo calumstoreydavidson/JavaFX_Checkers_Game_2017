@@ -39,7 +39,7 @@ public class NegamaxAI extends Player {
      * @return the move the player wishes to make this turn
      */
     private MoveAndScore negamax(SimulationBoard node, int depth, int team) {
-        if (node.getTeamsPossibleMoves().isEmpty() || depth == getMaxSearchDepth()) {
+        if (node.getTeamsPossibleMoves().isEmpty() || depth == getSelectedSearchDepth()) {
             MoveAndScore result = new MoveAndScore(null, node.evaluateState());
             result.score *= team;
             return result;
@@ -72,7 +72,7 @@ public class NegamaxAI extends Player {
      *
      * @return the max depth allowed for the AI
      */
-    private int getMaxSearchDepth() {
+    private int getSelectedSearchDepth() {
         return Game.AI_MAX_SEARCH_DEPTH;
     }
 

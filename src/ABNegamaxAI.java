@@ -44,7 +44,7 @@ public class ABNegamaxAI extends Player {
      * @return the move the player wishes to make this turn
      */
     private MoveAndScore negamax(SimulationBoard node, int depth, int team, double alpha, double beta) {
-        if (node.getTeamsPossibleMoves().isEmpty() || depth == getMaxSearchDepth()) {
+        if (node.getTeamsPossibleMoves().isEmpty() || depth == getSelectedSearchDepth()) {
             MoveAndScore result = new MoveAndScore(null, node.evaluateState());
             return result;
         }
@@ -82,7 +82,7 @@ public class ABNegamaxAI extends Player {
      *
      * @return the proportional max depth of the algorithm based on the users specified value from the GUI slider
      */
-    private int getMaxSearchDepth() {
+    private int getSelectedSearchDepth() {
         return (int) ((double) Game.AI_MAX_SEARCH_DEPTH * 1.7);//get 1.4 of 1..8 then round it to an int
     }
 }

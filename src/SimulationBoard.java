@@ -12,7 +12,7 @@ public class SimulationBoard extends Board {
     private Random rand = new Random();
 
     //the grid of Types that represent the simulated board
-    private Type[][] board = new Type[Game.SCALE][Game.SCALE];
+    private Type[][] board = new Type[Game.SCALE][Game.SCALE];//TODO looking into bit board systems to increase efficiency could be interesting
 
     //all the units on the red team
     private ArrayList<Coordinates> redUnits = new ArrayList<>();

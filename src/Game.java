@@ -52,7 +52,7 @@ public class Game {
     public static boolean AI_MOVE_HIGHLIGHTING = true;
 
     //the configurable option to allow the user to toggle their AI advisor suggesting moves
-    public static boolean USERS_AI_ADVISOR = true;
+    public static boolean USERS_AI_ADVISOR = false;
 
     //the games Red player
     private Player redPlayer;
@@ -205,8 +205,10 @@ public class Game {
     private void refreshBoard() {
         displayBoard.resetTileColors();
         if (getCurrentPlayer().isPlayerHuman()) {
-            refreshUserSupportHighlighting();
-            displayBoard.makeCurrentTeamAccessible(redPlayer, whitePlayer);
+            Platform.runLater(() -> { //TODO it was found to be difficult to marry the need for parallelism and throwing the suggested move away if the game state had already changed, fixing that would improve performance
+                refreshUserSupportHighlighting();
+                displayBoard.makeCurrentTeamAccessible(redPlayer, whitePlayer);
+            });
         }else {
             setAllUnitsLocked(true);
         }
@@ -226,9 +228,9 @@ public class Game {
      */
     private void refreshUserSupportHighlighting() {
         displayBoard.highlightUsersAvailableMoves();
-        HumanPlayer user = (HumanPlayer) getCurrentPlayer();
         if(Game.USERS_AI_ADVISOR) {
-            processPlayerMove(user.getAIAdvisor());
+            HumanPlayer user = (HumanPlayer) getCurrentPlayer();
+            displayBoard.highlightAdvisorsSuggestedMove(user.getAIAdvisor());
         }
     }
 
@@ -267,20 +269,15 @@ public class Game {
                 Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
 
                 player.getPlayerMove(displayBoard).ifPresent(move -> {
-                    if (player.getPlayerType() == PlayerType.USER_ADVISOR) {
-                        displayBoard.highlightAdvisorsSuggestedMove(move);
-                    } else {
-                        displayBoard.highlightAIMove(move);// show the user what the AI is moving and where
+                    displayBoard.highlightAIMove(move);// show the user what the AI is moving and where
 
-                        try {
-                            Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        Platform.runLater(() -> executePlayerMove(move));
+                    try {
+                        Thread.sleep(AI_MOVE_LAG_TIME); //ensure it is clear to the player what is happening
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    Platform.runLater(() -> executePlayerMove(move));
                 });
-
                 return null;
             }
         };

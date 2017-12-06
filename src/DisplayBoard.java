@@ -156,10 +156,10 @@ public class DisplayBoard extends Board {
     /**
      * highlight the unit and move destination of the move the users AI advisor thinks they should make
      *
-     * @param move the users AI advisors suggested move
+     * @param player the users AI advisor
      */
-    public void highlightAdvisorsSuggestedMove(Move move) {// TODO this needs to be run through the multi threading turn system, to prevent user turn lags
-        highlightMove(move, PlayerType.USER_ADVISOR);
+    public void highlightAdvisorsSuggestedMove(Player player) {// TODO this needs to be run through the multi threading turn system, to prevent user turn lags
+        player.getPlayerMove(this).ifPresent(move -> highlightMove(move, PlayerType.USER_ADVISOR));
     }
 
     /**

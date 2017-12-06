@@ -383,12 +383,13 @@ public class GUI {
      */
     private Button getAdvisorAIToggleButton() {
         String mechanism = "Advisor AI";
-        Button advisorAIToggleButton = new Button("Disable " + mechanism + "\n");
+        Button advisorAIToggleButton = new Button("Enable " + mechanism + "\n");
 
         advisorAIToggleButton.setOnAction(value -> {
             game.toggleUserAdvisorAISuggestedMoveHighlighting();
             advisorAIToggleButton.setText(Game.USERS_AI_ADVISOR ? "Disable " + mechanism + "\n" : "Enable " + mechanism + "\n");
             output.appendText(Game.USERS_AI_ADVISOR ? mechanism + " Enabled\n" : mechanism + " Disabled\n");
+            output.appendText("WARNING!!! This is an experimental feature, and may decrease performance\n");
         });
 
         advisorAIToggleButton.setMaxWidth(Double.MAX_VALUE);
