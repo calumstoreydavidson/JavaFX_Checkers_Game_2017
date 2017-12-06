@@ -197,13 +197,11 @@ public class GUI {
         GridPane teamPlayerMenus = getTeamPlayerMenus();
 
         //RandomAIPlayer move speed
-        Label AITurnLengthLabel = new Label("AI Player turn length control");
-        Slider AITurnLengthSlider = getTurnLengthSlider();
+        VBox AITurnLengthSlider = getAITurnLengthSlider();
 
-        Label AIDifficultyLabel = new Label("AI Player difficulty control");
-        Slider AIDifficultySlider = getAIDifficultySlider();
+        VBox AIDifficultySlider = getAIDifficultySlider();
 
-        return new VBox(10, teamPlayerMenus, AITurnLengthLabel, AITurnLengthSlider, AIDifficultyLabel, AIDifficultySlider);
+        return new VBox(10, teamPlayerMenus, AITurnLengthSlider, AIDifficultySlider);
     }
 
     /**
@@ -321,12 +319,14 @@ public class GUI {
      *
      * @return the slider that allows the user to alter the speed of AI moves
      */
-    private Slider getTurnLengthSlider() {
+    private VBox getAITurnLengthSlider() {
+        Label AITurnLengthLabel = new Label("AI Player turn length control");
+
         Slider AITurnLengthSlider = new Slider(100, 1000, Game.AI_MOVE_LAG_TIME);
         configureSlider(AITurnLengthSlider, 0, 100);
 
         AITurnLengthSlider.valueProperty().addListener((ov, old_val, new_val) -> Game.AI_MOVE_LAG_TIME = (int) AITurnLengthSlider.getValue());
-        return AITurnLengthSlider;
+        return new VBox(10, AITurnLengthLabel, AITurnLengthSlider);
     }
 
     /**
@@ -335,12 +335,14 @@ public class GUI {
      *
      * @return the slider that allows the user to alter the difficulty of AI players
      */
-    private Slider getAIDifficultySlider() {
+    private VBox getAIDifficultySlider() {
+        Label AIDifficultyLabel = new Label("AI Player difficulty control");
+
         Slider AIDifficultySlider = new Slider(1, 7, Game.AI_MAX_SEARCH_DEPTH);
         configureSlider(AIDifficultySlider, 0, 1);
 
         AIDifficultySlider.valueProperty().addListener((ov, old_val, new_val) -> Game.AI_MAX_SEARCH_DEPTH = (int) AIDifficultySlider.getValue());
-        return AIDifficultySlider;
+        return new VBox(10, AIDifficultyLabel, AIDifficultySlider);
     }
 
     /**
