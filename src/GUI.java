@@ -42,7 +42,6 @@ public class GUI {
                                                                 "- Green squares are units that can move.\n" +
                                                                 "- Blue squares are where they can go.\n" +
                                                                 "- And red squares are mandatory attacks.\n" +
-
                                                                 "---------------------------------------------------\n";
 
     // the games output / announcement feed
@@ -74,7 +73,7 @@ public class GUI {
      *
      * @param primaryStage the highest level javaFX container provided implicitly to the new application instance
      */
-    public void configureApplicationWindow(Stage primaryStage) {
+    private void configureApplicationWindow(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
         //game window title
@@ -88,7 +87,7 @@ public class GUI {
     /**
      * create a new game instance with 2 players
      */
-    public void initialiseApplicationBackend() {
+    private void initialiseApplicationBackend() {
         Player initialRedPlayer = new RandomAIPlayer(Team.RED);
         Player initialWhitePlayer = new RandomAIPlayer(Team.WHITE);
         game = new Game(initialRedPlayer, initialWhitePlayer);
@@ -105,9 +104,9 @@ public class GUI {
     /**
      * make the base / parent application window / container visible to the user
      *
-     * @param primaryStage
+     * @param primaryStage the highest level javaFX container provided implicitly to the new application instance
      */
-    public void displayApplication(Stage primaryStage) {
+    private void displayApplication(Stage primaryStage) {
         primaryStage.show(); // make the base window and all its children visible
     }
 
@@ -210,8 +209,8 @@ public class GUI {
      * @return the labelled player type menus in a self contained grid panel
      */
     private GridPane getTeamPlayerMenus() {
-        ComboBox redPlayer = getPlayerMenu(Team.RED);
-        ComboBox whitePlayer = getPlayerMenu(Team.WHITE);
+        ComboBox<String> redPlayer = getPlayerMenu(Team.RED);
+        ComboBox<String> whitePlayer = getPlayerMenu(Team.WHITE);
 
         GridPane playerMenus = new GridPane();
         playerMenus.add(new Label("Red Player:"), 0, 0);
@@ -230,8 +229,8 @@ public class GUI {
      * @param team the team to get a player options menu for
      * @return the player options menu for the given team
      */
-    private ComboBox getPlayerMenu(Team team) {
-        ComboBox playerMenu = new ComboBox();
+    private ComboBox<String> getPlayerMenu(Team team) {
+        ComboBox<String> playerMenu = new ComboBox<>();
         playerMenu.getItems().setAll("Human", "Random AI", "Negamax AI", "AB Negamax AI");
         playerMenu.getSelectionModel().select("Random AI");
         playerMenu.setOnAction((event -> {
@@ -358,7 +357,7 @@ public class GUI {
      * @param minorTickUnit the number of dashes between the major value lines
      * @param majorTickUnit the number of major value dashes on the entire slider
      */
-    public void configureSlider(Slider slider, int minorTickUnit, int majorTickUnit) {
+    private void configureSlider(Slider slider, int minorTickUnit, int majorTickUnit) {
         //major numbered slider intervals
         slider.setMajorTickUnit(majorTickUnit);
         //minor intervals between major intervals

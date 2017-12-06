@@ -1,5 +1,5 @@
 /**
- * represents a move and its associated score, for use in minimax and derivative algorithms
+ * represents a move and its associated score, for use in Minimax and derivative algorithms
  */
 public class MoveAndScore {
     Move move;
@@ -11,7 +11,7 @@ public class MoveAndScore {
      * @param move the move to be associated with a score
      * @param score the score to be associated with a move
      */
-    MoveAndScore(Move move, double score) {//TODO create NEGAMAXAI abstract class - make this private in there
+    MoveAndScore(Move move, double score) {//TODO create NEGAMAX AI abstract class - make this private in there
         this.move = move;
         this.score = score;
     }

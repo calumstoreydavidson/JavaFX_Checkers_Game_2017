@@ -13,7 +13,7 @@ public class Unit extends StackPane {
     private UnitType type;
 
     //the team of this unit e.g. red or white
-    private Team team;
+    private final Team team;
 
     //the x and y values of the mouse for use in displaying click drag animation
     private double mouseX, mouseY;
@@ -176,21 +176,12 @@ public class Unit extends StackPane {
 
         Ellipse bg = new Ellipse(width, height);
         bg.setFill(Color.BLACK);
-
-        bg.setStroke(Color.BLACK);
-        bg.setStrokeWidth(Game.TILE_SIZE * 0.03);
-
-        bg.setTranslateX((Game.TILE_SIZE - width * 2) / 2);
+        configureEllipse(width, bg);
         bg.setTranslateY(((Game.TILE_SIZE - height * 2) / 2 + Game.TILE_SIZE * 0.07) + verticalOffset);
-
 
         Ellipse ellipse = new Ellipse(width, height);
         ellipse.setFill(team == Team.RED ? Color.valueOf("#c40003") : Color.valueOf("#fff9f4"));
-
-        ellipse.setStroke(Color.BLACK);
-        ellipse.setStrokeWidth(Game.TILE_SIZE * 0.03);
-
-        ellipse.setTranslateX((Game.TILE_SIZE - width * 2) / 2);
+        configureEllipse(width, ellipse);
         ellipse.setTranslateY(((Game.TILE_SIZE - height * 2) / 2) + verticalOffset);
 
         if (type == UnitType.PAWN) {
@@ -198,5 +189,12 @@ public class Unit extends StackPane {
         } else {
             getChildren().addAll(bg, ellipse);
         }
+    }
+
+    private void configureEllipse(double width, Ellipse bg) {
+        bg.setStroke(Color.BLACK);
+        bg.setStrokeWidth(Game.TILE_SIZE * 0.03);
+
+        bg.setTranslateX((Game.TILE_SIZE - width * 2) / 2);
     }
 }

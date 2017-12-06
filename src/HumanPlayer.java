@@ -6,12 +6,12 @@ import java.util.Optional;
 public class HumanPlayer extends Player {
 
     //an AI advisor for the user
-    private ABNegamaxAI AIAdvisor;
+    private final ABNegamaxAI AIAdvisor;
 
     /**
      * create a human player with the given team
      *
-     * @param playerTeam
+     * @param playerTeam the team the player should be on
      */
     public HumanPlayer(Team playerTeam) {
         setPlayerTeam(playerTeam);

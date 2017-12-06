@@ -17,15 +17,6 @@ public abstract class Player {
     abstract Optional<Move> getPlayerMove(DisplayBoard displayBoard);
 
     /**
-     * check what type of player this is
-     *
-     * @return what type of player this is
-     */
-    public PlayerType getPlayerType() {
-        return playerType;
-    }
-
-    /**
      * set what type of player this is
      *
      * @param playerType what type of player this is

@@ -1,12 +1,12 @@
 import java.util.Optional;
 
 /**
- * Represents an AI player operating a Negamax(simplified minimax) decision process for selecting optimal moves
+ * Represents an AI player operating a Negamax(simplified Minimax) decision process for selecting optimal moves
  */
 public class NegamaxAI extends Player {
 
     /**
-     * creates an Negamx AI player with the specified team
+     * creates an Negamax AI player with the specified team
      *
      * @param playerTeam the players team
      */
@@ -40,9 +40,7 @@ public class NegamaxAI extends Player {
      */
     private MoveAndScore negamax(SimulationBoard node, int depth, int team) {
         if (node.getTeamsPossibleMoves().isEmpty() || depth == getSelectedSearchDepth()) {
-            MoveAndScore result = new MoveAndScore(null, node.evaluateState());
-            result.score *= team;
-            return result;
+            return new MoveAndScore(null, node.evaluateState());
         }
         MoveAndScore max = new MoveAndScore(null, Integer.MIN_VALUE);
 
@@ -62,10 +60,10 @@ public class NegamaxAI extends Player {
      * @param value the specified MoveAndScore containing an associated move and score value pair
      * @return a new inverted copy of the provided MoveAndScore for use in negamax
      */
-    public MoveAndScore negate(MoveAndScore value) {
+    private MoveAndScore negate(MoveAndScore value) {
         value.negateScore();
         return value;
-    }//TODO create NEGAMAXAI abstract class
+    }//TODO create NEGAMAX AI abstract class
 
     /**
      * get the max depth allowed for the AI

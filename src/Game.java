@@ -37,7 +37,7 @@ public class Game {
 
     // whether or not the game should be reset at the next opportunity -
     // protects against bugs that develop from resetting the game while turn threads are still running
-    public static boolean RESET_GAME;
+    private static boolean RESET_GAME;
 
     // the configurable maximum depth to which the AI is allowed to search the future state space for optimal moves
     public static int AI_MAX_SEARCH_DEPTH = 7; //initial difficulty, max for negamax, around half for ABNegamax
@@ -83,14 +83,14 @@ public class Game {
     /**
      * schedule the game to be restarted once the JavaFX core thread has finished whatever it is doing
      */
-    public void scheduleNewGame() {
+    private void scheduleNewGame() {
         Platform.runLater(this::startNewGame);
     }
 
     /**
      * reinitialise a new game, reset the necessary variables and run the new game
      */
-    public void startNewGame() {
+    private void startNewGame() {
         resetGame();
         if (VERBOSE_OUTPUT) {
             GUI.output.setText(GUI.GAME_PREAMBLE_AND_INSTRUCTIONS);
@@ -166,7 +166,7 @@ public class Game {
      *
      * @param unitsLocked whether units should react
      */
-    public void setAllUnitsLocked(boolean unitsLocked) {
+    private void setAllUnitsLocked(boolean unitsLocked) {
         displayBoard.getRedUnits().setMouseTransparent(unitsLocked);
         displayBoard.getWhiteUnits().setMouseTransparent(unitsLocked);
     }
@@ -182,7 +182,7 @@ public class Game {
     /**
      * refresh the moves available to the new turns player and begin their first move
      */
-    public void nextPlayersTurn() {
+    private void nextPlayersTurn() {
         refreshTeamsAvailableMoves();
         runNextMove();
     }
@@ -190,10 +190,10 @@ public class Game {
     /**
      * refresh the board, if game over then schedule new game, else run current players current move
      */
-    public void runNextMove() {
+    private void runNextMove() {
         refreshBoard();
         if (isGameOver()) {
-            temporaryPause(1000);
+            Platform.runLater(() -> temporaryPause(1000));
             scheduleNewGame();
         } else {
             processPlayerMove(getCurrentPlayer());
@@ -205,7 +205,7 @@ public class Game {
      *
      * @param millis how long to pause for
      */
-    public void temporaryPause(int millis) {
+    private void temporaryPause(int millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
@@ -233,7 +233,7 @@ public class Game {
      *
      * @return the player who's turn it  currently is
      */
-    public Player getCurrentPlayer() {
+    private Player getCurrentPlayer() {
         return redPlayer.isPlayersTurn() ? redPlayer : whitePlayer;
     }
 
@@ -276,7 +276,7 @@ public class Game {
      *
      * @param player the player whose move should be retrieved and executed
      */
-    public void processPlayerMove(Player player) {
+    private void processPlayerMove(Player player) {
         //create the task to run the next turn
         Task<Void> task = new Task<Void>() {
             @Override public Void call() throws Exception {
@@ -297,7 +297,7 @@ public class Game {
 
     /**
      * run the provided move for the current player,
-     * if it has begun a mulitiJump move
+     * if it has begun a multiJump move
      * then get the current players next move(the next part of the multijump)
      * else finish the turn and make it the other players turn
      *
@@ -363,7 +363,7 @@ public class Game {
      *
      * @param player the player to put in its teams variable
      */
-    public void setPlayer(Player player) {
+    private void setPlayer(Player player) {
         if (player != null) {
             if (player.getPlayerTeam() == Team.RED) {
                 redPlayer = player;
@@ -478,7 +478,7 @@ public class Game {
     /**
      * set the game to reset itself at the earliest opportunity
      */
-    public void triggerReset() {
+    private void triggerReset() {
         RESET_GAME = true;
     }
 

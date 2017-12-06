@@ -8,10 +8,10 @@ import java.util.Random;
 public class RandomAIPlayer extends Player {
 
     //the random value generator to be used by this player
-    private Random rand = new Random();
+    private final Random rand = new Random();
 
     /**
-     * creates an Negamx AI player with the specified team
+     * creates an Negamax AI player with the specified team
      *
      * @param playerTeam the players team
      */

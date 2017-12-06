@@ -9,7 +9,7 @@ import java.util.Random;
 public class SimulationBoard extends Board {
 
     //a randomisation tool
-    private Random rand = new Random();
+    private final Random rand = new Random();
 
     //the grid of Types that represent the simulated board
     private Type[][] board = new Type[Game.BOARD_SIZE][Game.BOARD_SIZE];//TODO looking into bit board systems to increase efficiency could be interesting
@@ -37,7 +37,7 @@ public class SimulationBoard extends Board {
      *
      * @param oldSimBoard the previous simulated game state
      */
-    public SimulationBoard(SimulationBoard oldSimBoard) {
+    private SimulationBoard(SimulationBoard oldSimBoard) {
         for (int i = 0; i < Game.BOARD_SIZE; i++) {
             for (int j = 0; j < Game.BOARD_SIZE; j++) {
                 board[i][j] = oldSimBoard.getBoard()[i][j];
@@ -53,7 +53,7 @@ public class SimulationBoard extends Board {
      *
      * @param oldDisplayBoard the real games state representation to be duplicated
      */
-    public void generateSimBoardFromRealBoard(DisplayBoard oldDisplayBoard) {
+    private void generateSimBoardFromRealBoard(DisplayBoard oldDisplayBoard) {
         board = new Type[Game.BOARD_SIZE][Game.BOARD_SIZE];
         for (int x = 0; x < Game.BOARD_SIZE; x++) {
             for (int y = 0; y < Game.BOARD_SIZE; y++) {
@@ -70,7 +70,7 @@ public class SimulationBoard extends Board {
      * @param x    the x component of the position of the given tile to be duplicated
      * @param y    the y component of the position of the given tile to be duplicated
      */
-    public void generateSimTile(Tile tile, int x, int y) {
+    private void generateSimTile(Tile tile, int x, int y) {
         if (tile.getUnit() == null) {
             board[x][y] = Type.EMPTY;
         } else {
@@ -118,11 +118,11 @@ public class SimulationBoard extends Board {
      * @param position the position of the unit to get the possible moves of
      * @return all the possible moves of the given unit
      */
-    public ArrayList<Move> getUnitsPossibleMoves(Coordinates position) { //TODO get this and all subordinate code generic enough to go in the Board class
+    private ArrayList<Move> getUnitsPossibleMoves(Coordinates position) { //TODO get this and all subordinate code generic enough to go in the Board class
         ArrayList<Move> moves = new ArrayList<>();
 
         for (Coordinates possiblePosition : getUnitsPossiblePositions(position)) {
-            if (!isOccupiedTile(possiblePosition)) {
+            if (isUnoccupiedTile(possiblePosition)) {
                 Move normalMove = new Move(position, possiblePosition, MoveType.NORMAL);
                 if (possiblePosition.isEnemyKingRow(getCurrentTeam()) && !isKing(position)) {
                     normalMove.createKing();
@@ -143,10 +143,10 @@ public class SimulationBoard extends Board {
      * get the adjacent positions to this units position,
      * where an adjacent position is a connected square in a valid direction of travel
      *
-     * @param origin
+     * @param origin the position from which to get adjacent positions
      * @return the list of adjacent positions to this unit
      */
-    public ArrayList<Coordinates> getUnitsPossiblePositions(Coordinates origin) {
+    private ArrayList<Coordinates> getUnitsPossiblePositions(Coordinates origin) {
         ArrayList<Coordinates> potentiallyAdjacentTiles = new ArrayList<>();
 
         if (isKing(origin) || getCurrentTeam() == Team.RED) {
@@ -210,7 +210,7 @@ public class SimulationBoard extends Board {
      * @return whether the board position can be attacked or not
      */
     private boolean isAttackPossible(Coordinates adjacentTile) {
-        return !isEnemyOnEdge(adjacentTile) && !isOccupiedTile(adjacentTile.getNextOnPath());
+        return !isEnemyOnEdge(adjacentTile) && isUnoccupiedTile(adjacentTile.getNextOnPath());
     }
 
     /**
@@ -219,8 +219,8 @@ public class SimulationBoard extends Board {
      * @param position the position to check for a unit
      * @return whether there is a unit at the specified position
      */
-    public boolean isOccupiedTile(Coordinates position) {
-        return getTile(position) != Type.EMPTY;
+    private boolean isUnoccupiedTile(Coordinates position) {
+        return getTile(position) == Type.EMPTY;
     }
 
     /**
@@ -242,11 +242,7 @@ public class SimulationBoard extends Board {
      */
     private boolean canAttack(Coordinates position) {
         ArrayList<Move> possibleMoves = getUnitsPossibleMoves(position);
-        if (!possibleMoves.isEmpty()) {
-            return possibleMoves.get(0).getType() == MoveType.KILL;
-        } else {
-            return false;
-        }
+        return !possibleMoves.isEmpty() && possibleMoves.get(0).getType() == MoveType.KILL;
     }
 
     /**
@@ -321,7 +317,7 @@ public class SimulationBoard extends Board {
      * @param moves the list of possible moves to select from
      * @return the move that has been randomly selected
      */
-    public Move getRandomMove(ArrayList<Move> moves) {
+    private Move getRandomMove(ArrayList<Move> moves) {
         int r = rand.nextInt(moves.size());
         return moves.get(r);
     }
@@ -331,7 +327,7 @@ public class SimulationBoard extends Board {
      *
      * @return the simulations board state
      */
-    public Type[][] getBoard() {
+    private Type[][] getBoard() {
         return board;
     }
 
@@ -340,7 +336,7 @@ public class SimulationBoard extends Board {
      *
      * @return all the red teams units
      */
-    public ArrayList<Coordinates> getRedUnits() {
+    private ArrayList<Coordinates> getRedUnits() {
         return redUnits;
     }
 
@@ -349,12 +345,12 @@ public class SimulationBoard extends Board {
      *
      * @return all the white teams units
      */
-    public ArrayList<Coordinates> getWhiteUnits() {
+    private ArrayList<Coordinates> getWhiteUnits() {
         return whiteUnits;
     }
 
     /**
-     * evaluate the score value of this board configuration / state - for use in such algorithms as minimax
+     * evaluate the score value of this board configuration / state - for use in such algorithms as Minimax
      *
      * @return the score value of the current board state
      */

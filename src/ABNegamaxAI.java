@@ -1,12 +1,12 @@
 import java.util.Optional;
 
 /**
- * Represents an AI player operating a Negamax(simplified minimax) with alpha beta pruning decision process for selecting optimal moves
+ * Represents an AI player operating a Negamax(simplified Minimax) with alpha beta pruning decision process for selecting optimal moves
  */
 public class ABNegamaxAI extends Player {
 
     /**
-     * creates an ABNegamx AI player with the specified team
+     * creates an ABNegamax AI player with the specified team
      *
      * @param playerTeam the players team
      */
@@ -33,7 +33,7 @@ public class ABNegamaxAI extends Player {
         return Optional.of(negamax(sim, 0, 1, alpha, beta).move);
     }
 
-    //TODO - it would be nice to implement a negascout player - given decent move sorting
+    //TODO - it would be nice to implement a Negascout player - given decent move sorting
     /**
      * runs Negamax with alpha beta pruning to select the ideal move for the current turn
      *
@@ -46,8 +46,7 @@ public class ABNegamaxAI extends Player {
      */
     private MoveAndScore negamax(SimulationBoard node, int depth, int team, double alpha, double beta) {//TODO implementing transposition tables could further improve performance
         if (node.getTeamsPossibleMoves().isEmpty() || depth == getSelectedSearchDepth()) { //check if node is a leaf
-            MoveAndScore result = new MoveAndScore(null, node.evaluateState());
-            return result;
+            return new MoveAndScore(null, node.evaluateState());
         }
         MoveAndScore max = new MoveAndScore(null, Integer.MIN_VALUE);
         //TODO adding move sorting here would make the pruning even more effective
@@ -71,7 +70,7 @@ public class ABNegamaxAI extends Player {
      * @param value the specified MoveAndScore containing an associated move and score value pair
      * @return a new inverted copy of the provided MoveAndScore for use in negamax
      */
-    public MoveAndScore negate(MoveAndScore value) {
+    private MoveAndScore negate(MoveAndScore value) {
         MoveAndScore inverted = new MoveAndScore(value.move, value.score);
         inverted.negateScore();
         return inverted;

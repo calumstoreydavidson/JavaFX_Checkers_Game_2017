@@ -10,7 +10,7 @@ public class Move {
     private final Coordinates target;
 
     // the type of the move, e.g. normal, attack, invalid
-    private MoveType type;
+    private final MoveType type;
 
     //whether or not this move action will create a king with the moving unit
     private boolean kingCreated;

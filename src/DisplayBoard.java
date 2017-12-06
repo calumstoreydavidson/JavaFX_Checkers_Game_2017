@@ -178,7 +178,7 @@ public class DisplayBoard extends Board {
      * @param move the move with positions to highlight
      * @param playerType the type of player to consider when deciding how to apply the moves highlighting
      */
-    public void highlightMove(Move move, PlayerType playerType) {
+    private void highlightMove(Move move, PlayerType playerType) {
         Coordinates destination = move.getTarget();
         Coordinates origin = move.getOrigin();
         switch (playerType) {
@@ -234,7 +234,7 @@ public class DisplayBoard extends Board {
      * @param unit the unit for which to get all attack move prioritised available moves
      * @return the units attack prioritised available moves
      */
-    public ArrayList<Move> getUnitMoves(Unit unit) {
+    private ArrayList<Move> getUnitMoves(Unit unit) {
         return prioritiseAttackMoves(getUnitsPossibleMoves(unit));
     }
 
@@ -244,7 +244,7 @@ public class DisplayBoard extends Board {
      * @param unit the unit the to get all the possible moves for
      * @return all the possible moves of the unit
      */
-    public ArrayList<Move> getUnitsPossibleMoves(Unit unit) {//TODO get this and all subordinate code generic enough to go in the Board class
+    private ArrayList<Move> getUnitsPossibleMoves(Unit unit) {//TODO get this and all subordinate code generic enough to go in the Board class
         ArrayList<Move> moves = new ArrayList<>();
 
         for (Coordinates adjacentPositions : unit.getAdjacentPositions()) {
@@ -293,7 +293,7 @@ public class DisplayBoard extends Board {
      * @param position the position to check for an enemy unit
      * @return whether the unit at the specified position is an enemy of the current player
      */
-    public boolean isEnemyUnit(Coordinates position) {
+    private boolean isEnemyUnit(Coordinates position) {
         Unit unit = getTile(position).getUnit();
         return getCurrentTeam() == Team.RED ? unit.isWhite() : unit.isRed();
     }
@@ -303,7 +303,7 @@ public class DisplayBoard extends Board {
      *
      * @param unit the unit to be removed from play
      */
-    public void killUnit(Unit unit) {
+    private void killUnit(Unit unit) {
         getTile(unit.getPos()).setUnit(null);
         if (unit.isRed()) {
             redUnits.getChildren().remove(unit);
@@ -379,7 +379,7 @@ public class DisplayBoard extends Board {
      * @param unit the unit to check for possible moves
      * @return whether the unit has any available moves
      */
-    public boolean canMove(Unit unit) {
+    private boolean canMove(Unit unit) {
         return !getUnitMoves(unit).isEmpty();
     }
 
@@ -451,7 +451,7 @@ public class DisplayBoard extends Board {
      * @param position the position the retrieve the unit from
      * @return the unit at the specified position
      */
-    public Unit getUnitAtPos(Coordinates position) {
+    private Unit getUnitAtPos(Coordinates position) {
         return getTile(position).getUnit();
     }
 }

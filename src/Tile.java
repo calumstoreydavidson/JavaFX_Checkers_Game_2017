@@ -10,7 +10,7 @@ public class Tile extends Rectangle {
     private Unit unit;
 
     //whether the tile is black or white
-    private boolean light;
+    private final boolean light;
 
     /**
      * create a tile that is light or dark and has a board position
